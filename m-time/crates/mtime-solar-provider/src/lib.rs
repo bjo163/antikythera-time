@@ -33,7 +33,6 @@ fn state_at_with_solar_eop(jd_utc:f64,site:&Site,eop:solar_ephemeris::earth_orie
  Ok(SunMoonState{jd_tt:astro.jd_tt,site:site.clone(),
   sun:BodyState{right_ascension_deg:sra,declination_deg:sdec,distance_au:Some(sdist_au)},
   moon:BodyState{right_ascension_deg:mra,declination_deg:mdec,distance_au:Some(mdist_km/coords::AU_KM)},
-  moon_geocentric_altitude_deg:mgeo_alt,
   moon_geocentric_altitude_deg:mgeo_alt,moon_topocentric_altitude_deg:malt,moon_sun_geocentric_elongation_deg:elong,
   illumination_fraction:(1.0-elong.to_radians().cos())/2.0,
   provenance:vec![Provenance{source:provenance_label,version:Some("solar-ephemeris=0.2.0".into()),retrieved_at:None}]})
@@ -75,6 +74,7 @@ pub fn state_at(jd_utc:f64,site:&Site)->Result<SunMoonState,String>{
  let _=salt; // used by sunset fast path below; retained here for symmetric reduction.
  Ok(SunMoonState{
   jd_tt:astro.jd_tt,site:site.clone(),sun:sun_state,moon:moon_state,
+  moon_geocentric_altitude_deg:mgeo_alt,
   moon_topocentric_altitude_deg:malt,
   moon_sun_geocentric_elongation_deg:elong,
   illumination_fraction:(1.0-elong.to_radians().cos())/2.0,
