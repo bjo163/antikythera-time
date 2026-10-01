@@ -1,0 +1,22 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/mtime-core",
+  "crates/mtime-antikythera",
+  "crates/mtime-hijri",
+  "crates/mtime-calendar",
+  "crates/mtime-observation",
+  "crates/mtime-authority",
+  "crates/mtime-conformance",
+  "apps/mtime-cli",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+clap = { version = "4", features = ["derive"] }
