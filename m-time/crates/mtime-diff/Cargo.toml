@@ -1,0 +1,9 @@
+[package]
+name="mtime-diff"
+version.workspace=true
+edition.workspace=true
+license.workspace=true
+
+[dependencies]
+mtime-calendar={path="../mtime-calendar"}
+mtime-authority={path="../mtime-authority"}
