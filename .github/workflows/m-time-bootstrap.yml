@@ -26,5 +26,12 @@ jobs:
       - run: cargo test --workspace
       - run: cargo check -p mtime-wasm --target wasm32-unknown-unknown
       - run: cargo run -p mtime-cli
+      - name: Enforce zero numerical influence from revelation ontology
+        run: |
+          if cargo tree -p mtime-hijri | grep -q mtime-revelation; then echo "revelation dependency leaked into hijri numeric pipeline"; exit 1; fi
+          if cargo tree -p mtime-cosmology | grep -q mtime-revelation; then echo "revelation dependency leaked into cosmology numeric pipeline"; exit 1; fi
+      - name: Enforce no Antikythera-to-cosmology hidden dependency
+        run: |
+          if cargo tree -p mtime-cosmology | grep -q mtime-antikythera; then echo "Antikythera cycle dependency leaked into cosmology"; exit 1; fi
       - run: node reference-js/check.mjs
       - run: python reference-python/check.py
