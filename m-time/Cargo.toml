@@ -9,6 +9,7 @@ members = [
   "crates/mtime-hijri",
   "crates/mtime-authority",
   "crates/mtime-diff",
+  "crates/mtime-resolution",
   "crates/mtime-cli"
 ]
 resolver = "2"
