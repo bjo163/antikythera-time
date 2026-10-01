@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="U-Time v0.6 Calibration Lab: SI time, Antikythera cycles, NASA/GSFC lunar calibration and JPL Horizons error metrics." />
-  <title>U-Time v0.6 — Calibration Lab</title>
+  <title>U-Time v0.7 — Cosmic Chronology Lab</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -14,7 +14,7 @@
       <div class="eyebrow">ALLAH PROMISE · MOONWITNESS · VALIDATION LAB</div>
       <h1>U‑Time <span>v0.6‑alpha</span></h1>
       <p class="lead">Measure the model against the sky reference — do not assume the model is right.</p>
-      <div class="pills"><span>SI second</span><span>J2000.0 TT</span><span>Leap-second table</span><span>Antikythera cycles</span><span>JPL validation</span></div>
+      <div class="pills"><span>SI second</span><span>J2000.0 TT</span><span>Leap-second table</span><span>Antikythera cycles</span><span>JPL validation</span><span>Cosmic chronology</span></div>
     </header>
 
     <section class="clock card">
@@ -102,6 +102,45 @@
       <div class="source-note">Saros coherence diagnostic: 223 synodic months ≈ 239 anomalistic months ≈ 242 draconic months. This is a physically constrained, gear-like basis rather than free curve fitting.</div>
     </section>
 
+
+    <section class="card cosmic">
+      <div class="section-title">V0.7 COSMIC CHRONOLOGY LAB</div>
+      <div class="boundary-banner"><b>SEMANTIC BOUNDARY</b> · Antikythera cycles compute recurrence/phase. Cosmic age is inferred from modern observations + a declared FLRW cosmological model.</div>
+      <div class="lab-head">
+        <div>
+          <h2>Friedmann age inference</h2>
+          <p>Choose a dataset/model preset. The engine computes <code>t0 = H0⁻¹ ∫ da/(aE(a))</code> and reports model, provenance and numerical integration error.</p>
+        </div>
+        <div class="controls">
+          <select id="cosmologyPreset" aria-label="Cosmology preset">
+            <option value="planck2018">Planck 2018 · flat ΛCDM</option>
+            <option value="desi-dr2-lcdm-cmb">DESI DR2 + CMB · flat ΛCDM</option>
+            <option value="desi-dr2-lcdm-curved-cmb">DESI DR2 + CMB · curved ΛCDM</option>
+            <option value="desi-dr2-w0wa-cmb-desy5">DESI DR2 + CMB + DESY5 · w0waCDM</option>
+          </select>
+          <button id="cosmologyBtn">Infer cosmic age</button>
+        </div>
+      </div>
+      <div id="cosmologyStatus" class="result muted">Status: MODEL_DEPENDENT_INFERENCE. No Antikythera period and no scripture enters the numerical pipeline.</div>
+      <div id="cosmologyMetrics" class="cosmic-metrics hidden">
+        <div class="cosmic-age"><span>INFERRED AGE</span><strong id="cosmicAge">—</strong><small>Gyr</small></div>
+        <div><span>MODEL</span><strong id="cosmicModel">—</strong></div>
+        <div><span>H₀</span><strong id="cosmicH0">—</strong></div>
+        <div><span>Ωm</span><strong id="cosmicOmegaM">—</strong></div>
+        <div><span>NUMERICAL ERROR</span><strong id="cosmicNumError">—</strong></div>
+        <div><span>OBSERVATIONAL SOURCE</span><strong id="cosmicSource">—</strong></div>
+      </div>
+      <div id="cosmicParams" class="mono cosmic-params"></div>
+      <div class="pipeline">
+        <span>OBSERVATION</span><i>→</i><span>PARAMETERS</span><i>→</i><span>H(a)</span><i>→</i><span>∫ da/(aH)</span><i>→</i><span>COSMIC AGE</span><i>→</i><span>UNCERTAINTY</span>
+      </div>
+      <details class="concept-map">
+        <summary>Qur'anic Conceptual Map — textual layer only</summary>
+        <p><b>55:5 / 10:5:</b> celestial reckoning/calculation. <b>21:33 / 36:38–40:</b> celestial motion/falak. <b>51:47:</b> classical and modern interpretations are recorded separately. The numerical cosmology engine never derives H₀ or density parameters from verses.</p>
+        <code>CONCEPTUAL / TEXTUAL → boundary → OBSERVATIONAL COSMOLOGY → PARAMETERS → MODEL → AGE</code>
+      </details>
+    </section>
+
     <section class="card">
       <div class="section-title">EVIDENCE GATE</div>
       <div class="evidence-grid">
@@ -122,7 +161,7 @@
       <p>“Universal” means a reproducible protocol with declared coordinates. v0.6 adds a second principle: <b>every astronomical model should expose its measured error.</b></p>
     </section>
 
-    <footer><a href="https://github.com/bjo163/antikythera-time">GitHub source</a><span>·</span><span>v0.6-alpha Calibration Lab</span></footer>
+    <footer><a href="https://github.com/bjo163/antikythera-time">GitHub source</a><span>·</span><span>v0.7-alpha Calibration Lab</span></footer>
   </main>
   <script type="module" src="/site.js"></script>
 </body>
