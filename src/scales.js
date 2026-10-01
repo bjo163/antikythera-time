@@ -67,6 +67,8 @@ export function scaleEvidence() {
   return {
     ttTai:{status:'validated',relation:'TT = TAI + 32.184 s',source:'BIPM / IAU'},
     utcTai:{status:'table-backed',validWindow:[LEAP_TABLE_VALID_FROM,LEAP_TABLE_VALID_THROUGH],currentOffsetSeconds:37,source:'IERS / BIPM leap-second history'},
-    tdbTcb:{status:'not-implemented',reason:'requires validated IAU/IERS relativistic transformations'},
+    ttTcg:{status:'validated-against-reference-vectors',relation:'IAU 2000 B1.9',source:'IAU SOFA / IERS'},
+    tdbTcb:{status:'validated-against-reference-vectors',relation:'IAU 2006 B3',source:'IAU SOFA / IERS'},
+    ttTdb:{status:'canonical-with-explicit-dtr',reason:'automatic TDB-TT periodic model is intentionally not invented',source:'IAU SOFA / IERS'},
   };
 }
