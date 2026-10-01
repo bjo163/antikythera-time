@@ -1,6 +1,6 @@
 import { J2000_JD_TT, JULIAN_YEAR_NS, NS_PER_DAY, NS_PER_SECOND } from './constants.js';
 
-export const TimeScale = Object.freeze({ TT: 'TT', TAI: 'TAI', UTC: 'UTC', TDB: 'TDB', TCB: 'TCB' });
+export const TimeScale = Object.freeze({ TT: 'TT', TAI: 'TAI', UTC: 'UTC', TCG: 'TCG', TDB: 'TDB', TCB: 'TCB' });
 export const ReferenceFrame = Object.freeze({ GCRS: 'GCRS', BCRS: 'BCRS', UNSPECIFIED: 'UNSPECIFIED' });
 
 function assertBigInt(name, value) {
@@ -45,6 +45,6 @@ export class UTime {
     throw new Error(`U-Time core has no implicit ${this.scale}->${targetScale} conversion. Use the validated scale module.`);
   }
   toJSON() {
-    return { protocol: 'U-Time', version: '0.3-alpha', unit: 'SI nanosecond', epoch: 'J2000.0 (JD 2451545.0 TT)', nsSinceJ2000: this.nsSinceJ2000.toString(), scale: this.scale, frame: this.frame, uncertaintyNs: this.uncertaintyNs.toString() };
+    return { protocol: 'U-Time', version: '0.8-alpha', unit: 'SI nanosecond', epoch: 'J2000.0 (JD 2451545.0 TT)', nsSinceJ2000: this.nsSinceJ2000.toString(), scale: this.scale, frame: this.frame, uncertaintyNs: this.uncertaintyNs.toString() };
   }
 }
