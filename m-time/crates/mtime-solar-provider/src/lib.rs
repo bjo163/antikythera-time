@@ -28,12 +28,13 @@ fn state_at_with_solar_eop(jd_utc:f64,site:&Site,eop:solar_ephemeris::earth_orie
  let lst=(time::gast_deg(astro.jd_ut1,dpsi,eps)+observer_lon).rem_euclid(360.0);let(rho_sin,rho_cos)=coords::observer_rho(observer_lat,site.height_m);
  let(slon,slat,sdist_au)=planets::sun_apparent_ecliptic(astro.jd_tt,dpsi);let(sra,sdec)=coords::ecl_to_equ(slon,slat,eps);
  let(mlon,mlat,mdist_km)=elpmpp02::moon_apparent_ecliptic(astro.jd_tt,dpsi);let(mra,mdec)=coords::ecl_to_equ(mlon,mlat,eps);
- let(mra_t,mdec_t)=coords::topocentric(mra,mdec,mdist_km,lst,rho_sin,rho_cos);let(malt,_)=coords::alt_az(mra_t,mdec_t,lst,observer_lat);
+ let(mra_t,mdec_t)=coords::topocentric(mra,mdec,mdist_km,lst,rho_sin,rho_cos);let(mgeo_alt,_)=coords::alt_az(mra,mdec,lst,observer_lat);let(malt,_)=coords::alt_az(mra_t,mdec_t,lst,observer_lat);
  let elong=angular_separation_deg(sra,sdec,mra,mdec);
  Ok(SunMoonState{jd_tt:astro.jd_tt,site:site.clone(),
   sun:BodyState{right_ascension_deg:sra,declination_deg:sdec,distance_au:Some(sdist_au)},
   moon:BodyState{right_ascension_deg:mra,declination_deg:mdec,distance_au:Some(mdist_km/coords::AU_KM)},
-  moon_topocentric_altitude_deg:malt,moon_sun_geocentric_elongation_deg:elong,
+  moon_geocentric_altitude_deg:mgeo_alt,
+  moon_geocentric_altitude_deg:mgeo_alt,moon_topocentric_altitude_deg:malt,moon_sun_geocentric_elongation_deg:elong,
   illumination_fraction:(1.0-elong.to_radians().cos())/2.0,
   provenance:vec![Provenance{source:provenance_label,version:Some("solar-ephemeris=0.2.0".into()),retrieved_at:None}]})
 }
@@ -64,6 +65,7 @@ pub fn state_at(jd_utc:f64,site:&Site)->Result<SunMoonState,String>{
  let (mlon,mlat,mdist_km)=elpmpp02::moon_apparent_ecliptic(astro.jd_tt,dpsi);
  let (mra,mdec)=coords::ecl_to_equ(mlon,mlat,eps);
  let (mra_t,mdec_t)=coords::topocentric(mra,mdec,mdist_km,lst,rho_sin,rho_cos);
+ let (mgeo_alt,_)=coords::alt_az(mra,mdec,lst,observer_lat);
  let (malt,_)=coords::alt_az(mra_t,mdec_t,lst,observer_lat);
 
  let sun_state=BodyState{right_ascension_deg:sra,declination_deg:sdec,distance_au:Some(sdist_au)};
