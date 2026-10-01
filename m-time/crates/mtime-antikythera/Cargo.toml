@@ -1,0 +1,5 @@
+[package]
+name="mtime-antikythera"
+version.workspace=true
+edition.workspace=true
+license.workspace=true
