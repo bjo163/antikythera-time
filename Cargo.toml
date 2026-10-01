@@ -13,6 +13,7 @@ members = [
   "crates/mtime-cosmology",
   "crates/mtime-revelation",
   "crates/mtime-cli",
+  "crates/mtime-wasm",
 ]
 
 [workspace.package]
