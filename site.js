@@ -1,4 +1,4 @@
-import { METONIC_CYCLE, SAROS_CYCLE, lunarModelAtUtc, taiMinusUtcAt, utcDateToTt } from './src/index.js';
+import { METONIC_CYCLE, SAROS_CYCLE, lunarModelAtUtc, taiMinusUtcAt, utcDateToTt, getCosmologyPreset, materializePresetParameters, inferCosmicAge, propagateIndependentPreset } from './src/index.js';
 const $ = (id) => document.getElementById(id);
 
 for (let y=2026; y>=2000; y--) {
@@ -142,9 +142,19 @@ $('cosmologyBtn').addEventListener('click', async () => {
   metrics.classList.add('hidden');
   $('cosmicParams').textContent='';
   try {
-    const r=await fetch('/api/cosmology-age?preset='+encodeURIComponent(preset)+'&uncertainty=independent&samples=400&seed=20261001');
-    const d=await r.json();
-    if(!r.ok) throw new Error(d.error || ('HTTP '+r.status));
+    let d;
+    try {
+      const r=await fetch('/api/cosmology-age?preset='+encodeURIComponent(preset)+'&uncertainty=independent&samples=400&seed=20261001');
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      d=await r.json();
+    } catch {
+      const p=getCosmologyPreset(preset);
+      const parameters=materializePresetParameters(p);
+      const estimate=inferCosmicAge(p.model,parameters,{parameterSource:p.id,observationalSource:p.provenance.dataset});
+      d={...estimate.toJSON(),provenance:p.provenance,publishedAgeGyr:p.publishedAgeGyr??null,
+        parameterUncertainty:propagateIndependentPreset(preset,{samples:400,seed:20261001,integration:{absoluteTolerance:1e-9,relativeTolerance:1e-9}}),
+        execution:'browser-static-fallback'};
+    }
     $('cosmicAge').textContent=d.result.gyr.toFixed(6);
     $('cosmicModel').textContent=d.model;
     $('cosmicH0').textContent=d.parameters.H0.toFixed(3)+' km/s/Mpc';
@@ -153,7 +163,7 @@ $('cosmologyBtn').addEventListener('click', async () => {
     $('cosmicParamSigma').textContent=d.parameterUncertainty ? d.parameterUncertainty.ageGyr.standardDeviation.toFixed(3)+' Gyr*' : '—';
     $('cosmicSource').textContent=d.provenance?.dataset || d.observationalSource || 'explicit parameters';
     $('cosmicParams').textContent=JSON.stringify(d.parameters,null,2);
-    status.innerHTML='<b>'+d.status+'</b> · '+(d.provenance?.publication || d.parameterSource || 'explicit parameter set')+'<br><span class="small">* Level-1 σ assumes independent quoted parameters; use covariance/posterior chains for authoritative uncertainty. Antikythera determines cosmic age: false · Scripture prior: false</span>';
+    status.innerHTML='<b>'+d.status+'</b> · '+(d.provenance?.publication || d.parameterSource || 'explicit parameter set')+(d.execution?' · browser fallback':'')+'<br><span class="small">* Level-1 σ assumes independent quoted parameters; use covariance/posterior chains for authoritative uncertainty. Antikythera determines cosmic age: false · Scripture prior: false</span>';
     metrics.classList.remove('hidden');
   } catch(e) {
     status.className='result error';
