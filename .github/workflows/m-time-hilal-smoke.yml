@@ -1,0 +1,17 @@
+name: m-time-hilal-smoke
+on:
+  workflow_dispatch:
+  push:
+    branches: [m-time-bootstrap]
+    paths:
+      - "m-time/crates/mtime-solar-provider/**"
+      - "m-time/crates/mtime-hijri/**"
+      - ".github/workflows/m-time-hilal-smoke.yml"
+jobs:
+  hilal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - working-directory: m-time
+        run: cargo run -p mtime-solar-provider --bin hilal_case
