@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>M-Time — Mīqāt Temporal Protocol</title>
+<style>
+:root{font-family:Inter,system-ui,sans-serif;color:#e8edf4;background:#071018}body{margin:0}.wrap{max-width:1050px;margin:auto;padding:32px 18px 70px}h1{font-size:clamp(2.2rem,7vw,5.2rem);margin:.2em 0}.gold{color:#d9bd74}.card{background:#0d1822;border:1px solid #263b4c;border-radius:18px;padding:22px;margin:16px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.metric{background:#08121b;border:1px solid #203342;border-radius:12px;padding:14px}.metric span{display:block;color:#8fa3b6;font-size:.75rem}.metric strong{display:block;margin-top:6px;font-size:1.25rem}.row{display:flex;gap:10px;flex-wrap:wrap}input{background:#071018;color:#fff;border:1px solid #385266;border-radius:8px;padding:10px;width:120px}button{background:#d9bd74;border:0;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer}.ok{color:#91dfad}.no{color:#ffac9f}code{color:#bcd6ec}p{line-height:1.6;color:#b9c6d2}small{color:#8396a8}
+</style></head>
+<body><main class="wrap">
+<p class="gold">بِسْمِ اللَّهِ الرَّحْمٰنِ الرَّحِيمِ</p>
+<h1>M-Time <span class="gold">v0.1</span></h1>
+<p>Mīqāt Temporal Protocol — Rust-first temporal interoperability. The SI second remains the unit; M-Time separates physical time, astronomy, calendar criteria, observation, jurisdiction and authority.</p>
+<section class="card"><h2>Indonesia MABIMS 2026 criterion</h2>
+<p>Profile logic is executed by the Rust/WASM core. Astronomy values here are caller inputs; this panel does not pretend to be an ephemeris.</p>
+<div class="row"><label>Topocentric altitude °<br><input id="alt" type="number" step=".01" value="3.10"></label><label>Geocentric elongation °<br><input id="elong" type="number" step=".01" value="6.50"></label><button id="eval">Evaluate</button></div>
+<div class="grid"><div class="metric"><span>PROFILE</span><strong>MABIMS_ID_2026</strong></div><div class="metric"><span>RUST RESULT</span><strong id="result">loading…</strong></div><div class="metric"><span>RULE</span><strong>alt ≥3° AND elong ≥6.4°</strong></div></div>
+</section>
+<section class="card"><h2>Why disagreement matters</h2><p>The same celestial state may map to different dates because observer, profile, rukyat evidence, jurisdiction or authority differs. M-Time's flagship target is <code>ExplainDifference</code>: make that causal branch machine-readable rather than hide it behind a date string.</p></section>
+<section class="card"><h2>Research boundaries</h2><div class="grid"><div class="metric"><span>ANTIKYTHERA</span><strong>computational grammar</strong></div><div class="metric"><span>COSMIC AGE</span><strong>model-dependent inference</strong></div><div class="metric"><span>REVELATION</span><strong>textual/conceptual layer</strong></div><div class="metric"><span>STANDARD TIME</span><strong>builds on SI / UTC / IAU / IERS</strong></div></div></section>
+<p><small>Research implementation. It does not select a fiqh position, replace UTC, or claim an absolute cosmic clock.</small></p>
+<script type="module" src="./app.js"></script>
+</main></body></html>
