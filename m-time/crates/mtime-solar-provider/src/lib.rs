@@ -81,15 +81,37 @@ fn event_jd(body:&Value,name:&str)->Option<f64>{
  let e=&body["events"][name];
  e.as_f64().or_else(||e["jd"].as_f64())
 }
+fn sun_geometric_altitude_deg(jd_utc:f64,site:&Site)->Result<f64,String>{
+ let v=snapshot_json(jd_utc,site)?;let sun=body(&v,"Sun")?;num(sun,"alt_deg")
+}
+/// Local sunset fallback: solve geometric Sun-centre altitude = -0.8333 deg.
+/// The fixed threshold is explicitly an approximate standard-atmosphere model.
+/// A higher-fidelity provider may expose its own dynamic semidiameter/refraction event.
+fn fallback_sunset_jd_utc(jd_utc:f64,site:&Site)->Result<f64,String>{
+ let offset=site.longitude_deg/360.0;
+ let start=((jd_utc-0.5+offset).floor()+0.5)-offset;
+ let target=-0.8333;
+ let steps=96usize;let mut a=start;let mut fa=sun_geometric_altitude_deg(a,site)?-target;
+ for i in 1..=steps{
+  let b=start+i as f64/steps as f64;let fb=sun_geometric_altitude_deg(b,site)?-target;
+  if fa>0.0&&fb<=0.0{
+   let(mut lo,mut hi,mut flo)=(a,b,fa);
+   for _ in 0..60{let mid=(lo+hi)/2.0;let fm=sun_geometric_altitude_deg(mid,site)?-target;if (hi-lo)*86400.0<0.05{return Ok(mid)}if flo.signum()==fm.signum(){lo=mid;flo=fm}else{hi=mid}}
+   return Ok((lo+hi)/2.0)
+  }
+  a=b;fa=fb;
+ }
+ Err("sunset crossing not found in local mean-solar day".into())
+}
 pub fn sunset_jd_utc(jd_utc:f64,site:&Site)->Result<f64,String>{
  let v=snapshot_json(jd_utc,site)?;let sun=body(&v,"Sun")?;
- event_jd(sun,"set").ok_or_else(||"Sun set unavailable in local solar day".into())
+ event_jd(sun,"set").map(Ok).unwrap_or_else(||fallback_sunset_jd_utc(jd_utc,site))
 }
 
 pub fn hilal_state_for_local_day(jd_utc:f64,site:&Site)->Result<HijriAstronomicalState,String>{
  let daily=snapshot_json(jd_utc,site)?;
- let sun=body(&daily,"Sun")?;let moon=body(&daily,"Moon")?;
- let sunset=event_jd(sun,"set").ok_or("Sunset unavailable")?;
+ let moon=body(&daily,"Moon")?;
+ let sunset=sunset_jd_utc(jd_utc,site)?;
  let at_set=snapshot_json(sunset,site)?;
  let moon_set=body(&at_set,"Moon")?;
  let state=state_at(sunset,site)?;
