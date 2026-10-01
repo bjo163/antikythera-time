@@ -6,6 +6,7 @@ import {
   adaptiveSimpson,
   cplDarkEnergyRelativeDensity,
   expansionE2,
+  evaluatePosteriorChain,
   getCosmologyPreset,
   hubbleKmSmpcToSI,
   inferCosmicAge,
@@ -15,6 +16,7 @@ import {
   normalizeCosmologyParameters,
   omegaRadiationFromH0,
   parseCosmologyAgeQuery,
+  parameterSensitivity,
   phaseAgeDegeneracy,
   propagateCovariance,
   propagateIndependentPreset,
@@ -172,4 +174,30 @@ test('dimension diagnostic returns plausible Hubble time',()=>{
   const d=validateH0Dimensions(70);
   assert.equal(d.pass,true);
   assert.ok(d.hubbleTimeSeconds>4e17&&d.hubbleTimeSeconds<5e17);
+});
+
+
+test('derived negative dark-energy density is rejected',()=>{
+  assert.throws(()=>normalizeCosmologyParameters('flat-lcdm',{H0:70,omegaM:1.2}),/omegaLambda/);
+});
+
+test('parameter sensitivity diagnostic changes all requested cosmology dimensions',()=>{
+  const s=parameterSensitivity();
+  assert.ok(s.H0.high<s.H0.low);
+  assert.ok(s.omegaM.high<s.omegaM.low);
+  assert.notEqual(s.omegaLambda.low,s.omegaLambda.high);
+  assert.notEqual(s.w0.minusOne,s.w0.lessNegative);
+  assert.notEqual(s.wa.zero,s.wa.negative);
+});
+
+test('posterior-chain age evaluation supports weights and stays model-dependent',()=>{
+  const chain=[
+    {H0:67.2,omegaR:0,omegaM:0.31,omegaLambda:0.69,w:1},
+    {H0:67.4,omegaR:0,omegaM:0.315,omegaLambda:0.685,w:3},
+    {H0:67.6,omegaR:0,omegaM:0.32,omegaLambda:0.68,w:1},
+  ];
+  const r=evaluatePosteriorChain(chain,{model:'flat-lcdm',weightKey:'w'});
+  assert.equal(r.weighted,true);
+  assert.equal(r.ageGyr.count,3);
+  assert.ok(r.ageGyr.p16<r.ageGyr.p84);
 });
