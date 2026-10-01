@@ -1,4 +1,4 @@
-import { METONIC_CYCLE, SAROS_CYCLE, lunarModelAtUtc, taiMinusUtcAt, utcDateToTt, getCosmologyPreset, materializePresetParameters, inferCosmicAge, propagateIndependentPreset } from './src/index.js';
+import { METONIC_CYCLE, SAROS_CYCLE, lunarModelAtUtc, taiMinusUtcAt, utcDateToTt, getCosmologyPreset, materializePresetParameters, inferCosmicAge, propagateIndependentPreset, ttCoordinateFromUTime, ttToTcgCoordinate, coordinateDeltaSeconds, runRelativityReferenceVectors } from './src/index.js';
 const $ = (id) => document.getElementById(id);
 
 for (let y=2026; y>=2000; y--) {
@@ -13,6 +13,11 @@ function renderNow() {
     $('utime').textContent = `${t.nsSinceJ2000.toLocaleString()} ns`;
     $('jd').textContent = t.julianDateTT().toFixed(8);
     $('taiUtc').textContent = `${taiMinusUtcAt(now)} s`;
+    const ttCoordinate=ttCoordinateFromUTime(t);
+    const tcgCoordinate=ttToTcgCoordinate(ttCoordinate);
+    const tcgMinusTt=coordinateDeltaSeconds(tcgCoordinate,ttCoordinate);
+    const relOffset=$('ttTcgOffset');
+    if(relOffset) relOffset.textContent=`${tcgMinusTt.toFixed(9)} s`;
 
     for (const [cycle, barId, labelId] of [[METONIC_CYCLE,'metonicBar','metonicPhase'],[SAROS_CYCLE,'sarosBar','sarosPhase']]) {
       const p = cycle.positionAt(t);
@@ -33,6 +38,8 @@ function renderNow() {
 
 renderNow();
 setInterval(renderNow, 1000);
+const relativityVectors=runRelativityReferenceVectors();
+if($('relativityVectorStatus')) $('relativityVectorStatus').textContent=`${relativityVectors.passCount}/${relativityVectors.total} PASS`;
 
 $('validateBtn').addEventListener('click', async () => {
   const year = $('yearSelect').value;
