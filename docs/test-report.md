@@ -1,90 +1,107 @@
-# Test Report — U-Time v0.8-alpha
+# Test Report — U-Time 1.0.0
 
 Date: 2026-10-01
 
-## Final unit/integration gate
+## Core unit/integration gate
 
-GitHub Actions run:
-
-- Run: 36825749256
-- Result: SUCCESS
+Latest completed pre-release full test gate:
 
 ```text
-tests 55
-pass  55
+tests 85
+pass  85
 fail  0
 ```
 
-The original astronomy/time tests were preserved. Cosmology/Cobaya coverage was added rather than replacing earlier gates.
+The suite was expanded cumulatively; earlier time/astronomy/cosmology tests were not replaced.
 
-## Cosmology coverage
+## Relativistic-time validation
 
-- explicit Mpc and H0 SI conversion;
-- deterministic adaptive Simpson quadrature;
-- radiation density;
-- flatness consistency without silent renormalization;
-- explicit/derived curvature;
-- CPL dark-energy evolution;
-- CPL reduction to ΛCDM at w0=-1, wa=0;
-- negative/NaN/unphysical parameter rejection;
-- Einstein-de Sitter analytic limit;
-- flat matter+Λ analytic solution;
-- Planck published-age sanity reference;
-- numerical convergence across tolerances;
-- CosmicAgeEstimate/UTime semantic separation;
-- JSON scientific-boundary serialization;
-- phase != absolute age invariant;
-- Antikythera/Big-Bang semantic misuse rejection;
-- API query parsing;
-- dataset/model-specific presets;
-- percentile statistics;
-- seeded independent and covariance-aware Monte Carlo;
-- H0, Ωm, ΩΛ, w0 and wa sensitivity;
-- weighted posterior-chain evaluation;
-- Cobaya chain parsing;
-- engine-vs-Cobaya age reproduction.
+- six IAU SOFA reference vectors;
+- TT↔TCG roundtrip;
+- TDB↔TCB roundtrip;
+- explicit TT↔TDB dtr boundary;
+- precision-preserving two-part JD type.
 
-## Official DESI posterior validation
+Result: PASS.
+
+## Automatic TDB−TT / ERFA benchmark
+
+Workflow: `erfa-dtr-benchmark`
+
+Successful run: `36829987304`.
+
+```text
+samples              164
+max abs error         34.679807 µs
+mean abs error        14.898798 µs
+RMS error             17.171827 µs
+threshold             100 µs
+result                PASS
+```
+
+## NASA eclipse recurrence validation
+
+The Saros 139 recurrence engine uses NASA's published Saros period and NASA GSFC greatest-eclipse reference epochs for 2024, 2042 and 2060.
+
+Declared gate: first two recurrences remain within 30 minutes of reference greatest-eclipse TT.
+
+Result: PASS.
+
+This validates recurrence behavior, not full Besselian eclipse geometry.
+
+## JPL planetary benchmark
+
+Workflow: `jpl-planetary-benchmark`
+
+Successful run: `36830365898`.
+
+15 comparisons against JPL Horizons geometric heliocentric ecliptic vectors:
+
+```text
+Mercury  0.7–3.4 thousand km
+Venus    8.1–12.3 thousand km
+Mars     8.2–45.8 thousand km
+Jupiter  0.61–1.58 million km
+Saturn   2.03–3.85 million km
+```
+
+All declared body-specific gates: PASS.
+
+## Cosmology / official DESI posterior validation
 
 Workflow: `official-posterior`
 
-Baseline-CMB full-chain run:
+Reference successful run: `36825466646`.
 
-- Run: 36825466646
-- Result: SUCCESS
-- Artifact: `desi-official-age-posterior`
-- Artifact ID: 11144394424
-- ZIP SHA256: `5f8b4ee7a27fcc92cc8dc0dd70fca779f6a689d44f59450f23614120beb08aa2`
+The full official Cobaya age posterior is summarized; a deterministic 6000-sample subset is recomputed independently through the project's Friedmann integrator.
 
-For every supported DESI chain, the engine recomputed a deterministic 6000-sample subset and compared it against the official Cobaya derived `age` column. The declared agreement gate is 0.001 Gyr (1 Myr) on the weighted mean offset.
+All three supported DESI combinations pass the 0.001-Gyr weighted-mean agreement threshold.
 
-All three supported DESI combinations passed.
+## v1 independent implementation compatibility
 
-## Static site package
+Workflow: `v1-compatibility`
 
-Workflow: `static-site`
+Successful run: `36830567705`.
 
-- Run: 36825497347
-- Result: SUCCESS
+Independent JavaScript/Python checks:
 
-The static site is packaged as an Actions artifact. Public GitHub Pages publication remains an account/repository-administration action because the connected GitHub App cannot enable Pages.
+- TT→TCG: PASS;
+- Planck age: PASS;
+- one-Saros recurrence: PASS;
+- JPL approximate Mars x/y/z: PASS.
 
+Overall: **PASS**.
 
-## Relativistic Time Core validation
+## Public site
 
-Added 12 v0.8 tests:
+GitHub Pages deployment is active:
 
-- all six IAU SOFA reference vectors pass;
-- TT→TCG vector;
-- TCG→TT vector;
-- TCB→TDB vector;
-- TDB→TCB vector;
-- TT→TDB with explicit dtr;
-- TDB→TT with explicit dtr;
-- missing dtr is rejected;
-- TT/TCG roundtrip;
-- TDB/TCB roundtrip;
-- UTime TT → separate two-part CoordinateTime;
-- unsupported civil scale rejection.
+```text
+https://bjo163.github.io/antikythera-time/
+```
 
-Reference-vector tolerance: `1e-12 day` on the SOFA-tested second JD component.
+## Scientific interpretation
+
+Passing tests establish internal reproducibility and agreement with the declared external references at the declared accuracy class.
+
+They do not establish international-standard adoption or overall superiority to NASA/JPL operational systems.
