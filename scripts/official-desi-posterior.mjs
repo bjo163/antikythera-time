@@ -62,7 +62,7 @@ await fs.writeFile('artifacts/desi-official-age-posterior.json',JSON.stringify(p
 const md=['# DESI DR2 Official-Chain Cosmic Age Reproduction','','Generated: '+payload.generatedAt,''];
 for(const r of results){
   md.push('## '+r.dataset,'', '- Official directory: '+r.officialDirectory, '- Parsed rows: '+r.totalParsedRows, '- Engine samples: '+r.usedSamples, '- Computed age: '+r.computedAgeGyr.mean.toFixed(6)+' ± '+r.computedAgeGyr.standardDeviation.toFixed(6)+' Gyr (weighted posterior mean ± SD)', '- 68% interval: ['+r.computedAgeGyr.p16.toFixed(6)+', '+r.computedAgeGyr.p84.toFixed(6)+'] Gyr');
-  if(r.officialAgeGyr){md.push('- Cobaya derived age: '+r.officialAgeGyr.mean.toFixed(6)+' ± '+r.officialAgeGyr.standardDeviation.toFixed(6)+' Gyr','- Engine − Cobaya mean age: '+r.engineMinusOfficialGyr.mean.toExponential(4)+' Gyr');}
+  if(r.officialAgeGyr){md.push('- Cobaya full-chain derived age: '+r.officialAgeGyr.mean.toFixed(6)+' ± '+r.officialAgeGyr.standardDeviation.toFixed(6)+' Gyr','- Cobaya full-chain 68% interval: ['+r.officialAgeGyr.p16.toFixed(6)+', '+r.officialAgeGyr.p84.toFixed(6)+'] Gyr','- Engine − Cobaya mean age (matched subsample): '+r.engineMinusOfficialGyr.mean.toExponential(4)+' Gyr','- 1 Myr agreement gate: '+(r.validation?.pass?'PASS':'FAIL'));}
   else md.push('- Cobaya chain has no recognized derived `age` column; posterior age was recomputed from chain cosmological parameters.');
   md.push('');
 }
