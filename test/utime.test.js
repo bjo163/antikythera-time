@@ -53,3 +53,55 @@ test('perfect baseline data does not manufacture a calibration win',()=>{
   assert.equal(r.holdout.generalizes,false);
   assert.equal(r.verdict,'REJECT_CALIBRATION');
 });
+
+
+test('Saros diagnostic preserves the 223/239/242 cycle near-coincidence', async()=>{
+  const { sarosCycleDiagnostics, SAROS_RELATION } = await import('../src/index.js');
+  const d=sarosCycleDiagnostics();
+  assert.equal(SAROS_RELATION.synodicMonths,223);
+  assert.equal(SAROS_RELATION.anomalisticMonths,239);
+  assert.equal(SAROS_RELATION.draconicMonths,242);
+  assert.ok(Math.abs(d.deltaHours.anomalisticMinusSynodic)<6);
+  assert.ok(Math.abs(d.deltaHours.draconicMinusSynodic)<2);
+});
+
+test('fixed anomalistic+draconic residual fit recovers synthetic harmonics', async()=>{
+  const {
+    DEFAULT_LUNAR_MODEL_PARAMS, evaluateResidualModel, fitPhysicalResidualModel,
+    lunarModelAtUtcWithParams, physicalResidualBasis
+  } = await import('../src/index.js');
+  const illum=[1.1,-0.7,0.5,0.3], phase=[1.8,-1.1,0.8,0.4];
+  const dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0);
+  const refs=[];
+  for(let t=Date.parse('2001-01-01T00:00:00Z');t<Date.parse('2026-01-01T00:00:00Z');t+=11*86400000){
+    const date=new Date(t),base=lunarModelAtUtcWithParams(date,DEFAULT_LUNAR_MODEL_PARAMS);
+    if(base.illuminationPercent<10||base.illuminationPercent>90||base.phaseAngleDeg<15||base.phaseAngleDeg>165) continue;
+    const x=physicalResidualBasis(date);
+    refs.push({date,illuminatedPercent:base.illuminationPercent+dot(x,illum),phaseAngleDeg:base.phaseAngleDeg+dot(x,phase)});
+  }
+  const m=fitPhysicalResidualModel(refs,DEFAULT_LUNAR_MODEL_PARAMS);
+  for(let i=0;i<4;i++) assert.ok(Math.abs(m.illuminationCoefficients[i]-illum[i])<0.02);
+  for(let i=0;i<4;i++) assert.ok(Math.abs(m.phaseCoefficients[i]-phase[i])<0.02);
+  const e=evaluateResidualModel(refs,DEFAULT_LUNAR_MODEL_PARAMS,m);
+  assert.ok(e.summary.illumination.rmsePoints<0.02);
+  assert.ok(e.summary.phaseAngle.rmseDeg<0.02);
+});
+
+test('residual engine accepts only a synthetic cycle correction that generalizes', async()=>{
+  const {
+    DEFAULT_LUNAR_MODEL_PARAMS, lunarModelAtUtcWithParams, physicalResidualBasis,
+    residualEngineWithHoldout
+  } = await import('../src/index.js');
+  const illum=[3.0,-2.0,1.2,0.8], phase=[5.0,-3.0,2.0,1.0];
+  const dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0);
+  const refs=[];
+  for(let t=Date.parse('2001-01-01T00:00:00Z');t<Date.parse('2026-01-01T00:00:00Z');t+=17*86400000){
+    const date=new Date(t),base=lunarModelAtUtcWithParams(date,DEFAULT_LUNAR_MODEL_PARAMS);
+    if(base.illuminationPercent<15||base.illuminationPercent>85||base.phaseAngleDeg<25||base.phaseAngleDeg>155) continue;
+    const x=physicalResidualBasis(date);
+    refs.push({date,illuminatedPercent:base.illuminationPercent+dot(x,illum),phaseAngleDeg:base.phaseAngleDeg+dot(x,phase)});
+  }
+  const r=residualEngineWithHoldout(refs);
+  assert.equal(r.verdict,'RESIDUAL_MODEL_GENERALIZES');
+  assert.ok(r.holdout.scoreImprovementPct>20);
+});
