@@ -1,7 +1,7 @@
 use mtime_authority::{AuthorityDecision, DecisionKind};
 use mtime_core::QualityClass;
 use mtime_explain::{explain_difference, official_vs_computed_conflict, DiffCategory, TemporalResolution};
-use mtime_hijri::{computed_action, CalendarProfile, HijriAstronomicalState, INDONESIA_1447_PILOTS, GeometrySemantics};
+use mtime_hijri::{computed_action, CalendarProfile, CalendarResult, CalendarResultKind, HijriAstronomicalState, HijriDate, HijriMonth, INDONESIA_1447_PILOTS, GeometrySemantics};
 use mtime_observation::ObservationSummary;
 
 fn state_from_case(index: usize, use_minima: bool) -> HijriAstronomicalState {
@@ -17,6 +17,15 @@ fn state_from_case(index: usize, use_minima: bool) -> HijriAstronomicalState {
         site_id: "INDONESIA_NATIONAL_RANGE".into(),
         ephemeris_source: c.source.into(),
         quality: QualityClass::Reference,
+    }
+}
+
+fn official_hijri_date(index: usize) -> HijriDate {
+    match index {
+        0 => HijriDate::new(1447, HijriMonth::Ramadan, 1).unwrap(),
+        1 => HijriDate::new(1447, HijriMonth::Shawwal, 1).unwrap(),
+        2 => HijriDate::new(1447, HijriMonth::DhulHijjah, 1).unwrap(),
+        _ => panic!("unknown pilot index"),
     }
 }
 
@@ -46,6 +55,14 @@ fn resolution(index: usize, use_minima: bool, official: DecisionKind) -> Tempora
             official,
             case.source,
         )),
+        calendar_result: Some(CalendarResult {
+            hijri_date: official_hijri_date(index),
+            civil_date: case.official_month_start.into(),
+            kind: CalendarResultKind::OfficialAuthority,
+            profile_id: Some("MABIMS_ID_2026".into()),
+            authority_id: Some("ID-KEMENAG-ISBAT".into()),
+            provenance: case.source.into(),
+        }),
     }
 }
 
