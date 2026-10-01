@@ -33,6 +33,31 @@ pub const LEAP_SECONDS:&[LeapSecondEntry]=&[
  LeapSecondEntry{effective_utc:"2015-07-01",tai_minus_utc:36},
  LeapSecondEntry{effective_utc:"2017-01-01",tai_minus_utc:37},
 ];
+pub fn gregorian_to_jd(year:i32,month:u8,day:u8)->f64{
+ let(mut y,mut m)=(year,month as i32);if m<=2{y-=1;m+=12}let a=(y as f64/100.0).floor();let b=2.0-a+(a/4.0).floor();
+ (365.25*(y as f64+4716.0)).floor()+(30.6001*(m as f64+1.0)).floor()+day as f64+b-1524.5
+}
+fn parse_ymd(s:&str)->Option<(i32,u8,u8)>{
+ let mut it=s.split('-');Some((it.next()?.parse().ok()?,it.next()?.parse().ok()?,it.next()?.parse().ok()?))
+}
+pub fn tai_minus_utc_at_jd(jd_utc:f64)->Option<i32>{
+ if jd_utc<gregorian_to_jd(1972,1,1){return None}
+ let mut out=None;
+ for e in LEAP_SECONDS{let(y,m,d)=parse_ymd(e.effective_utc)?;if jd_utc>=gregorian_to_jd(y,m,d){out=Some(e.tai_minus_utc)}else{break}}
+ out
+}
+pub fn utc_to_tai(utc:CoordinateTime)->Result<CoordinateTime,&'static str>{
+ if utc.scale!=TimeScale::UTC{return Err("UTC required")}
+ let off=tai_minus_utc_at_jd(utc.jd()).ok_or("UTC leap-second table supports 1972+ only")? as f64;
+ ct(utc.jd1,utc.jd2+off/DAY,TimeScale::TAI,ReferenceFrame::GCRS)
+}
+pub fn tai_to_utc(tai:CoordinateTime)->Result<CoordinateTime,&'static str>{
+ if tai.scale!=TimeScale::TAI{return Err("TAI required")}
+ // Iterate because TAI input does not directly reveal the UTC-era offset.
+ let mut jd=tai.jd();let mut off=37.0;
+ for _ in 0..3{jd=tai.jd()-off/DAY;off=tai_minus_utc_at_jd(jd).ok_or("TAI instant maps before supported UTC era")? as f64;}
+ ct(tai.jd1,tai.jd2-off/DAY,TimeScale::UTC,ReferenceFrame::GCRS)
+}
 pub fn tai_to_tt(tai:CoordinateTime)->Result<CoordinateTime,&'static str>{
  if tai.scale!=TimeScale::TAI{return Err("TAI required");}
  Ok(CoordinateTime::new(tai.jd1,tai.jd2+TT_MINUS_TAI_SECONDS/86400.0,TimeScale::TT,ReferenceFrame::GCRS)?)
@@ -44,7 +69,9 @@ pub fn tt_to_tai(tt:CoordinateTime)->Result<CoordinateTime,&'static str>{
 #[cfg(test)]
 mod tests{use super::*;
  #[test]fn tt_tai_roundtrip(){let t=CoordinateTime::new(2451545.0,0.1,TimeScale::TAI,ReferenceFrame::GCRS).unwrap();let b=tt_to_tai(tai_to_tt(t).unwrap()).unwrap();assert!((b.jd()-t.jd()).abs()<1e-12);}
- #[test]fn current_table_ends_at_37(){assert_eq!(LEAP_SECONDS.last().unwrap().tai_minus_utc,37);}
+ #[test]fn current_table_ends_at_37(){assert_eq!(LEAP_SECONDS.last().unwrap().tai_minus_utc,37);assert_eq!(tai_minus_utc_at_jd(gregorian_to_jd(2026,1,1)),Some(37));}
+ #[test]fn utc_tai_roundtrip_2026(){let u=CoordinateTime::new(gregorian_to_jd(2026,3,19),0.25,TimeScale::UTC,ReferenceFrame::GCRS).unwrap();let back=tai_to_utc(utc_to_tai(u).unwrap()).unwrap();assert!((back.jd()-u.jd()).abs()<1e-12);}
+ #[test]fn pre_1972_utc_requires_separate_policy(){let u=CoordinateTime::new(gregorian_to_jd(1960,1,1),0.0,TimeScale::UTC,ReferenceFrame::GCRS).unwrap();assert!(utc_to_tai(u).is_err());}
  #[test]fn all_sofa_reference_vectors_pass(){for v in sofa_reference_vectors(){assert!(v.pass(),"{}: {} vs {}",v.id,v.actual,v.expected)}}
  #[test]fn cross_scale_input_is_rejected(){let tt=CoordinateTime::new(2451545.0,0.0,TimeScale::TT,ReferenceFrame::GCRS).unwrap();assert!(tcb_to_tdb(tt).is_err());}
 }
