@@ -23,12 +23,15 @@ Scope source: Cosmic Chronology research brief.
 | Quantitative cosmic ages | COMPLETE | `docs/cosmology-age-results.md` |
 | Official DESI posterior reproduction | COMPLETE | `docs/official-desi-posterior.md` |
 
-## External gates that cannot be completed by this repository alone
+## Public deployment
 
-### Public hosting activation
-The static site is packaged successfully by GitHub Actions. Enabling GitHub Pages requires repository-administration permission not granted to the connected GitHub App. Vercel project creation/deployment is also not exposed by the active connector.
+GitHub Pages is now **COMPLETE**. Successful deploy run: `36826609111`.
 
-This is an account/deployment permission gate, not an implementation gap.
+Canonical public site: `https://bjo163.github.io/antikythera-time/`
+
+Full server-backed `/api/**` endpoints still require a serverless host such as Vercel.
+
+## External gates that remain
 
 ### Scientific standard adoption
 A repository cannot self-declare itself a universal standard. Independent implementation, peer review, external reproducibility and standards-community adoption remain external future gates.
