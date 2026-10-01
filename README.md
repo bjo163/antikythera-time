@@ -1,39 +1,57 @@
-# Antikythera Time — U-Time v0.5-alpha
+# Antikythera Time — U-Time v0.6-alpha
 
-U-Time is an experimental time-representation protocol with an SI-time core, explicit astronomical coordinates, Antikythera-inspired cycles, and a falsifiable lunar validation/calibration lab.
+U-Time is an experimental astronomical time-representation protocol with an SI-time core, explicit time scales/reference frames, Antikythera-inspired cycle computation, and falsifiable validation against NASA/JPL data.
 
 > Universal protocol ≠ absolute cosmic clock.
 
-## Protocol
+## Core protocol
 
 ```text
 U-Time = SI duration + epoch + time scale + reference frame + uncertainty
 ```
 
-The astronomy layer follows:
+Astronomy workflow:
 
 ```text
-cycle model -> external reference -> measured error -> bounded calibration -> untouched holdout test
+cycle model
+-> external reference
+-> measured error
+-> bounded calibration
+-> fixed physical residual cycles
+-> untouched holdout
+-> accept / reject
 ```
 
-## v0.5 fast-track
+## v0.6 — Residual Astronomy Engine
 
-- SI nanosecond / J2000 / TT core retained.
-- Explicit leap-second history for UTC↔TAI inside the declared support window.
-- Metonic 235-month and Saros 223-month Antikythera-inspired cycle engine.
-- Mean lunar model calibrated to NASA/GSFC New Moon 2000-01-06 18:14 UT.
-- JPL Horizons validation for illuminated fraction (#10) and phase angle (#24).
-- Bounded optimizer for mean period and phase-zero epoch.
-- Training/holdout split: pre-2013 versus 2013–2026.
-- Calibration is rejected unless the untouched holdout score improves.
-- 22 automated tests, including synthetic recovery and anti-fake-improvement tests.
+v0.6 adds a physically constrained residual layer inspired by the way Antikythera combined astronomical cycles.
 
-## Run
+Fixed periods only:
 
-```bash
-npm test
-npm run demo
-```
+- anomalistic month: 27.554551 days
+- draconic month: 27.212220 days
+- Saros diagnostic: 223 synodic ≈ 239 anomalistic ≈ 242 draconic months
+
+The engine does **not** search arbitrary frequencies. It fits only sine/cosine amplitudes for the declared physical periods, after the v0.5 bounded mean-period/epoch calibration.
+
+Acceptance requires improvement on untouched 2013–2026 holdout data.
+
+## Current test gate
+
+25 automated tests cover:
+
+- J2000 and SI duration
+- TT/TAI relation
+- UTC leap-second table
+- Metonic/Saros structure
+- NASA-calibrated mean lunar model
+- JPL parser
+- error statistics
+- bounded calibration
+- anti-overfit behavior
+- Saros 223/239/242 coherence
+- synthetic recovery of anomalistic/draconic residual harmonics
+- residual holdout generalization
 
 ## APIs after Vercel deployment
 
@@ -41,39 +59,62 @@ npm run demo
 /api/horizons?date=<ISO>
 /api/validation?year=2026
 /api/calibrate
+/api/residuals
 ```
 
-## Calibration limits
+## What Antikythera contributes
+
+Antikythera contributes the computational architecture:
 
 ```text
-mean synodic period correction: ±180 seconds
-phase-zero epoch correction:    ±12 hours
+astronomical cycle -> mechanical ratio -> phase/state -> prediction
 ```
 
-Objective:
+Historically supported functions include solar/lunar calendrical information, lunar anomaly, Metonic calendar reckoning, Saros eclipse prediction, and games/calendar dials. Planetary display is supported by inscriptions, while exact lost gearing remains reconstructed/debated.
 
-```text
-illumination_RMSE / 100 + phase_angle_RMSE / 180
-```
+It does **not** contain evidence for atomic time, relativity, the Hubble expansion rate, the Big Bang epoch, or the age of the universe.
 
-The optimizer sees only the training set. A lower training error is not enough; the holdout must also improve.
+See:
 
-See `docs/calibration-protocol.md`.
+- `docs/antikythera-function-map.md`
+- `docs/long-term-roadmap.md`
+- `docs/calibration-protocol.md`
 
-## Evidence
+## Long-term direction
+
+The roadmap runs through:
+
+- v0.7 eclipse engine
+- v0.8 solar + planetary Cosmos
+- v0.9 relativistic time-scale validation
+- v1.0 U-Time specification candidate
+- v1.2 astronomical age API
+- v1.3 cosmology chronology lab
+- v1.4 historical Antikythera reconstruction
+- v2.0 independent validation / standardization
+
+The age of the universe belongs to the **cosmology chronology layer**, not the Antikythera cycle engine.
+
+## Sources
 
 - BIPM SI second: https://www.bipm.org/en/si-base-units/second
 - NASA/GSFC Moon phases: https://eclipse.gsfc.nasa.gov/phase/phasecat.html
-- JPL Horizons API: https://ssd-api.jpl.nasa.gov/doc/horizons.html
-- JPL Horizons manual: https://ssd.jpl.nasa.gov/horizons/manual.html
+- NASA eclipse periodicity / Saros: https://eclipse.gsfc.nasa.gov/LEsaros/LEperiodicity.html
+- JPL Horizons: https://ssd.jpl.nasa.gov/horizons/
+- Freeth et al., Nature 444 (2006)
+- Freeth et al., Nature 454 (2008)
+- Seiradakis & Edmunds, Nature Astronomy 2 (2018)
+- Freeth et al., Scientific Reports 11 (2021)
 
 ## Boundaries still enforced
 
-Not implemented as validated transformations:
-- full TT↔TDB
-- TDB↔TCB relativistic conversion
+Not yet treated as validated:
+
+- full TT↔TDB transformation
+- TDB↔TCB relativistic transformation
 - full IERS Earth-orientation chain
 - ephemeris-grade internal lunar orbit
-- full mechanical reconstruction of every Antikythera gear and dial epoch
+- full historical reconstruction of every Antikythera gear
+- cosmological age inference
 
-These remain explicit future gates rather than hidden approximations.
+Those remain explicit future gates rather than hidden approximations.
