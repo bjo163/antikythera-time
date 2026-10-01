@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="U-Time v0.7 Cosmic Chronology Lab: time/astronomy validation plus separate model-dependent Friedmann cosmic-age inference." />
-  <title>U-Time v0.8 — Relativistic Time + Cosmic Chronology</title>
+  <meta name="description" content="U-Time 1.0 specification candidate: relativistic time, Antikythera-inspired astronomy, JPL validation and cosmic chronology." />
+  <title>U-Time 1.0 — Astronomy Protocol Lab</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
@@ -12,9 +12,9 @@
   <main>
     <header class="hero">
       <div class="eyebrow">ALLAH PROMISE · MOONWITNESS · VALIDATION LAB</div>
-      <h1>U‑Time <span>v0.7‑alpha</span></h1>
+      <h1>U‑Time <span>1.0.0</span></h1>
       <p class="lead">Measure the model against the sky reference — do not assume the model is right.</p>
-      <div class="pills"><span>SI second</span><span>J2000.0 TT</span><span>Leap-second table</span><span>Antikythera cycles</span><span>JPL validation</span><span>Cosmic chronology</span><span>Relativistic time</span></div>
+      <div class="pills"><span>SI second</span><span>J2000.0 TT</span><span>Leap-second table</span><span>Antikythera cycles</span><span>JPL validation</span><span>Cosmic chronology</span><span>Relativistic time</span><span>Protocol v1</span></div>
     </header>
 
     <section class="clock card">
@@ -143,18 +143,60 @@
 
 
     <section class="card relativity">
-      <div class="section-title">V0.8 RELATIVISTIC TIME CORE</div>
+      <div class="section-title">V0.8.1 RELATIVISTIC TIME CORE</div>
       <div class="boundary-banner"><b>STANDARD BOUNDARY</b> · Coordinate-time transformations follow IAU conventions and are validated against SOFA reference vectors. This project is not IAU/SOFA-endorsed software.</div>
       <div class="relativity-grid">
         <div><span>CURRENT TCG − TT</span><strong id="ttTcgOffset">—</strong><small>geocentric rate separation since 1977 reference epoch</small></div>
-        <div><span>SOFA REFERENCE VECTORS</span><strong id="relativityVectorStatus">—</strong><small>TT/TCG, TCB/TDB, TT/TDB wrapper</small></div>
+        <div><span>CURRENT TDB − TT</span><strong id="dtrNow">—</strong><small>NASA compact geocentric approximation</small></div>
+        <div><span>SOFA REFERENCE VECTORS</span><strong id="relativityVectorStatus">—</strong><small>canonical coordinate transforms</small></div>
+        <div><span>ERFA dtr BENCHMARK</span><strong>34.7 µs max</strong><small>164 samples · 1900–2100 · PASS</small></div>
         <div><span>TDB ↔ TCB</span><strong>CANONICAL</strong><small>IAU 2006 B3 linear relation</small></div>
-        <div><span>TT ↔ TDB</span><strong>EXPLICIT dtr</strong><small>no invented periodic term</small></div>
       </div>
       <div class="pipeline">
         <span>TT</span><i>↔</i><span>TCG / GCRS</span><i>·</i><span>TDB</span><i>↔</i><span>TCB / BCRS</span>
       </div>
-      <p class="foot">Automatic TT↔TDB still requires a validated provider for <code>dtr = TDB−TT</code>. SOFA documents this term as ephemeris/model dependent and dominated by an annual millisecond-scale component.</p>
+      <p class="foot">The built-in automatic <code>TDB−TT</code> provider is explicitly <b>APPROXIMATE_GEOCENTRIC</b>. For higher-accuracy work the canonical wrapper still accepts an external SOFA/ERFA/time-ephemeris dtr provider.</p>
+    </section>
+
+
+    <section class="two v1-grid">
+      <article class="card">
+        <div class="section-title">V0.9 ECLIPSE RECURRENCE</div>
+        <h2>NASA Saros 139 check</h2>
+        <div class="grid2 mini">
+          <div><span>2042 residual</span><strong id="saros2042Residual">—</strong></div>
+          <div><span>2060 residual</span><strong id="saros2060Residual">—</strong></div>
+          <div><span>Saros period</span><strong>6585.3223 d</strong></div>
+          <div><span>Gate</span><strong id="sarosGate">—</strong></div>
+        </div>
+        <p class="foot">This validates eclipse-family recurrence only. It is not a Besselian shadow/path solver.</p>
+      </article>
+
+      <article class="card">
+        <div class="section-title">V0.10 PLANETARY COSMOS</div>
+        <h2>JPL approximate positions · 1800–2050</h2>
+        <div class="grid2 mini">
+          <div><span>Mars ecl. longitude</span><strong id="marsLon">—</strong></div>
+          <div><span>Jupiter ecl. longitude</span><strong id="jupiterLon">—</strong></div>
+          <div><span>Saturn ecl. longitude</span><strong id="saturnLon">—</strong></div>
+          <div><span>Horizons benchmark</span><strong>15/15 PASS</strong></div>
+        </div>
+        <p class="foot">Published JPL lower-accuracy Keplerian model. High-precision planetary work still belongs to Horizons/integrated ephemerides.</p>
+      </article>
+    </section>
+
+    <section class="card v1-card">
+      <div class="section-title">U-TIME 1.0 SPECIFICATION CANDIDATE</div>
+      <div class="v1-status">
+        <div><span>PROTOCOL</span><strong id="v1Version">—</strong></div>
+        <div><span>CORE TESTS</span><strong>85 / 85 PASS</strong></div>
+        <div><span>JS ↔ PYTHON</span><strong>COMPATIBILITY PASS</strong></div>
+        <div><span>STATUS</span><strong>SPEC CANDIDATE</strong></div>
+      </div>
+      <div class="pipeline">
+        <span>VALUE</span><i>+</i><span>SCALE / FRAME / MODEL</span><i>+</i><span>UNCERTAINTY</span><i>+</i><span>EVIDENCE</span><i>+</i><span>PROVENANCE</span>
+      </div>
+      <p class="foot">v1 freezes the protocol/schema/golden vectors. It does not claim IAU/BIPM/NASA endorsement or international standard adoption.</p>
     </section>
 
     <section class="card">
@@ -166,18 +208,18 @@
         <div class="e ok"><b>TABLE‑BACKED</b><h3>UTC ↔ TAI</h3><p>Historical leap-second offsets, bounded by verification date.</p></div>
         <div class="e model"><b>TESTABLE MODEL</b><h3>Lunar mean cycle</h3><p>NASA-calibrated phase-zero + mean synodic period.</p></div>
         <div class="e model"><b>HISTORICAL MODEL</b><h3>Metonic / Saros</h3><p>Antikythera-inspired cyclic computation.</p></div>
-        <div class="e ok"><b>REFERENCE-VALIDATED</b><h3>TT / TCG · TDB / TCB</h3><p>Canonical transformations pass IAU SOFA vectors; TT↔TDB still requires explicit dtr.</p></div>
-        <div class="e warn"><b>EXTERNAL CHECK</b><h3>JPL Horizons</h3><p>Reference ephemeris; never treated as U-Time's definition.</p></div>
+        <div class="e ok"><b>REFERENCE-VALIDATED</b><h3>TT / TCG · TDB / TCB</h3><p>Canonical transforms pass SOFA vectors; automatic geocentric dtr passes the ERFA benchmark.</p></div>
+        <div class="e warn"><b>EXTERNAL CHECK</b><h3>NASA / JPL</h3><p>Saros recurrence and approximate planetary models are benchmarked against external NASA/JPL references.</p></div>
       </div>
     </section>
 
     <section class="principle card">
       <div class="section-title">CORE PRINCIPLE</div>
       <code>U‑Time = SI duration + epoch + time scale + reference frame + uncertainty</code>
-      <p>“Universal” means a reproducible protocol with declared coordinates. v0.6 adds a second principle: <b>every astronomical model should expose its measured error.</b></p>
+      <p>“Universal” means a reproducible protocol with declared coordinates—not an absolute cosmic clock. Every model must expose its validity, error/uncertainty and provenance.</p>
     </section>
 
-    <footer><a href="https://github.com/bjo163/antikythera-time">GitHub source</a><span>·</span><span>v0.8-alpha Cosmic Chronology Lab</span></footer>
+    <footer><a href="https://github.com/bjo163/antikythera-time">GitHub source</a><span>·</span><span>U-Time 1.0.0 · Specification Candidate</span></footer>
   </main>
   <script type="module" src="./site.js"></script>
 </body>
