@@ -10,6 +10,10 @@ members = [
   "crates/mtime-authority",
   "crates/mtime-diff",
   "crates/mtime-resolution",
+  "crates/mtime-cosmology",
+  "crates/mtime-revelation",
+  "crates/mtime-conformance",
+  "crates/mtime-wasm",
   "crates/mtime-cli"
 ]
 resolver = "2"
