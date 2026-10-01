@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="U-Time 1.0 specification candidate: relativistic time, Antikythera-inspired astronomy, JPL validation and cosmic chronology." />
-  <title>U-Time 1.0 — Astronomy Protocol Lab</title>
+  <meta name="description" content="U-Time 2.0 specification candidate: relativistic time, Antikythera-inspired astronomy, JPL validation and cosmic chronology." />
+  <title>U-Time 2.0 — Astronomy Protocol Lab</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
@@ -12,9 +12,9 @@
   <main>
     <header class="hero">
       <div class="eyebrow">ALLAH PROMISE · MOONWITNESS · VALIDATION LAB</div>
-      <h1>U‑Time <span>1.0.0</span></h1>
+      <h1>U‑Time <span>2.0.0</span></h1>
       <p class="lead">Measure the model against the sky reference — do not assume the model is right.</p>
-      <div class="pills"><span>SI second</span><span>J2000.0 TT</span><span>Leap-second table</span><span>Antikythera cycles</span><span>JPL validation</span><span>Cosmic chronology</span><span>Relativistic time</span><span>Protocol v1</span></div>
+      <div class="pills"><span>SI second</span><span>J2000.0 TT</span><span>Leap-second table</span><span>Antikythera cycles</span><span>JPL validation</span><span>Cosmic chronology</span><span>Relativistic time</span><span>Protocol v2</span></div>
     </header>
 
     <section class="clock card">
@@ -186,19 +186,33 @@
     </section>
 
     <section class="card v1-card">
-      <div class="section-title">U-TIME 1.0 SPECIFICATION CANDIDATE</div>
+      <div class="section-title">U-TIME 2.0 STANDARDIZATION CANDIDATE</div>
       <div class="v1-status">
         <div><span>PROTOCOL</span><strong id="v1Version">—</strong></div>
-        <div><span>CORE TESTS</span><strong>85 / 85 PASS</strong></div>
-        <div><span>JS ↔ PYTHON</span><strong>COMPATIBILITY PASS</strong></div>
-        <div><span>STATUS</span><strong>SPEC CANDIDATE</strong></div>
+        <div><span>CORE TESTS</span><strong>103 / 103 PASS</strong></div>
+        <div><span>JS ↔ PY ↔ RUST</span><strong>3-LANGUAGE PASS</strong></div>
+        <div><span>STATUS</span><strong>STANDARDIZATION CANDIDATE</strong></div>
       </div>
       <div class="pipeline">
         <span>VALUE</span><i>+</i><span>SCALE / FRAME / MODEL</span><i>+</i><span>UNCERTAINTY</span><i>+</i><span>EVIDENCE</span><i>+</i><span>PROVENANCE</span>
       </div>
-      <p class="foot">v1 freezes the protocol/schema/golden vectors. It does not claim IAU/BIPM/NASA endorsement or international standard adoption.</p>
+      <p class="foot">v2 adds observer/EOP/reference-data semantics, quality classes, public conformance tooling and three-language compatibility. It is not an adopted international standard.</p>
     </section>
 
+
+    <section class="card v1-card">
+      <div class="section-title">V2 OBSERVER / EOP / REVIEW READINESS</div>
+      <div class="v1-status">
+        <div><span>IERS EOP INGEST</span><strong>2,386 ROWS · PASS</strong></div>
+        <div><span>LATEST OBSERVED SNAPSHOT</span><strong>2026-09-08</strong></div>
+        <div><span>BESSELIAN EVALUATOR</span><strong id="besselianStatus">—</strong></div>
+        <div><span>ANTIKYTHERA EVIDENCE MAP</span><strong id="twinStatus">—</strong></div>
+      </div>
+      <div class="pipeline">
+        <span>IERS EOP / UT1</span><i>→</i><span>OBSERVER</span><i>→</i><span>TIME / MODEL</span><i>→</i><span>REFERENCE DATA</span><i>→</i><span>CONFORMANCE</span>
+      </div>
+      <p class="foot">NASA Besselian elements are evaluated as published reference data; U-Time does not claim independent generation of those elements. Antikythera front-cosmos gearing is evidence-labelled rather than treated as uniquely proven.</p>
+    </section>
     <section class="card">
       <div class="section-title">EVIDENCE GATE</div>
       <div class="evidence-grid">
@@ -219,7 +233,7 @@
       <p>“Universal” means a reproducible protocol with declared coordinates—not an absolute cosmic clock. Every model must expose its validity, error/uncertainty and provenance.</p>
     </section>
 
-    <footer><a href="https://github.com/bjo163/antikythera-time">GitHub source</a><span>·</span><span>U-Time 1.0.0 · Specification Candidate</span></footer>
+    <footer><a href="https://github.com/bjo163/antikythera-time">GitHub source</a><span>·</span><span>U-Time 2.0.0 · Specification Candidate</span></footer>
   </main>
   <script type="module" src="./site.js"></script>
 </body>
