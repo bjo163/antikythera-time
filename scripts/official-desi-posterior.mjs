@@ -1,3 +1,4 @@
+import https from 'node:https';
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
 import { parseCobayaText, reproduceCosmicAgeFromCobaya } from '../src/cosmology/cobaya.js';
@@ -10,7 +11,24 @@ const registry={
 };
 
 function links(html){return [...html.matchAll(/href="([^"]+\/?)"/g)].map(m=>m[1]).filter(x=>!x.startsWith('?')&&!x.startsWith('/'));}
-async function getText(url){const r=await fetch(url,{headers:{'User-Agent':'antikythera-time-posterior-reproducer/0.7'}});if(!r.ok)throw new Error(`HTTP ${r.status} for ${url}`);return r.text();}
+function httpsTextOnce(url,timeoutMs=90000){
+  return new Promise((resolve,reject)=>{
+    const req=https.get(url,{headers:{'User-Agent':'antikythera-time-posterior-reproducer/0.7'}},res=>{
+      if(res.statusCode>=300&&res.statusCode<400&&res.headers.location){res.resume();resolve(httpsTextOnce(new URL(res.headers.location,url).toString(),timeoutMs));return;}
+      if(res.statusCode!==200){res.resume();reject(new Error('HTTP '+res.statusCode+' for '+url));return;}
+      res.setEncoding('utf8');let data='';res.on('data',chunk=>data+=chunk);res.on('end',()=>resolve(data));
+    });
+    req.setTimeout(timeoutMs,()=>req.destroy(new Error('timeout after '+timeoutMs+'ms for '+url)));
+    req.on('error',reject);
+  });
+}
+async function getText(url){
+  let last;
+  for(let attempt=1;attempt<=5;attempt++){
+    try{return await httpsTextOnce(url,90000);}catch(error){last=error;console.error('download attempt',attempt,'failed:',error.message);if(attempt<5)await new Promise(r=>setTimeout(r,attempt*3000));}
+  }
+  throw last;
+}
 async function discover(cfg){
   const url=ROOT+cfg.root,html=await getText(url);
   const candidates=links(html).filter(x=>x.endsWith('/')&&cfg.must.every(k=>x.includes(k))&&!cfg.avoid.some(k=>x.includes(k)));
