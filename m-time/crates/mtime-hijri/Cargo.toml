@@ -1,0 +1,9 @@
+[package]
+name="mtime-hijri"
+version.workspace=true
+edition.workspace=true
+license.workspace=true
+
+[dependencies]
+mtime-core={path="../mtime-core"}
+mtime-calendar={path="../mtime-calendar"}
