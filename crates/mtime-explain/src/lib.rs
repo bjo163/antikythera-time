@@ -1,5 +1,5 @@
 use mtime_authority::{AuthorityDecision, DecisionKind};
-use mtime_hijri::{ComputedMonthAction, CriterionResult, HijriAstronomicalState};
+use mtime_hijri::{ComputedMonthAction, CriterionResult, HijriAstronomicalState, GeometrySemantics};
 use mtime_observation::{ObservationReport, ObservationSummary};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -125,7 +125,7 @@ pub fn official_vs_computed_conflict(r: &TemporalResolution) -> bool {
 mod tests {
     use super::*;
     use mtime_core::QualityClass;
-    use mtime_hijri::{computed_action, CalendarProfile};
+    use mtime_hijri::{computed_action, CalendarProfile, GeometrySemantics};
 
     fn state() -> HijriAstronomicalState {
         HijriAstronomicalState {
@@ -133,6 +133,7 @@ mod tests {
             sunset_jd_ut1: None,
             moon_altitude_topocentric_deg: 3.1,
             elongation_geocentric_deg: 6.5,
+        geometry_semantics: GeometrySemantics::mabims_required(),
             moon_age_hours: None,
             moon_lag_minutes: None,
             site_id: "JKT".into(),
