@@ -4,8 +4,8 @@ import {
   JULIAN_YEAR_SECONDS, MEAN_SYNODIC_MONTH_NS, METONIC_CYCLE, METONIC_MONTHS, NS_PER_DAY,
   ReferenceFrame, SAROS_CYCLE, SAROS_MONTHS, SECONDS_PER_DAY, TT_MINUS_TAI_NS,
   TimeScale, UTime, applyGearRatio, compareLunarReference, gearRatio, julianDateToUtcDate,
-  lunarModelAtUtc, parseHorizonsObserverRows, summarizeValidation, taiMinusUtcAt, taiToTt,
-  ttToTai, utcDateToTt
+  BASELINE_SYNODIC_PERIOD_SECONDS, calibrateWithHoldout, lunarModelAtUtc, lunarModelAtUtcWithParams,
+  parseHorizonsObserverRows, summarizeValidation, taiMinusUtcAt, taiToTt, ttToTai, utcDateToTt
 } from '../src/index.js';
 
 test('J2000.0 TT is zero',()=>{const t=UTime.j2000TT();assert.equal(t.nsSinceJ2000,0n);assert.equal(t.julianDateTT(),2451545.0);});
@@ -28,3 +28,28 @@ test('Horizons parser extracts JD, illumination and phase angle',()=>{const fixt
 test('Julian Date converter maps Unix epoch',()=>assert.equal(julianDateToUtcDate(2440587.5).toISOString(),'1970-01-01T00:00:00.000Z'));
 test('validation comparison produces signed and absolute errors',()=>{const s=compareLunarReference({date:new Date('2000-01-06T18:14:00Z'),illuminatedPercent:1,phaseAngleDeg:179});assert.ok(s.error.illuminationPoints<0);assert.equal(s.error.absIlluminationPoints,Math.abs(s.error.illuminationPoints));});
 test('validation summary reports MAE/RMSE/max',()=>{const a=compareLunarReference({date:new Date('2000-01-06T18:14:00Z'),illuminatedPercent:1,phaseAngleDeg:179});const b=compareLunarReference({date:new Date('2000-01-21T12:00:00Z'),illuminatedPercent:99,phaseAngleDeg:1});const s=summarizeValidation([a,b]);assert.equal(s.sampleCount,2);assert.ok(s.illumination.maePoints>=0);assert.ok(s.phaseAngle.rmseDeg>=0);});
+
+test('calibration recovers a bounded synthetic period/epoch drift and generalizes',()=>{
+  const hidden={periodSeconds:BASELINE_SYNODIC_PERIOD_SECONDS+45.5,epochOffsetSeconds:2100};
+  const refs=[];
+  for(let t=Date.parse('2001-01-01T00:00:00Z');t<Date.parse('2026-01-01T00:00:00Z');t+=45*86400000){
+    const date=new Date(t),m=lunarModelAtUtcWithParams(date,hidden);
+    refs.push({date,illuminatedPercent:m.illuminationPercent,phaseAngleDeg:m.phaseAngleDeg});
+  }
+  const r=calibrateWithHoldout(refs);
+  assert.equal(r.verdict,'GENERALIZES_ON_HOLDOUT');
+  assert.ok(Math.abs(r.params.periodSeconds-hidden.periodSeconds)<2.5);
+  assert.ok(Math.abs(r.params.epochOffsetSeconds-hidden.epochOffsetSeconds)<360);
+  assert.ok(r.holdout.scoreImprovementPct>50);
+});
+
+test('perfect baseline data does not manufacture a calibration win',()=>{
+  const refs=[];
+  for(let t=Date.parse('2001-01-01T00:00:00Z');t<Date.parse('2026-01-01T00:00:00Z');t+=90*86400000){
+    const date=new Date(t),m=lunarModelAtUtc(date);
+    refs.push({date,illuminatedPercent:m.illuminationPercent,phaseAngleDeg:m.phaseAngleDeg});
+  }
+  const r=calibrateWithHoldout(refs);
+  assert.equal(r.holdout.generalizes,false);
+  assert.equal(r.verdict,'REJECT_CALIBRATION');
+});
