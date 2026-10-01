@@ -1,0 +1,20 @@
+{
+ "$schema":"https://json-schema.org/draft/2020-12/schema",
+ "$id":"https://bjo163.github.io/antikythera-time/spec/utime-v2.schema.json",
+ "title":"U-Time 2.0 Record",
+ "type":"object",
+ "required":["protocol","version","specStatus","kind","quantity","status","quality","value","provenance"],
+ "properties":{
+  "protocol":{"const":"U-Time"},"version":{"const":"2.0.0"},"specStatus":{"const":"STANDARDIZATION_CANDIDATE"},
+  "kind":{"enum":["instant","duration","inference","model_result","observation"]},
+  "quantity":{"type":"string","minLength":1},
+  "status":{"enum":["OBSERVED","MEASURED","CALCULATED","MODELED","INFERRED","RECONSTRUCTED","SPECULATIVE","TEXTUAL_REFERENCE"]},
+  "quality":{"enum":["REFERENCE","HIGH_PRECISION","APPROXIMATE","RECONSTRUCTION","CONCEPTUAL"]},
+  "value":{"type":"object"},"context":{"type":"object"},"uncertainty":{"type":["object","null"]},
+  "provenance":{"type":"array","minItems":1,"items":{"type":"object","required":["source"],"properties":{"source":{"type":"string","minLength":1}},"additionalProperties":true}},
+  "algorithm":{"type":["object","string","null"]},"validity":{"type":["object","string","null"]},
+  "observer":{"type":["object","null"]},"referenceData":{"type":["object","array","null"]},
+  "transformChain":{"type":"array"}
+ },
+ "additionalProperties":true
+}
