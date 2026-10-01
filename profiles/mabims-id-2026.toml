@@ -1,9 +1,26 @@
 id = "MABIMS_ID_2026"
 name = "Indonesia MABIMS / PMA No. 1 Tahun 2026"
+version = "PMA_1_2026"
 effective_from = "2026-01-01"
-moon_altitude_topocentric_min_deg = 3.0
-moon_sun_elongation_geocentric_min_deg = 6.4
+require_all = true
 fallback_if_not_met = "COMPLETE_CURRENT_MONTH_TO_30_DAYS"
 observation_layer = "SEPARATE"
 authority_layer = "SEPARATE"
 source = "Kementerian Agama RI, PMA No. 1 Tahun 2026"
+source_url = "https://jdih.kemenag.go.id/yzxkthpo/regulation/peraturan-menteri-agama-1-2026_260427.pdf"
+
+[[clauses]]
+id = "ALTITUDE_TOPOCENTRIC_GE_3"
+metric = "MOON_ALTITUDE_TOPOCENTRIC_DEG"
+reference = "TOPOCENTRIC"
+comparator = "GE"
+threshold = 3.0
+unit = "deg"
+
+[[clauses]]
+id = "ELONGATION_GEOCENTRIC_GE_6_4"
+metric = "ELONGATION_GEOCENTRIC_DEG"
+reference = "GEOCENTRIC_CENTER_TO_CENTER"
+comparator = "GE"
+threshold = 6.4
+unit = "deg"
