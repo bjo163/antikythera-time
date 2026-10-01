@@ -1,0 +1,25 @@
+name: m-time-khgt-reference
+on:
+  workflow_dispatch:
+  push:
+    branches: [m-time-bootstrap]
+    paths:
+      - "m-time/crates/mtime-solar-provider/**"
+      - "m-time/scripts/check-khgt-reference-1447.mjs"
+      - ".github/workflows/m-time-khgt-reference.yml"
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-node@v4
+        with: {node-version: 20}
+      - working-directory: m-time
+        run: cargo run -q -p mtime-solar-provider --bin khgt_reference_1447 > /tmp/khgt-reference.json
+      - working-directory: m-time
+        run: node scripts/check-khgt-reference-1447.mjs /tmp/khgt-reference.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m-time-khgt-reference-1447
+          path: m-time/artifacts/
