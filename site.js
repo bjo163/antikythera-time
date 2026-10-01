@@ -1,4 +1,4 @@
-import { METONIC_CYCLE, SAROS_CYCLE, lunarModelAtUtc, taiMinusUtcAt, utcDateToTt, getCosmologyPreset, materializePresetParameters, inferCosmicAge, propagateIndependentPreset, ttCoordinateFromUTime, ttToTcgCoordinate, coordinateDeltaSeconds, runRelativityReferenceVectors, nasaSimpleDtr, ttToTdbCoordinate, validateSaros139, jplApproxHeliocentric, U_TIME_V1_VERSION } from './src/index.js';
+import { METONIC_CYCLE, SAROS_CYCLE, lunarModelAtUtc, taiMinusUtcAt, utcDateToTt, getCosmologyPreset, materializePresetParameters, inferCosmicAge, propagateIndependentPreset, ttCoordinateFromUTime, ttToTcgCoordinate, coordinateDeltaSeconds, runRelativityReferenceVectors, nasaSimpleDtr, ttToTdbCoordinate, validateSaros139, jplApproxHeliocentric, U_TIME_V2_VERSION, besselianReferenceSelfTest, antikytheraEvidenceSummary } from './src/index.js';
 const $ = (id) => document.getElementById(id);
 
 for (let y=2026; y>=2000; y--) {
