@@ -1,9 +1,7 @@
 use mtime_authority::{AuthorityDecision, DecisionKind};
 use mtime_core::QualityClass;
 use mtime_explain::{explain_difference, official_vs_computed_conflict, DiffCategory, TemporalResolution};
-use mtime_hijri::{
-    computed_action, CalendarProfile, HijriAstronomicalState, INDONESIA_1447_PILOTS,
-};
+use mtime_hijri::{computed_action, CalendarProfile, HijriAstronomicalState, INDONESIA_1447_PILOTS,, GeometrySemantics};
 use mtime_observation::ObservationSummary;
 
 fn state_from_case(index: usize, use_minima: bool) -> HijriAstronomicalState {
@@ -13,6 +11,7 @@ fn state_from_case(index: usize, use_minima: bool) -> HijriAstronomicalState {
         sunset_jd_ut1: None,
         moon_altitude_topocentric_deg: if use_minima { c.altitude_min_deg } else { c.altitude_max_deg },
         elongation_geocentric_deg: if use_minima { c.elongation_min_deg } else { c.elongation_max_deg },
+        geometry_semantics: GeometrySemantics::mabims_required(),
         moon_age_hours: None,
         moon_lag_minutes: None,
         site_id: "INDONESIA_NATIONAL_RANGE".into(),
