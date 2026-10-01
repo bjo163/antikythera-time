@@ -1,8 +1,8 @@
-# Antikythera Time — U-Time v0.3-alpha
+# Antikythera Time — U-Time v0.4-alpha Validation Lab
 
-Research prototype for a universal **time representation protocol** with an SI-second core, explicit astronomical coordinates, Antikythera-inspired cycles, and an evidence dashboard.
+U-Time is an experimental **time representation protocol** combining a modern SI-time core with explicit astronomical coordinates and an Antikythera-inspired cycle layer.
 
-> U-Time does **not** claim one absolute clock for the whole universe.
+> It does not claim one absolute clock for the universe, and it does not claim that a mean lunar cycle is an ephemeris.
 
 ## Protocol
 
@@ -10,60 +10,53 @@ Research prototype for a universal **time representation protocol** with an SI-s
 U-Time = SI duration + epoch + time scale + reference frame + uncertainty
 ```
 
-Current implementation:
-- SI nanoseconds stored as JavaScript `BigInt`
-- J2000.0 = JD 2451545.0 TT
-- explicit TT / TAI / UTC / TDB / TCB labels
-- explicit reference frame
-- uncertainty field
-- exact TT ↔ TAI relation
-- current UTC → TT path bounded by an IERS leap-second validation window
-- Antikythera-inspired Metonic (235 lunar months) and Saros (223 lunar months) cycle engine
-- live NASA/JPL Horizons reference endpoint for the Moon
-
-## Evidence levels
-
-### Validated metrology / astronomical standards
-- BIPM SI second: https://www.bipm.org/en/si-base-units/second
-- TT / TAI relationship: https://www.bipm.org/en/-/cctf-recommendation-2017-3
-- IERS Bulletin C leap-second information: https://datacenter.iers.org/
-- J2000.0: IAU definition, JD 2451545.0 TT
-
-### External ephemeris reference
-- NASA/JPL Horizons: https://ssd.jpl.nasa.gov/horizons/
-
-The dashboard can request current Moon illuminated fraction and phase angle from Horizons. Horizons is an **external reference**, not the definition of U-Time.
-
-### Historical engineering
-Antikythera is adopted at the level of its computational principle:
+v0.4 adds:
 
 ```text
-astronomical period -> ratio/cycle -> phase/index -> readable prediction
+astronomical model -> external reference -> measured error
 ```
 
-Implemented structures:
-- Metonic cycle: 235 lunar months
-- Saros cycle: 223 lunar months
-- idealized gear-ratio primitive
+## v0.4 additions
 
-The project does not claim that the ancient device defined SI time, and the software zero-point is J2000 rather than a reconstructed ancient dial epoch.
+- Historical TAI−UTC leap-second table from 1972 through the current verified window.
+- UTC → TT conversion using the applicable table offset.
+- Mean lunar-cycle model calibrated to NASA/GSFC New Moon **2000-01-06 18:14 UT**.
+- NASA/JPL Horizons observer-table parser.
+- `/api/validation?year=YYYY` monthly Moon comparison.
+- Illumination MAE/RMSE/max and phase-angle MAE/RMSE/max.
+- 20 automated tests.
+
+## Evidence hierarchy
+
+### Metrology
+- BIPM SI second: https://www.bipm.org/en/si-base-units/second
+- TT = TAI + 32.184 s.
+- IERS/BIPM leap-second history.
+- J2000.0 = JD 2451545.0 TT.
+
+### Lunar calibration + external validation
+- NASA/GSFC Six Millennium Moon Phase Catalog: https://eclipse.gsfc.nasa.gov/phase/phasecat.html
+- NASA/JPL Horizons: https://ssd.jpl.nasa.gov/horizons/
+
+The simple lunar model uses the NASA/GSFC New Moon as phase zero and advances with the project mean synodic period. It is compared with Horizons illuminated fraction (#10) and Sun-Target-Observer phase angle (#24).
+
+Non-zero error is expected because real lunar motion is perturbed and individual lunations vary.
+
+### Antikythera adoption
+
+```text
+astronomical period -> ratio/cycle -> phase/index -> prediction -> verification
+```
+
+Implemented historical structures:
+- Metonic: 235 lunar months.
+- Saros: 223 lunar months.
+- idealized gear-ratio primitive.
+
+This is not yet a full reconstruction of every known Antikythera gear train or ancient dial zero-point.
 
 ### Qur'anic conceptual references
-Qur'an 10:5, 55:5 and 21:33 may be studied as textual/conceptual references to celestial regularity, reckoning and motion. They are not used as experimental metrology or as substitutes for astronomical observation.
-
-## Accuracy boundary
-
-Implemented now:
-- TT ↔ TAI: exact conventional offset used by the protocol layer
-- current UTC offset: 37 seconds, explicitly bounded to the current verified IERS window
-
-Intentionally **not** implemented yet:
-- TDB ↔ TT high-accuracy periodic transformation
-- TCB ↔ TDB relativistic transformation
-- full IERS Earth-orientation path
-- ephemeris-grade lunar phase prediction inside U-Time itself
-
-Those remain blocked rather than silently approximated.
+Qur'an 10:5, 55:5 and 21:33 may be studied as conceptual references to celestial regularity, reckoning and motion. They are not used as experimental metrology or replacements for observation.
 
 ## Run
 
@@ -72,28 +65,33 @@ npm test
 npm run demo
 ```
 
-Node.js 20+. No runtime dependencies.
+Node.js 20+.
 
-## Website
+## Validation API
 
-The repository contains a static evidence dashboard in `index.html` plus a Vercel serverless endpoint at `/api/horizons`.
+After Vercel deployment:
 
-The dashboard separates:
-- **VALIDATED**
-- **WINDOWED**
-- **MODEL**
-- **PENDING**
+```text
+/api/validation?year=2026
+```
 
-so the project does not confuse computational precision with scientific validation.
+returns monthly JPL comparisons and summary statistics.
 
-## v0.3-alpha test gate
+## Accuracy boundary
 
-Current test suite: **12 tests**, covering J2000, Julian day/year, BigInt duration, scale mismatch protection, Metonic/Saros structure, gear ratios, exact TT/TAI roundtrip, current UTC conversion, and expiry of the leap-second validation window.
+Implemented:
+- SI duration core.
+- J2000 coordinate origin.
+- TT ↔ TAI fixed relation.
+- UTC ↔ TAI table inside declared support window.
+- testable mean lunar model.
+- live JPL comparison path.
 
-## Next scientific gates
+Still withheld:
+- full TT ↔ TDB periodic transformation.
+- TCB ↔ TDB relativistic transformation.
+- full IERS Earth-orientation path.
+- ephemeris-grade internal Moon orbit.
+- full Antikythera mechanical reconstruction.
 
-1. Add authoritative reference vectors for TT/TDB/TCB.
-2. Compare cycle-model lunar predictions against JPL Horizons across many epochs.
-3. Quantify error distributions instead of presenting a single example.
-4. Add proper-time demonstrations with declared worldlines/reference frames.
-5. Add uncertainty propagation to every derived astronomical result.
+Those are future scientific gates, not hidden approximations.
