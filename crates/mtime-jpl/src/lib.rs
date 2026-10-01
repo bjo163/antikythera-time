@@ -1,8 +1,19 @@
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct HorizonsMoonObserverSample {
+pub struct HorizonsTopocentricMoonSample {
     pub azimuth_deg: f64,
     pub elevation_deg: f64,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct HorizonsGeocentricElongationSample {
     pub solar_elongation_deg: f64,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct HorizonsHilalReference {
+    pub moon_altitude_topocentric_deg: f64,
+    pub elongation_geocentric_deg: f64,
+    pub topocentric_azimuth_deg: f64,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -27,41 +38,75 @@ pub fn extract_soe_rows(text: &str) -> Result<Vec<&str>, HorizonsParseError> {
     Ok(rows)
 }
 
-/// Parser contract for Horizons observer queries that request only quantities 4 and 23,
-/// with CSV_FORMAT=YES and ANG_FORMAT=DEG.
-///
-/// The calendar field and lead/trail marker are non-numeric, so the final three numeric
-/// CSV fields are azimuth, elevation, and Sun-observer-target elongation.
-pub fn parse_moon_observer_4_23_row(row: &str) -> Result<HorizonsMoonObserverSample, HorizonsParseError> {
-    let numeric = row
-        .split(',')
+fn numeric_csv_fields(row: &str) -> Vec<f64> {
+    row.split(',')
         .filter_map(|x| x.trim().parse::<f64>().ok())
-        .collect::<Vec<_>>();
-    if numeric.len() < 3 {
+        .collect()
+}
+
+/// Parse Horizons quantity #4 only (apparent topocentric AZ/EL) in CSV+DEG output.
+pub fn parse_topocentric_moon_quantity_4(
+    row: &str,
+) -> Result<HorizonsTopocentricMoonSample, HorizonsParseError> {
+    let numeric = numeric_csv_fields(row);
+    if numeric.len() < 2 {
         return Err(HorizonsParseError::TooFewNumericFields);
     }
     let n = numeric.len();
-    let sample = HorizonsMoonObserverSample {
-        azimuth_deg: numeric[n - 3],
-        elevation_deg: numeric[n - 2],
-        solar_elongation_deg: numeric[n - 1],
+    let sample = HorizonsTopocentricMoonSample {
+        azimuth_deg: numeric[n - 2],
+        elevation_deg: numeric[n - 1],
     };
-    if ![
-        sample.azimuth_deg,
-        sample.elevation_deg,
-        sample.solar_elongation_deg,
-    ]
-    .iter()
-    .all(|x| x.is_finite())
+    if ![sample.azimuth_deg, sample.elevation_deg]
+        .iter()
+        .all(|x| x.is_finite())
     {
         return Err(HorizonsParseError::NonFinite);
     }
     Ok(sample)
 }
 
-pub fn parse_single_moon_observer_4_23(text: &str) -> Result<HorizonsMoonObserverSample, HorizonsParseError> {
+/// Parse Horizons quantity #23 only from a geocentric observer query.
+/// Quantity #23 is Sun-Observer-Target apparent solar elongation.
+pub fn parse_geocentric_elongation_quantity_23(
+    row: &str,
+) -> Result<HorizonsGeocentricElongationSample, HorizonsParseError> {
+    let numeric = numeric_csv_fields(row);
+    let Some(value) = numeric.last().copied() else {
+        return Err(HorizonsParseError::TooFewNumericFields);
+    };
+    if !value.is_finite() {
+        return Err(HorizonsParseError::NonFinite);
+    }
+    Ok(HorizonsGeocentricElongationSample {
+        solar_elongation_deg: value,
+    })
+}
+
+pub fn parse_single_topocentric_moon_4(
+    text: &str,
+) -> Result<HorizonsTopocentricMoonSample, HorizonsParseError> {
     let rows = extract_soe_rows(text)?;
-    parse_moon_observer_4_23_row(rows[0])
+    parse_topocentric_moon_quantity_4(rows[0])
+}
+
+pub fn parse_single_geocentric_elongation_23(
+    text: &str,
+) -> Result<HorizonsGeocentricElongationSample, HorizonsParseError> {
+    let rows = extract_soe_rows(text)?;
+    parse_geocentric_elongation_quantity_23(rows[0])
+}
+
+#[must_use]
+pub fn combine_hilal_reference(
+    topo: HorizonsTopocentricMoonSample,
+    geo: HorizonsGeocentricElongationSample,
+) -> HorizonsHilalReference {
+    HorizonsHilalReference {
+        moon_altitude_topocentric_deg: topo.elevation_deg,
+        elongation_geocentric_deg: geo.solar_elongation_deg,
+        topocentric_azimuth_deg: topo.azimuth_deg,
+    }
 }
 
 #[cfg(test)]
@@ -69,12 +114,33 @@ mod tests {
     use super::*;
 
     #[test]
-    fn parser_takes_final_three_numeric_csv_fields() {
-        let row = "2026-Mar-19 10:00, , , 274.1234, 2.9876, 6.0123, /T,";
-        let x = parse_moon_observer_4_23_row(row).unwrap();
+    fn parses_topocentric_az_el_without_relabeling_elongation() {
+        let row = "2026-Mar-19 10:00, , , 274.1234, 2.9876,";
+        let x = parse_topocentric_moon_quantity_4(row).unwrap();
         assert_eq!(x.azimuth_deg, 274.1234);
         assert_eq!(x.elevation_deg, 2.9876);
+    }
+
+    #[test]
+    fn parses_geocentric_elongation_separately() {
+        let row = "2026-Mar-19 10:00, , , 6.0123, /T,";
+        let x = parse_geocentric_elongation_quantity_23(row).unwrap();
         assert_eq!(x.solar_elongation_deg, 6.0123);
+    }
+
+    #[test]
+    fn combines_only_after_observer_semantics_are_explicit() {
+        let h = combine_hilal_reference(
+            HorizonsTopocentricMoonSample {
+                azimuth_deg: 270.0,
+                elevation_deg: 3.1,
+            },
+            HorizonsGeocentricElongationSample {
+                solar_elongation_deg: 6.5,
+            },
+        );
+        assert_eq!(h.moon_altitude_topocentric_deg, 3.1);
+        assert_eq!(h.elongation_geocentric_deg, 6.5);
     }
 
     #[test]
