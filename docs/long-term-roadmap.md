@@ -4,92 +4,72 @@
 
 Build a reproducible time/astronomy framework where every quantity declares whether it is measured, conventional, modeled, inferred, reconstructed or speculative.
 
-## Completed foundation
+## Completed through v1.0
 
 - **v0.1** — SI-duration + J2000 coordinate core.
 - **v0.2** — evidence boundary: scientific standards vs historical/textual inspiration.
 - **v0.3** — explicit time-scale/frame safety + website.
 - **v0.4** — NASA/JPL lunar external validation.
 - **v0.5** — bounded calibration + untouched holdout.
-- **v0.6** — anomalistic/draconic fixed-cycle residual engine.
+- **v0.6** — anomalistic/draconic residual engine.
 - **v0.7** — separate Cosmic Chronology Engine.
 - **v0.7.1** — official DESI DR2 posterior reproduction.
-- **v0.8** — relativistic coordinate-time core.
+- **v0.8** — TT/TCG/TDB/TCB relativistic coordinate-time core.
+- **v0.8.1** — automatic approximate geocentric TDB−TT provider benchmarked against ERFA.
+- **v0.9** — NASA-validated Saros/Exeligmos recurrence engine.
+- **v0.10** — JPL approximate planetary-position layer + Horizons benchmark.
+- **v1.0** — protocol/schema/golden-vector freeze + independent Python compatibility gate.
 
-## v0.8 — Relativistic Time Core — IMPLEMENTED
+## v1.0 — SPECIFICATION CANDIDATE — IMPLEMENTED
 
-- separate two-part-Julian-Date `CoordinateTime` type;
-- explicit TCG time scale;
-- TT↔TCG canonical relation from IAU 2000 B1.9;
-- TDB↔TCB canonical relation from IAU 2006 B3;
-- canonical TT↔TDB wrapper with explicit `dtr = TDB-TT`;
-- six IAU SOFA reference vectors;
-- no invented automatic `dtr` model;
-- derived-work/licensing notice;
-- live Pages dashboard status.
+Normative assets:
 
-## v0.8.1 — Full TDB−TT Provider
+- `spec/UTIME-1.0.md`
+- `spec/utime-v1.schema.json`
+- `spec/golden-vectors.json`
 
-- integrate an intact/validated SOFA/ERFA-compatible `Dtdb` provider or authoritative time ephemeris;
-- include topocentric observer parameters and UT1 where appropriate;
-- cross-check against reference vectors and JPL/SPICE time conversion behavior;
-- keep provider provenance and uncertainty explicit.
+Reference layers:
 
-## v0.9 — Eclipse Engine
+- JavaScript primary implementation;
+- independent Python compatibility checker.
 
-- syzygy + node candidate model;
-- Saros/Exeligmos indexing;
-- NASA eclipse-catalog validation;
-- recall, timing residuals and false-positive rates.
+Validation includes:
 
-## v0.10 — Solar + Planetary Cosmos
+- IAU SOFA reference vectors;
+- ERFA TDB−TT benchmark;
+- NASA eclipse recurrence references;
+- JPL Horizons planetary-vector benchmark;
+- Planck/DESI cosmology/posterior checks;
+- JS↔Python golden-vector compatibility.
 
-- Sun/ecliptic longitude;
-- five classical planets;
-- compare alternative Antikythera gear reconstructions;
-- JPL ephemeris holdout validation.
+## Next after v1.0
 
-## v1.0 — U-Time Specification Candidate
+### v1.1 — Higher-accuracy time/observer providers
+- full SOFA/ERFA-equivalent topocentric `Dtdb` provider;
+- UT1/EOP provider;
+- spacecraft observer/worldline interfaces;
+- proper-time examples.
 
-- normative data schema;
-- versioned test vectors;
-- reference JavaScript implementation;
-- uncertainty contract;
-- independent implementation compatibility tests.
+### v1.2 — Full eclipse geometry
+- Besselian elements;
+- local contact circumstances;
+- ΔT/EOP provenance;
+- NASA catalog comparison over large historical/future samples.
 
-## v1.1 — Multi-Observer / Spacecraft Time
+### v1.3 — Planetary Digital Twin
+- alternate published Antikythera planetary gear reconstructions;
+- front-dial visualization;
+- JPL ephemeris residual distributions rather than three-epoch benchmark only.
 
-- geocenter/barycenter/spacecraft contexts;
-- coordinate versus proper time;
-- observer trajectory metadata.
+### v1.4 — Independent review
+- third-party implementation;
+- public conformance challenge;
+- archived benchmark datasets;
+- research paper/preprint.
 
-## v1.2 — Astronomical Age API
+## v2.0 — External standardization candidate
 
-- event-to-event age with explicit scale/frame;
-- inferred stellar/planetary ages with provenance + uncertainty;
-- numerical precision separated from uncertain origin epoch.
-
-## v1.3 — Cosmology Posterior / Model Comparison
-
-- additional official posterior-chain ingestion as datasets evolve;
-- model-dependent cosmic-age distributions;
-- compare models without collapsing model dependence into one absolute age.
-
-## v1.4 — Historical Antikythera Reconstruction
-
-- documented gear trains/tooth counts;
-- pin-and-slot lunar anomaly;
-- front/back dials;
-- Metonic, Callippic, Saros, Exeligmos, Games;
-- alternative scholarly reconstructions with uncertainty labels.
-
-## v2.0 — Independent Review / Standardization
-
-- frozen specification candidate;
-- public reference datasets;
-- third-party reproducibility challenge;
-- multiple independent implementations;
-- external review before any claim of standard adoption.
+A repository MUST NOT self-declare international standard adoption. v2.0 requires external review, multiple independent implementations and relevant standards/community engagement.
 
 ## Permanent scientific rule
 
