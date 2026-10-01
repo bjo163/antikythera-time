@@ -1,0 +1,23 @@
+{
+ "$schema":"https://json-schema.org/draft/2020-12/schema",
+ "$id":"https://m-time.invalid/spec/mtime-0.1.schema.json",
+ "title":"M-Time 0.1 Temporal Resolution",
+ "type":"object",
+ "required":["protocol","version","kind","evidence","quality","astronomical_state","criterion","observations","sources"],
+ "properties":{
+  "protocol":{"const":"M-Time"},
+  "version":{"const":"0.1.0-alpha"},
+  "kind":{"const":"temporal_resolution"},
+  "evidence":{"enum":["OBSERVED","MEASURED","CALCULATED","MODELED","INFERRED","RECONSTRUCTED","SPECULATIVE","TEXTUAL_REFERENCE"]},
+  "quality":{"enum":["REFERENCE","HIGH_PRECISION","APPROXIMATE","RECONSTRUCTION","CONCEPTUAL"]},
+  "astronomical_state":{
+   "type":"object",
+   "required":["conjunction_jd_tt","sunset_jd_utc","moon_topocentric_altitude_deg","moon_geocentric_altitude_deg","moon_sun_geocentric_elongation_deg","observer_id","ephemeris_provider"]
+  },
+  "criterion":{"type":"object","required":["profile_id","profile_version","pass","clauses"]},
+  "observations":{"type":"array"},
+  "authority":{"type":["object","null"]},
+  "sources":{"type":"array","minItems":1}
+ },
+ "additionalProperties":false
+}
