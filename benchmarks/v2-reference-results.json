@@ -1,0 +1,13 @@
+{
+  "version":"2.0.0",
+  "generatedFor":"U-Time standardization candidate",
+  "results":[
+    {"id":"SOFA_TIME_VECTORS","source":"IAU SOFA validation","samples":6,"result":"PASS","details":"TT/TCG, TCB/TDB, TT/TDB wrapper"},
+    {"id":"ERFA_DTR","source":"PyERFA dtdb / SOFA-derived","samples":164,"window":"1900-2100","maxAbsErrorSeconds":0.000034679807,"meanAbsErrorSeconds":0.000014898798,"rmsErrorSeconds":0.000017171827,"thresholdSeconds":0.0001,"result":"PASS","workflowRun":36829987304},
+    {"id":"IERS_EOP_INGEST","source":"IERS finals.all IAU2000","rows":2386,"first":"1973-01-02","latestObserved":"2026-09-08","result":"PASS","workflowRun":36913489054},
+    {"id":"NASA_SAROS_139","source":"NASA GSFC eclipse references","comparisons":2,"thresholdMinutes":30,"result":"PASS"},
+    {"id":"JPL_PLANETARY","source":"JPL Horizons geometric heliocentric vectors","comparisons":15,"result":"PASS","workflowRun":36830365898},
+    {"id":"DESI_POSTERIOR","source":"official DESI DR2 Cobaya chains","models":3,"meanAgreementThresholdGyr":0.001,"result":"PASS","workflowRun":36825466646},
+    {"id":"V2_LANGUAGE_COMPAT","source":"JavaScript/Python/Rust independent calculations","domains":["TT_TO_TCG","PLANCK_AGE","SAROS","MARS_XYZ"],"result":"PASS","workflowRun":36913928074}
+  ]
+}
