@@ -1,0 +1,7 @@
+[package]
+name="mtime-worship"
+version.workspace=true
+edition.workspace=true
+license.workspace=true
+[dependencies]
+mtime-resolution={path="../mtime-resolution"}
