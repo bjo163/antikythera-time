@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="U-Time v0.3-alpha evidence dashboard: SI time, J2000, Antikythera cycles, IERS/BIPM validation and JPL reference checks." />
+  <title>U-Time v0.3 — Antikythera Evidence Dashboard</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="stars"></div>
+  <main>
+    <header class="hero">
+      <div class="eyebrow">ALLAH PROMISE · MOONWITNESS · RESEARCH PROTOTYPE</div>
+      <h1>U‑Time <span>v0.3‑alpha</span></h1>
+      <p class="lead">Universal measurement protocol — <strong>not</strong> an absolute cosmic clock.</p>
+      <div class="pills"><span>SI second</span><span>J2000.0 TT</span><span>Explicit scale/frame</span><span>Antikythera cycles</span></div>
+    </header>
+
+    <section class="clock card">
+      <div><div class="label">CURRENT U‑TIME / TT</div><div id="utime" class="mono huge">—</div></div>
+      <div class="grid4">
+        <div><span>UTC input</span><strong id="utc">—</strong></div>
+        <div><span>JD(TT)</span><strong id="jd">—</strong></div>
+        <div><span>TAI−UTC</span><strong>37 s</strong></div>
+        <div><span>TT−TAI</span><strong>32.184 s</strong></div>
+      </div>
+      <div class="callout">UTC→TT display is bounded to the currently validated IERS window. JavaScript Date gives millisecond input resolution; it is not an atomic clock.</div>
+    </section>
+
+    <section class="two">
+      <article class="card">
+        <div class="section-title">ANTIKYTHERA CYCLE ENGINE</div>
+        <div class="cycle"><div class="ring"><div><b>235</b><small>lunar months</small></div></div><div><h2>Metonic</h2><p>19-year calendar-cycle structure.</p><div class="meter"><i id="metonicBar"></i></div><div class="mono" id="metonicPhase">—</div></div></div>
+        <div class="cycle"><div class="ring"><div><b>223</b><small>lunar months</small></div></div><div><h2>Saros</h2><p>Eclipse-cycle structure.</p><div class="meter"><i id="sarosBar"></i></div><div class="mono" id="sarosPhase">—</div></div></div>
+        <p class="foot">Adoption level: <b>computational principle + documented cycle counts</b>. This is not a claim that the ancient mechanism itself defined SI time.</p>
+      </article>
+
+      <article class="card">
+        <div class="section-title">LIVE EXTERNAL REFERENCE</div>
+        <h2>NASA/JPL Horizons · Moon</h2>
+        <p>Query: Moon (301), Earth geocenter, illuminated fraction + phase angle.</p>
+        <button id="jplBtn">Validate against JPL now</button>
+        <div id="jplStatus" class="result muted">Not queried yet.</div>
+        <div class="source-note">Horizons is used as an external reference, not as the definition of U‑Time.</div>
+      </article>
+    </section>
+
+    <section class="card">
+      <div class="section-title">EVIDENCE GATE</div>
+      <div class="evidence-grid">
+        <div class="e ok"><b>VALIDATED</b><h3>SI second</h3><p>BIPM metrology foundation.</p></div>
+        <div class="e ok"><b>VALIDATED</b><h3>J2000.0</h3><p>JD 2451545.0 TT coordinate epoch.</p></div>
+        <div class="e ok"><b>VALIDATED</b><h3>TT ↔ TAI</h3><p>Exact 32.184 s relation in implementation.</p></div>
+        <div class="e warn"><b>WINDOWED</b><h3>UTC ↔ TAI</h3><p>37 s for current IERS-validated window.</p></div>
+        <div class="e model"><b>MODEL</b><h3>Metonic / Saros</h3><p>Antikythera-inspired cyclic computation.</p></div>
+        <div class="e pending"><b>PENDING</b><h3>TDB / TCB</h3><p>No fake conversion: relativistic layer still withheld.</p></div>
+      </div>
+    </section>
+
+    <section class="principle card">
+      <div class="section-title">CORE PRINCIPLE</div>
+      <code>U‑Time = SI duration + epoch + time scale + reference frame + uncertainty</code>
+      <p>“Universal” here means a shared protocol with declared coordinates — not one absolute clock for the entire universe.</p>
+    </section>
+
+    <footer><a href="https://github.com/bjo163/antikythera-time">GitHub source</a><span>·</span><span>v0.3-alpha research prototype</span></footer>
+  </main>
+  <script type="module" src="/site.js"></script>
+</body>
+</html>
