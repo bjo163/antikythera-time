@@ -1,0 +1,17 @@
+{
+  "source":"NASA/JPL Horizons",
+  "source_workflow_run":36931115702,
+  "live_threshold_deg":0.1,
+  "offline_regression_threshold_deg":0.001,
+  "cases":[
+    {"id":"jakarta-ramadan","jd_utc":2461088.9166666665,"lat":-6.2,"lon":106.8,"height_m":10.0,"jpl_altitude_deg":16.102787,"jpl_elongation_deg":1.4499},
+    {"id":"jakarta-syawal","jd_utc":2461118.95,"lat":-6.2,"lon":106.8,"height_m":10.0,"jpl_altitude_deg":5.514724,"jpl_elongation_deg":5.5679},
+    {"id":"jakarta-zulhijjah","jd_utc":2461176.9166666665,"lat":-6.2,"lon":106.8,"height_m":10.0,"jpl_altitude_deg":1.080359,"jpl_elongation_deg":7.6393},
+    {"id":"makkah-syawal","jd_utc":2461119.148611111,"lat":21.4225,"lon":39.8262,"height_m":300.0,"jpl_altitude_deg":5.186122,"jpl_elongation_deg":8.0885},
+    {"id":"aceh-syawal","jd_utc":2461118.95,"lat":5.55,"lon":95.32,"height_m":20.0,"jpl_altitude_deg":17.723958,"jpl_elongation_deg":5.5679},
+    {"id":"jayapura-syawal","jd_utc":2461118.95,"lat":-2.53,"lon":140.72,"height_m":20.0,"jpl_altitude_deg":-27.941258,"jpl_elongation_deg":5.5679},
+    {"id":"istanbul-syawal","jd_utc":2461119.15,"lat":41.0082,"lon":28.9784,"height_m":40.0,"jpl_altitude_deg":13.635328,"jpl_elongation_deg":8.1063},
+    {"id":"newyork-syawal","jd_utc":2461119.2916666665,"lat":40.7128,"lon":-74.0060,"height_m":10.0,"jpl_altitude_deg":49.654332,"jpl_elongation_deg":9.9386},
+    {"id":"auckland-syawal","jd_utc":2461118.8,"lat":-36.8485,"lon":174.7633,"height_m":20.0,"jpl_altitude_deg":-9.522503,"jpl_elongation_deg":3.7528}
+  ]
+}
