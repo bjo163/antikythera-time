@@ -1,0 +1,31 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://example.invalid/m-time/mtime-0.1.schema.json",
+  "title":"M-Time Temporal Resolution 0.1",
+  "type":"object",
+  "required":["astronomy","criterion","computed_action"],
+  "properties":{
+    "astronomy":{
+      "type":"object",
+      "required":["moon_altitude_topocentric_deg","elongation_geocentric_deg","site_id","ephemeris_source"],
+      "properties":{
+        "moon_altitude_topocentric_deg":{"type":"number"},
+        "elongation_geocentric_deg":{"type":"number"},
+        "site_id":{"type":"string"},
+        "ephemeris_source":{"type":"string"}
+      }
+    },
+    "criterion":{
+      "type":"object",
+      "required":["profile_id","profile_version","met"],
+      "properties":{
+        "profile_id":{"type":"string"},
+        "profile_version":{"type":"string"},
+        "met":{"type":["boolean","null"]}
+      }
+    },
+    "observations":{"type":"array"},
+    "authority":{"type":["object","null"]},
+    "computed_action":{"type":"string"}
+  }
+}
