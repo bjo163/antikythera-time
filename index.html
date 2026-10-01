@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="U-Time v0.7 Cosmic Chronology Lab: time/astronomy validation plus separate model-dependent Friedmann cosmic-age inference." />
-  <title>U-Time v0.7 — Cosmic Chronology Lab</title>
+  <title>U-Time v0.8 — Relativistic Time + Cosmic Chronology</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
@@ -14,7 +14,7 @@
       <div class="eyebrow">ALLAH PROMISE · MOONWITNESS · VALIDATION LAB</div>
       <h1>U‑Time <span>v0.7‑alpha</span></h1>
       <p class="lead">Measure the model against the sky reference — do not assume the model is right.</p>
-      <div class="pills"><span>SI second</span><span>J2000.0 TT</span><span>Leap-second table</span><span>Antikythera cycles</span><span>JPL validation</span><span>Cosmic chronology</span></div>
+      <div class="pills"><span>SI second</span><span>J2000.0 TT</span><span>Leap-second table</span><span>Antikythera cycles</span><span>JPL validation</span><span>Cosmic chronology</span><span>Relativistic time</span></div>
     </header>
 
     <section class="clock card">
@@ -141,6 +141,22 @@
       </details>
     </section>
 
+
+    <section class="card relativity">
+      <div class="section-title">V0.8 RELATIVISTIC TIME CORE</div>
+      <div class="boundary-banner"><b>STANDARD BOUNDARY</b> · Coordinate-time transformations follow IAU conventions and are validated against SOFA reference vectors. This project is not IAU/SOFA-endorsed software.</div>
+      <div class="relativity-grid">
+        <div><span>CURRENT TCG − TT</span><strong id="ttTcgOffset">—</strong><small>geocentric rate separation since 1977 reference epoch</small></div>
+        <div><span>SOFA REFERENCE VECTORS</span><strong id="relativityVectorStatus">—</strong><small>TT/TCG, TCB/TDB, TT/TDB wrapper</small></div>
+        <div><span>TDB ↔ TCB</span><strong>CANONICAL</strong><small>IAU 2006 B3 linear relation</small></div>
+        <div><span>TT ↔ TDB</span><strong>EXPLICIT dtr</strong><small>no invented periodic term</small></div>
+      </div>
+      <div class="pipeline">
+        <span>TT</span><i>↔</i><span>TCG / GCRS</span><i>·</i><span>TDB</span><i>↔</i><span>TCB / BCRS</span>
+      </div>
+      <p class="foot">Automatic TT↔TDB still requires a validated provider for <code>dtr = TDB−TT</code>. SOFA documents this term as ephemeris/model dependent and dominated by an annual millisecond-scale component.</p>
+    </section>
+
     <section class="card">
       <div class="section-title">EVIDENCE GATE</div>
       <div class="evidence-grid">
@@ -150,7 +166,7 @@
         <div class="e ok"><b>TABLE‑BACKED</b><h3>UTC ↔ TAI</h3><p>Historical leap-second offsets, bounded by verification date.</p></div>
         <div class="e model"><b>TESTABLE MODEL</b><h3>Lunar mean cycle</h3><p>NASA-calibrated phase-zero + mean synodic period.</p></div>
         <div class="e model"><b>HISTORICAL MODEL</b><h3>Metonic / Saros</h3><p>Antikythera-inspired cyclic computation.</p></div>
-        <div class="e pending"><b>PENDING</b><h3>TDB / TCB</h3><p>Relativistic conversion remains withheld until validated.</p></div>
+        <div class="e ok"><b>REFERENCE-VALIDATED</b><h3>TT / TCG · TDB / TCB</h3><p>Canonical transformations pass IAU SOFA vectors; TT↔TDB still requires explicit dtr.</p></div>
         <div class="e warn"><b>EXTERNAL CHECK</b><h3>JPL Horizons</h3><p>Reference ephemeris; never treated as U-Time's definition.</p></div>
       </div>
     </section>
@@ -161,7 +177,7 @@
       <p>“Universal” means a reproducible protocol with declared coordinates. v0.6 adds a second principle: <b>every astronomical model should expose its measured error.</b></p>
     </section>
 
-    <footer><a href="https://github.com/bjo163/antikythera-time">GitHub source</a><span>·</span><span>v0.7-alpha Cosmic Chronology Lab</span></footer>
+    <footer><a href="https://github.com/bjo163/antikythera-time">GitHub source</a><span>·</span><span>v0.8-alpha Cosmic Chronology Lab</span></footer>
   </main>
   <script type="module" src="./site.js"></script>
 </body>
