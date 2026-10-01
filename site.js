@@ -131,3 +131,31 @@ $('residualBtn').addEventListener('click', async () => {
     status.textContent=`Residual validation unavailable: ${e.message}`;
   }
 });
+
+
+$('cosmologyBtn').addEventListener('click', async () => {
+  const preset=$('cosmologyPreset').value;
+  const status=$('cosmologyStatus');
+  const metrics=$('cosmologyMetrics');
+  status.className='result';
+  status.textContent='Evaluating Friedmann age integral…';
+  metrics.classList.add('hidden');
+  $('cosmicParams').textContent='';
+  try {
+    const r=await fetch('/api/cosmology-age?preset='+encodeURIComponent(preset)+'&uncertainty=none');
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.error || ('HTTP '+r.status));
+    $('cosmicAge').textContent=d.result.gyr.toFixed(6);
+    $('cosmicModel').textContent=d.model;
+    $('cosmicH0').textContent=d.parameters.H0.toFixed(3)+' km/s/Mpc';
+    $('cosmicOmegaM').textContent=d.parameters.omegaM.toFixed(6);
+    $('cosmicNumError').textContent=d.numericalUncertainty.gyr.toExponential(2)+' Gyr';
+    $('cosmicSource').textContent=d.provenance?.dataset || d.observationalSource || 'explicit parameters';
+    $('cosmicParams').textContent=JSON.stringify(d.parameters,null,2);
+    status.innerHTML='<b>'+d.status+'</b> · '+(d.provenance?.publication || d.parameterSource || 'explicit parameter set')+'<br><span class="small">Antikythera determines cosmic age: false · Scripture used as numerical prior: false</span>';
+    metrics.classList.remove('hidden');
+  } catch(e) {
+    status.className='result error';
+    status.textContent='Cosmology inference unavailable: '+e.message;
+  }
+});
