@@ -21,8 +21,11 @@ pub fn snapshot_json(jd_utc:f64,site:&Site)->Result<Value,String>{
 pub fn state_at(jd_utc:f64,site:&Site)->Result<SunMoonState,String>{
  let v=snapshot_json(jd_utc,site)?;
  let sun=body(&v,"Sun")?;let moon=body(&v,"Moon")?;
- let sun_state=BodyState{right_ascension_deg:num(sun,"geocentric_apparent_ra_deg")?,declination_deg:num(sun,"geocentric_apparent_dec_deg")?,distance_au:num(sun,"geocentric_range_km")?/149_597_870.7};
- let moon_state=BodyState{right_ascension_deg:num(moon,"geocentric_apparent_ra_deg")?,declination_deg:num(moon,"geocentric_apparent_dec_deg")?,distance_au:num(moon,"geocentric_range_km")?/149_597_870.7};
+ let distance_au=|b:&Value| b["geocentric_range_km"].as_f64()
+    .or_else(||b["observer_range_km"].as_f64())
+    .map(|km|km/149_597_870.7);
+ let sun_state=BodyState{right_ascension_deg:num(sun,"geocentric_apparent_ra_deg")?,declination_deg:num(sun,"geocentric_apparent_dec_deg")?,distance_au:distance_au(sun)};
+ let moon_state=BodyState{right_ascension_deg:num(moon,"geocentric_apparent_ra_deg")?,declination_deg:num(moon,"geocentric_apparent_dec_deg")?,distance_au:distance_au(moon)};
  let elong=angular_separation_deg(sun_state.right_ascension_deg,sun_state.declination_deg,moon_state.right_ascension_deg,moon_state.declination_deg);
  Ok(SunMoonState{
   jd_tt:num(&v["time"],"jd_tt")?,site:site.clone(),sun:sun_state,moon:moon_state,
@@ -107,6 +110,6 @@ mod tests{
  use super::*;
  fn jakarta()->Site{Site{id:"jakarta".into(),latitude_deg:-6.2,longitude_deg:106.8,height_m:10.0,datum:"WGS84".into()}}
  #[test]fn offline_snapshot_is_finite(){let s=state_at(2461041.0,&jakarta()).unwrap();assert!(s.moon_topocentric_altitude_deg.is_finite());assert!((0.0..=180.0).contains(&s.moon_sun_geocentric_elongation_deg));}
- #[test]fn conjunction_solver_finds_root(){let root=find_conjunction_tt(2461038.0,2461044.0).unwrap();assert!(signed_lon_diff_deg(root).abs()<1e-5);}
+ #[test]fn conjunction_solver_finds_root(){let root=find_conjunction_tt(2461115.0,2461120.0).unwrap();assert!(signed_lon_diff_deg(root).abs()<1e-5);}
  #[test]fn implicit_tt_to_utc_is_rejected(){let p=SolarEphemerisProvider;assert!(p.sun_moon_state(2461041.0,&jakarta()).is_err());}
 }
