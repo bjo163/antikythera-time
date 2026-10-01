@@ -15,6 +15,7 @@ members = [
   "crates/mtime-cosmology",
   "crates/mtime-revelation",
   "crates/mtime-conformance",
+  "crates/mtime-protocol",
   "crates/mtime-wasm",
   "crates/mtime-cli"
 ]
