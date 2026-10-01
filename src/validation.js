@@ -1,10 +1,10 @@
-import { lunarModelAtUtc } from './lunar-model.js';
+import { lunarModelAtUtcWithParams, DEFAULT_LUNAR_MODEL_PARAMS } from './lunar-model.js';
 
 function mean(values) { return values.reduce((a,b)=>a+b,0) / values.length; }
 function rms(values) { return Math.sqrt(mean(values.map(v=>v*v))); }
 
-export function compareLunarReference({ date, illuminatedPercent, phaseAngleDeg }) {
-  const model = lunarModelAtUtc(date);
+export function compareLunarReference({ date, illuminatedPercent, phaseAngleDeg, params = DEFAULT_LUNAR_MODEL_PARAMS }) {
+  const model = lunarModelAtUtcWithParams(date, params);
   const illuminationError = model.illuminationPercent - illuminatedPercent;
   const phaseAngleError = model.phaseAngleDeg - phaseAngleDeg;
   return {
@@ -39,4 +39,15 @@ export function summarizeValidation(samples) {
       maxAbsDeg: Math.max(...pe.map(Math.abs)),
     },
   };
+}
+
+export function validationScore(summary) {
+  if (!summary?.illumination || !summary?.phaseAngle) throw new TypeError('summary must be a validation summary');
+  return summary.illumination.rmsePoints / 100 + summary.phaseAngle.rmseDeg / 180;
+}
+
+export function evaluateReferences(references, params = DEFAULT_LUNAR_MODEL_PARAMS) {
+  const samples = references.map(r => compareLunarReference({ ...r, params }));
+  const summary = summarizeValidation(samples);
+  return { params, summary, score: validationScore(summary), samples };
 }
