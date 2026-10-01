@@ -85,7 +85,7 @@ Cosmology tests include:
 - phase ≠ absolute age invariant;
 - rejection of Antikythera→Big-Bang semantic misuse.
 
-Existing Solar-System tests remain intact.
+Existing Solar-System tests remain intact. Final CI gate: **55 tests / 55 pass / 0 fail**.
 
 ## Documentation
 
@@ -100,6 +100,24 @@ Existing Solar-System tests remain intact.
 - `docs/test-report.md`
 - `docs/research-integrity.md`
 - `docs/long-term-roadmap.md`
+- `docs/official-desi-posterior.md`
+- `docs/cosmology-age-results.md`
+- `docs/deliverables-status.md`
+- `docs/deployment.md`
+- `docs/final-research-report.md`
+
+
+## Official DESI posterior reproduction
+
+The `official-posterior` GitHub Actions workflow downloads DESI DR2 public Cobaya chains, locks the documented baseline CMB likelihood combination, summarizes the full official derived-age posterior, independently recomputes a deterministic 6000-sample subset through the U-Time Friedmann integrator, and enforces a 0.001-Gyr (1 Myr) mean-agreement gate.
+
+Final supported full-chain posteriors:
+
+- DESI DR2 + CMB flat ΛCDM: **13.788868 ± 0.015691 Gyr**;
+- DESI DR2 + CMB curved ΛCDM: **13.703507 ± 0.045204 Gyr**;
+- DESI DR2 + CMB + DESY5 w0waCDM: **13.759532 ± 0.019103 Gyr**.
+
+All three engine-vs-Cobaya agreement gates pass. See `docs/official-desi-posterior.md` for intervals, sample counts, run ID and artifact hash.
 
 ## Scientific boundaries
 
