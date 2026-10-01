@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bjo163.github.io/antikythera-time/spec/utime-v1.schema.json",
+  "title": "U-Time 1.0 Protocol Record",
+  "type": "object",
+  "required": ["protocol","version","kind","quantity","status","value","provenance"],
+  "properties": {
+    "protocol": {"const":"U-Time"},
+    "version": {"const":"1.0.0"},
+    "kind": {"enum":["instant","duration","inference","model_result"]},
+    "quantity": {"type":"string","minLength":1},
+    "status": {"enum":["OBSERVED","MEASURED","CALCULATED","MODELED","INFERRED","RECONSTRUCTED","SPECULATIVE","TEXTUAL_REFERENCE"]},
+    "value": {"type":"object"},
+    "context": {"type":"object"},
+    "uncertainty": {"type":["object","null"]},
+    "provenance": {
+      "type":"object",
+      "required":["source"],
+      "properties":{"source":{"type":"string","minLength":1}},
+      "additionalProperties":true
+    },
+    "boundary": {"type":"object"}
+  },
+  "additionalProperties":true
+}
