@@ -6,15 +6,21 @@ use mtime_timescales::tt_to_tai;
 fn tt_jd_to_utc_jd_2026(jd_tt:f64)->f64{
     let tt=CoordinateTime::new(jd_tt.floor(),jd_tt-jd_tt.floor(),TimeScale::TT,ReferenceFrame::GCRS).unwrap();
     let tai=tt_to_tai(tt).unwrap();
-    // TAI-UTC = 37 s throughout 2026.
     tai.jd()-37.0/86400.0
 }
 fn main(){
-    let makkah=Site{id:"Makkah".into(),latitude_deg:21.4225,longitude_deg:39.8262,height_m:300.0,datum:"WGS84".into()};
+    let makkah=Site{id:"Makkah".into(),latitude_deg:21.0+25.0/60.0+22.0/3600.0,longitude_deg:39.0+49.0/60.0+31.0/3600.0,height_m:300.0,datum:"WGS84".into()};
     let conjunction_tt=find_conjunction_tt(2461117.5,2461119.0).expect("conjunction");
     let conjunction_utc=tt_jd_to_utc_jd_2026(conjunction_tt);
-    let sunset=sunset_jd_utc(2461118.5,&makkah).expect("Makkah sunset");
-    let state=state_at(sunset,&makkah).expect("state at sunset");
-    println!("{{\"conjunction_jd_tt\":{:.12},\"conjunction_jd_utc\":{:.12},\"makkah_sunset_jd_utc\":{:.12},\"makkah_geocentric_altitude_deg\":{:.12},\"makkah_topocentric_altitude_deg\":{:.12},\"makkah_elongation_deg\":{:.12}}}",
-      conjunction_tt,conjunction_utc,sunset,state.moon_geocentric_altitude_deg,state.moon_topocentric_altitude_deg,state.moon_sun_geocentric_elongation_deg);
+
+    let mtime_sunset=sunset_jd_utc(2461118.5,&makkah).expect("M-Time Makkah sunset");
+
+    // Published KHGT/Muhammadiyah reference instant: 2026-03-19 15:34:04 UTC.
+    // We compare their geocentric Moon geometry at THEIR declared instant rather
+    // than silently tuning our sunset convention to it.
+    let published_sunset=2461119.1486574076_f64;
+    let state=state_at(published_sunset,&makkah).expect("state at published KHGT sunset");
+
+    println!("{{\"conjunction_jd_tt\":{:.12},\"conjunction_jd_utc\":{:.12},\"mtime_sunset_jd_utc\":{:.12},\"published_sunset_jd_utc\":{:.12},\"published_time_geocentric_altitude_deg\":{:.12},\"published_time_topocentric_altitude_deg\":{:.12},\"published_time_elongation_deg\":{:.12}}}",
+      conjunction_tt,conjunction_utc,mtime_sunset,published_sunset,state.moon_geocentric_altitude_deg,state.moon_topocentric_altitude_deg,state.moon_sun_geocentric_elongation_deg);
 }
