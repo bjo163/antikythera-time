@@ -1,7 +1,8 @@
 use mtime_authority::{AuthorityDecision,DecisionKind,ObservationReport,ObservationOutcome};
 use mtime_calendar::CriterionResult;
 use mtime_diff::ResolutionSummary;
-use mtime_hijri::{evaluate_profile,CalendarProfile,HijriAstronomicalState};
+use mtime_hijri::{evaluate_profile,HijriAstronomicalState};
+use mtime_calendar::CalendarProfile;
 
 #[derive(Debug,Clone,PartialEq)]
 pub enum ComputedMonthOutcome { CriterionSatisfied, CriterionNotSatisfied }
