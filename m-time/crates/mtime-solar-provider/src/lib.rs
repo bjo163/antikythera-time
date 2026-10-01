@@ -19,21 +19,47 @@ pub fn snapshot_json(jd_utc:f64,site:&Site)->Result<Value,String>{
 }
 
 pub fn state_at(jd_utc:f64,site:&Site)->Result<SunMoonState,String>{
- let v=snapshot_json(jd_utc,site)?;
- let sun=body(&v,"Sun")?;let moon=body(&v,"Moon")?;
- let distance_au=|b:&Value| b["geocentric_range_km"].as_f64()
-    .or_else(||b["observer_range_km"].as_f64())
-    .map(|km|km/149_597_870.7);
- let sun_state=BodyState{right_ascension_deg:num(sun,"geocentric_apparent_ra_deg")?,declination_deg:num(sun,"geocentric_apparent_dec_deg")?,distance_au:distance_au(sun)};
- let moon_state=BodyState{right_ascension_deg:num(moon,"geocentric_apparent_ra_deg")?,declination_deg:num(moon,"geocentric_apparent_dec_deg")?,distance_au:distance_au(moon)};
- let elong=angular_separation_deg(sun_state.right_ascension_deg,sun_state.declination_deg,moon_state.right_ascension_deg,moon_state.declination_deg);
+ use solar_ephemeris::{coords,earth_orientation,elpmpp02,planets,time,timescales::AstroTime};
+ if !jd_utc.is_finite(){return Err("finite JD UTC required".into())}
+ let astro=AstroTime::from_jd_utc(jd_utc);
+ let t=time::centuries(astro.jd_tt);
+ let (dpsi,deps)=time::nutation_deg(t);
+ let eps=time::mean_obliquity_deg(t)+deps;
+ let (observer_lat,observer_lon)=earth_orientation::corrected_observer_geodetic(site.latitude_deg,site.longitude_deg,astro.eop.xp_arcsec,astro.eop.yp_arcsec);
+ let lst=(time::gast_deg(astro.jd_ut1,dpsi,eps)+observer_lon).rem_euclid(360.0);
+ let (rho_sin,rho_cos)=coords::observer_rho(observer_lat,site.height_m);
+
+ let (slon,slat,sdist_au)=planets::sun_apparent_ecliptic(astro.jd_tt,dpsi);
+ let (sra,sdec)=coords::ecl_to_equ(slon,slat,eps);
+ let (sra_t,sdec_t)=coords::topocentric(sra,sdec,sdist_au*coords::AU_KM,lst,rho_sin,rho_cos);
+ let (salt,_)=coords::alt_az(sra_t,sdec_t,lst,observer_lat);
+
+ let (mlon,mlat,mdist_km)=elpmpp02::moon_apparent_ecliptic(astro.jd_tt,dpsi);
+ let (mra,mdec)=coords::ecl_to_equ(mlon,mlat,eps);
+ let (mra_t,mdec_t)=coords::topocentric(mra,mdec,mdist_km,lst,rho_sin,rho_cos);
+ let (malt,_)=coords::alt_az(mra_t,mdec_t,lst,observer_lat);
+
+ let sun_state=BodyState{right_ascension_deg:sra,declination_deg:sdec,distance_au:Some(sdist_au)};
+ let moon_state=BodyState{right_ascension_deg:mra,declination_deg:mdec,distance_au:Some(mdist_km/coords::AU_KM)};
+ let elong=angular_separation_deg(sra,sdec,mra,mdec);
+ let eop_quality=format!("{:?}",astro.eop.quality);
+ let _=salt; // used by sunset fast path below; retained here for symmetric reduction.
  Ok(SunMoonState{
-  jd_tt:num(&v["time"],"jd_tt")?,site:site.clone(),sun:sun_state,moon:moon_state,
-  moon_topocentric_altitude_deg:num(moon,"alt_deg")?,
+  jd_tt:astro.jd_tt,site:site.clone(),sun:sun_state,moon:moon_state,
+  moon_topocentric_altitude_deg:malt,
   moon_sun_geocentric_elongation_deg:elong,
   illumination_fraction:(1.0-elong.to_radians().cos())/2.0,
-  provenance:vec![Provenance{source:"solar-ephemeris 0.2.0 offline analytic provider".into(),version:Some("0.2.0".into()),retrieved_at:None}],
+  provenance:vec![Provenance{source:format!("solar-ephemeris 0.2.0 direct numeric provider; EOP quality={eop_quality}"),version:Some("0.2.0".into()),retrieved_at:None}],
  })
+}
+
+fn direct_sun_altitude_deg(jd_utc:f64,site:&Site)->Result<f64,String>{
+ use solar_ephemeris::{coords,earth_orientation,planets,time,timescales::AstroTime};
+ let astro=AstroTime::from_jd_utc(jd_utc);let t=time::centuries(astro.jd_tt);let(dpsi,deps)=time::nutation_deg(t);let eps=time::mean_obliquity_deg(t)+deps;
+ let(observer_lat,observer_lon)=earth_orientation::corrected_observer_geodetic(site.latitude_deg,site.longitude_deg,astro.eop.xp_arcsec,astro.eop.yp_arcsec);
+ let lst=(time::gast_deg(astro.jd_ut1,dpsi,eps)+observer_lon).rem_euclid(360.0);let(rho_sin,rho_cos)=coords::observer_rho(observer_lat,site.height_m);
+ let(lon,lat,dist)=planets::sun_apparent_ecliptic(astro.jd_tt,dpsi);let(ra,dec)=coords::ecl_to_equ(lon,lat,eps);let(ra_t,dec_t)=coords::topocentric(ra,dec,dist*coords::AU_KM,lst,rho_sin,rho_cos);
+ Ok(coords::alt_az(ra_t,dec_t,lst,observer_lat).0)
 }
 
 #[derive(Debug,Clone)]
@@ -81,9 +107,7 @@ fn event_jd(body:&Value,name:&str)->Option<f64>{
  let e=&body["events"][name];
  e.as_f64().or_else(||e["jd"].as_f64())
 }
-fn sun_geometric_altitude_deg(jd_utc:f64,site:&Site)->Result<f64,String>{
- let v=snapshot_json(jd_utc,site)?;let sun=body(&v,"Sun")?;num(sun,"alt_deg")
-}
+fn sun_geometric_altitude_deg(jd_utc:f64,site:&Site)->Result<f64,String>{direct_sun_altitude_deg(jd_utc,site)}
 /// Local sunset fallback: solve geometric Sun-centre altitude = -0.8333 deg.
 /// The fixed threshold is explicitly an approximate standard-atmosphere model.
 /// A higher-fidelity provider may expose its own dynamic semidiameter/refraction event.
@@ -104,22 +128,17 @@ fn fallback_sunset_jd_utc(jd_utc:f64,site:&Site)->Result<f64,String>{
  Err("sunset crossing not found in local mean-solar day".into())
 }
 pub fn sunset_jd_utc(jd_utc:f64,site:&Site)->Result<f64,String>{
- let v=snapshot_json(jd_utc,site)?;let sun=body(&v,"Sun")?;
- event_jd(sun,"set").map(Ok).unwrap_or_else(||fallback_sunset_jd_utc(jd_utc,site))
+ // Direct numeric fallback is authoritative for this adapter; snapshot events remain diagnostic.
+ fallback_sunset_jd_utc(jd_utc,site)
 }
 
 pub fn hilal_state_for_local_day(jd_utc:f64,site:&Site)->Result<HijriAstronomicalState,String>{
- let daily=snapshot_json(jd_utc,site)?;
- let moon=body(&daily,"Moon")?;
  let sunset=sunset_jd_utc(jd_utc,site)?;
- let at_set=snapshot_json(sunset,site)?;
- let moon_set=body(&at_set,"Moon")?;
  let state=state_at(sunset,site)?;
- let sunset_tt=num(&at_set["time"],"jd_tt")?;
+ let sunset_tt=state.jd_tt;
  let conjunction=find_conjunction_tt(sunset_tt-3.0,sunset_tt+0.25)?;
  if conjunction>sunset_tt{return Err("nearest conjunction occurs after sunset; requested day is pre-conjunction".into())}
- let moon_set_jd=event_jd(moon,"set").or_else(||event_jd(moon_set,"set"));
- let lag=moon_set_jd.map(|x|(x-sunset)*1440.0);
+ let lag=None;
  Ok(HijriAstronomicalState{
   conjunction_jd_tt:conjunction,sunset_jd_utc:sunset,
   moon_topocentric_altitude_deg:state.moon_topocentric_altitude_deg,
