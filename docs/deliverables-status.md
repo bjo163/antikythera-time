@@ -37,4 +37,16 @@ Full server-backed `/api/**` endpoints still require a serverless host such as V
 A repository cannot self-declare itself a universal standard. Independent implementation, peer review, external reproducibility and standards-community adoption remain external future gates.
 
 ### Future research roadmap
-Eclipse, planetary reconstruction, validated relativistic time transformations, and full historical Antikythera reconstruction remain roadmap work. They are not required to make the present cosmological chronology implementation internally complete.
+The v0.8 relativistic coordinate-time core is now implemented and reference-validated. Remaining roadmap work includes the full automatic TDB−TT provider, eclipse engine, planetary reconstruction, and full historical Antikythera reconstruction. They are not required to make the present cosmological chronology implementation internally complete.
+
+
+## v0.8 relativistic extension
+
+| Deliverable | Status | Repository output |
+|---|---|---|
+| Separate coordinate-time type | COMPLETE | `src/relativity/coordinate-time.js` |
+| TT↔TCG canonical transform | COMPLETE | `src/relativity/transforms.js` |
+| TDB↔TCB canonical transform | COMPLETE | `src/relativity/transforms.js` |
+| TT↔TDB canonical wrapper | COMPLETE WITH EXPLICIT dtr | `src/relativity/transforms.js` |
+| SOFA reference-vector validation | COMPLETE | `src/relativity/validation.js`, `test/relativity.test.js` |
+| Automatic ephemeris-dependent TDB−TT provider | OPEN v0.8.1 | intentionally not approximated |
