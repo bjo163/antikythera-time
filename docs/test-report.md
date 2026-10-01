@@ -4,7 +4,11 @@ Date: 2026-10-01
 
 ## Core unit/integration gate
 
-Latest completed pre-release full test gate:
+Final v1.0 full test gate:
+
+- GitHub Actions run: `36831062747`
+- Result: SUCCESS
+
 
 ```text
 tests 85
