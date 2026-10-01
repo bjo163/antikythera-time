@@ -1,0 +1,7 @@
+[package]
+name="mtime-timescales"
+version.workspace=true
+edition.workspace=true
+license.workspace=true
+[dependencies]
+mtime-core={path="../mtime-core"}
