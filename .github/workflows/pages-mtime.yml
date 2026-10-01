@@ -2,7 +2,7 @@ name: m-time-pages
 on:
   workflow_dispatch:
   push:
-    branches: [m-time]
+    branches: [main]
     paths:
       - "web/**"
       - "crates/mtime-wasm/**"
