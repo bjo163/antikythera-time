@@ -1,7 +1,7 @@
 use mtime_authority::{AuthorityDecision, DecisionKind};
 use mtime_core::QualityClass;
 use mtime_explain::{explain_difference, official_vs_computed_conflict, DiffCategory, TemporalResolution};
-use mtime_hijri::{computed_action, CalendarProfile, HijriAstronomicalState, INDONESIA_1447_PILOTS,, GeometrySemantics};
+use mtime_hijri::{computed_action, CalendarProfile, HijriAstronomicalState, INDONESIA_1447_PILOTS, GeometrySemantics};
 use mtime_observation::ObservationSummary;
 
 fn state_from_case(index: usize, use_minima: bool) -> HijriAstronomicalState {
