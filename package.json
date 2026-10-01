@@ -1,7 +1,7 @@
 {
   "name": "antikythera-time",
-  "version": "0.3.0-alpha.1",
-  "description": "U-Time research prototype: SI-second core, validated scale transforms, Antikythera-inspired cycles, and evidence dashboard.",
+  "version": "0.4.0-alpha.1",
+  "description": "U-Time v0.4 validation lab: SI-time core, Antikythera-inspired cycles, NASA-calibrated lunar model, and JPL error metrics.",
   "type": "module",
   "scripts": {
     "test": "node --test",
