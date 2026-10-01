@@ -1,111 +1,61 @@
-# Test Report — U-Time 1.0.0
+# Test Report — U-Time 2.0.0
 
-Date: 2026-10-01
+Date: 2026-10-02
 
-## Core unit/integration gate
+## Final core gate
 
-Final v1.0 full test gate:
-
-- GitHub Actions run: `36831062747`
-- Result: SUCCESS
-
+GitHub Actions run: `36914542152`
 
 ```text
-tests 85
-pass  85
+tests 103
+pass  103
 fail  0
 ```
 
-The suite was expanded cumulatively; earlier time/astronomy/cosmology tests were not replaced.
+## Cross-language conformance
 
-## Relativistic-time validation
+JavaScript / Python / Rust compatibility: **PASS**.
 
-- six IAU SOFA reference vectors;
-- TT↔TCG roundtrip;
-- TDB↔TCB roundtrip;
-- explicit TT↔TDB dtr boundary;
-- precision-preserving two-part JD type.
+Domains independently recomputed:
 
-Result: PASS.
+- TT→TCG;
+- Planck flat-ΛCDM age;
+- Saros recurrence;
+- Mars J2000 approximate vector.
 
-## Automatic TDB−TT / ERFA benchmark
+## External-reference gates
 
-Workflow: `erfa-dtr-benchmark`
+| Gate | Result |
+|---|---|
+| IAU SOFA time vectors | PASS |
+| ERFA TDB−TT, 164 samples 1900–2100 | PASS |
+| IERS finals.all IAU2000 ingestion | PASS |
+| NASA Saros 139 recurrence | PASS |
+| NASA 2026 Besselian t0 evaluator | PASS |
+| JPL Horizons planetary vectors, 15 comparisons | PASS |
+| official DESI DR2 posterior reproduction | PASS |
 
-Successful run: `36829987304`.
-
-```text
-samples              164
-max abs error         34.679807 µs
-mean abs error        14.898798 µs
-RMS error             17.171827 µs
-threshold             100 µs
-result                PASS
-```
-
-## NASA eclipse recurrence validation
-
-The Saros 139 recurrence engine uses NASA's published Saros period and NASA GSFC greatest-eclipse reference epochs for 2024, 2042 and 2060.
-
-Declared gate: first two recurrences remain within 30 minutes of reference greatest-eclipse TT.
-
-Result: PASS.
-
-This validates recurrence behavior, not full Besselian eclipse geometry.
-
-## JPL planetary benchmark
-
-Workflow: `jpl-planetary-benchmark`
-
-Successful run: `36830365898`.
-
-15 comparisons against JPL Horizons geometric heliocentric ecliptic vectors:
+## ERFA dtr benchmark
 
 ```text
-Mercury  0.7–3.4 thousand km
-Venus    8.1–12.3 thousand km
-Mars     8.2–45.8 thousand km
-Jupiter  0.61–1.58 million km
-Saturn   2.03–3.85 million km
+max absolute error   34.679807 µs
+mean absolute error  14.898798 µs
+RMS error            17.171827 µs
+gate                 100 µs
 ```
 
-All declared body-specific gates: PASS.
+## IERS ingestion
 
-## Cosmology / official DESI posterior validation
+Workflow run `36913489054` parsed 2,386 EOP rows; the latest observed entry in that fetched snapshot was dated 2026-09-08.
 
-Workflow: `official-posterior`
+## Release integrity
 
-Reference successful run: `36825466646`.
+v2 release bundle run: `36914464594`.
 
-The full official Cobaya age posterior is summarized; a deterministic 6000-sample subset is recomputed independently through the project's Friedmann integrator.
+Tarball SHA-256:
 
-All three supported DESI combinations pass the 0.001-Gyr weighted-mean agreement threshold.
+`adc96cd9744c9f3c0110fc7a746e4e4db82d07443383b66991ea74b12544bc7c`
 
-## v1 independent implementation compatibility
+## Interpretation
 
-Workflow: `v1-compatibility`
-
-Successful run: `36830567705`.
-
-Independent JavaScript/Python checks:
-
-- TT→TCG: PASS;
-- Planck age: PASS;
-- one-Saros recurrence: PASS;
-- JPL approximate Mars x/y/z: PASS.
-
-Overall: **PASS**.
-
-## Public site
-
-GitHub Pages deployment is active:
-
-```text
-https://bjo163.github.io/antikythera-time/
-```
-
-## Scientific interpretation
-
-Passing tests establish internal reproducibility and agreement with the declared external references at the declared accuracy class.
-
-They do not establish international-standard adoption or overall superiority to NASA/JPL operational systems.
+These gates demonstrate reproducibility and agreement with declared reference products at declared accuracy classes. They do not constitute external standards adoption or an operational replacement for NASA/JPL systems.
