@@ -2,17 +2,20 @@
 
 Date: 2026-10-01
 
-## CI gate
+## Final unit/integration gate
 
-GitHub Actions run for commit `d94d3ba98abbd188349525373d86d1c42914bd5c`:
+GitHub Actions run:
+
+- Run: 36825749256
+- Result: SUCCESS
 
 ```text
-tests 52
-pass  52
+tests 55
+pass  55
 fail  0
 ```
 
-The 25 pre-cosmology astronomy/time tests remain present. The cosmology suite adds 27 checks.
+The original astronomy/time tests were preserved. Cosmology/Cobaya coverage was added rather than replacing earlier gates.
 
 ## Cosmology coverage
 
@@ -20,26 +23,48 @@ The 25 pre-cosmology astronomy/time tests remain present. The cosmology suite ad
 - deterministic adaptive Simpson quadrature;
 - radiation density;
 - flatness consistency without silent renormalization;
-- explicit and derived curvature;
+- explicit/derived curvature;
 - CPL dark-energy evolution;
 - CPL reduction to ΛCDM at w0=-1, wa=0;
 - negative/NaN/unphysical parameter rejection;
 - Einstein-de Sitter analytic limit;
 - flat matter+Λ analytic solution;
 - Planck published-age sanity reference;
-- integration convergence;
+- numerical convergence across tolerances;
 - CosmicAgeEstimate/UTime semantic separation;
 - JSON scientific-boundary serialization;
-- phase ≠ absolute age;
+- phase != absolute age invariant;
 - Antikythera/Big-Bang semantic misuse rejection;
 - API query parsing;
 - dataset/model-specific presets;
 - percentile statistics;
-- seeded independent Monte Carlo;
-- seeded covariance-aware Monte Carlo;
+- seeded independent and covariance-aware Monte Carlo;
 - H0, Ωm, ΩΛ, w0 and wa sensitivity;
-- posterior-chain weighted evaluation.
+- weighted posterior-chain evaluation;
+- Cobaya chain parsing;
+- engine-vs-Cobaya age reproduction.
 
-## Remaining validation work
+## Official DESI posterior validation
 
-A Level-3 posterior reproduction against official Planck/DESI chains is still open. Until those chains are ingested, independent-Gaussian uncertainty is labelled diagnostic and must not be confused with the actual correlated published posterior.
+Workflow: `official-posterior`
+
+Baseline-CMB full-chain run:
+
+- Run: 36825466646
+- Result: SUCCESS
+- Artifact: `desi-official-age-posterior`
+- Artifact ID: 11144394424
+- ZIP SHA256: `5f8b4ee7a27fcc92cc8dc0dd70fca779f6a689d44f59450f23614120beb08aa2`
+
+For every supported DESI chain, the engine recomputed a deterministic 6000-sample subset and compared it against the official Cobaya derived `age` column. The declared agreement gate is 0.001 Gyr (1 Myr) on the weighted mean offset.
+
+All three supported DESI combinations passed.
+
+## Static site package
+
+Workflow: `static-site`
+
+- Run: 36825497347
+- Result: SUCCESS
+
+The static site is packaged as an Actions artifact. Public GitHub Pages publication remains an account/repository-administration action because the connected GitHub App cannot enable Pages.
