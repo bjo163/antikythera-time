@@ -12,46 +12,42 @@ Build a reproducible time/astronomy framework where every quantity declares whet
 - **v0.4** — NASA/JPL lunar external validation.
 - **v0.5** — bounded calibration + untouched holdout.
 - **v0.6** — anomalistic/draconic fixed-cycle residual engine.
+- **v0.7** — separate Cosmic Chronology Engine.
+- **v0.7.1** — official DESI DR2 posterior reproduction.
+- **v0.8** — relativistic coordinate-time core.
 
-## v0.7 — Cosmic Chronology Foundation — IMPLEMENTED
+## v0.8 — Relativistic Time Core — IMPLEMENTED
 
-- separate `src/cosmology/` semantic layer;
-- `CosmicAgeEstimate`, never UTime;
-- adaptive Friedmann age integration;
-- flat/non-flat ΛCDM;
-- CPL w0waCDM;
-- Planck 2018 + DESI DR2 reference adapters;
-- numerical, independent, covariance and posterior-chain uncertainty paths;
-- analytic/numerical falsification tests;
-- Cosmic Chronology web lab;
-- textual/conceptual Qur'anic map outside numerical inference.
+- separate two-part-Julian-Date `CoordinateTime` type;
+- explicit TCG time scale;
+- TT↔TCG canonical relation from IAU 2000 B1.9;
+- TDB↔TCB canonical relation from IAU 2006 B3;
+- canonical TT↔TDB wrapper with explicit `dtr = TDB-TT`;
+- six IAU SOFA reference vectors;
+- no invented automatic `dtr` model;
+- derived-work/licensing notice;
+- live Pages dashboard status.
 
-## v0.7.1 — Posterior Reproduction
+## v0.8.1 — Full TDB−TT Provider
 
-- ingest official Planck/DESI released covariance or MCMC chains;
-- reproduce posterior cosmic-age distributions;
-- compare engine percentiles against published derived parameters;
-- record chain hashes / provenance.
+- integrate an intact/validated SOFA/ERFA-compatible `Dtdb` provider or authoritative time ephemeris;
+- include topocentric observer parameters and UT1 where appropriate;
+- cross-check against reference vectors and JPL/SPICE time conversion behavior;
+- keep provider provenance and uncertainty explicit.
 
-## v0.8 — Eclipse Engine
+## v0.9 — Eclipse Engine
 
 - syzygy + node candidate model;
 - Saros/Exeligmos indexing;
 - NASA eclipse-catalog validation;
 - recall, timing residuals and false-positive rates.
 
-## v0.9 — Solar + Planetary Cosmos
+## v0.10 — Solar + Planetary Cosmos
 
 - Sun/ecliptic longitude;
 - five classical planets;
 - compare alternative Antikythera gear reconstructions;
 - JPL ephemeris holdout validation.
-
-## v0.10 — Relativistic Time
-
-- validated TT↔TDB and TDB↔TCB transformations;
-- IAU/IERS/SOFA reference vectors;
-- proper-time examples with declared observer worldlines.
 
 ## v1.0 — U-Time Specification Candidate
 
@@ -75,10 +71,9 @@ Build a reproducible time/astronomy framework where every quantity declares whet
 
 ## v1.3 — Cosmology Posterior / Model Comparison
 
-- official posterior-chain ingestion at scale;
+- additional official posterior-chain ingestion as datasets evolve;
 - model-dependent cosmic-age distributions;
-- ΛCDM versus extensions without declaring a theological or political “winner”;
-- model evidence/fit results reported only from appropriate external analyses.
+- compare models without collapsing model dependence into one absolute age.
 
 ## v1.4 — Historical Antikythera Reconstruction
 
@@ -90,7 +85,7 @@ Build a reproducible time/astronomy framework where every quantity declares whet
 
 ## v2.0 — Independent Review / Standardization
 
-- frozen spec candidate;
+- frozen specification candidate;
 - public reference datasets;
 - third-party reproducibility challenge;
 - multiple independent implementations;
