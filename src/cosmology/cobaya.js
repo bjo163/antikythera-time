@@ -36,7 +36,7 @@ export function cobayaRowToCosmology(row,model){
   const omegaR=omegaRadiationFromH0(H0);
   if(model==='flat-lcdm')return {H0,omegaR,omegaM,omegaLambda:1-omegaR-omegaM};
   if(model==='lcdm'){
-    const omegaK=firstExisting(row,['omegak','Omega_k','omega_k']);
+    const omegaK=firstExisting(row,['omk','omegak','Omega_k','omega_k']);
     if(!Number.isFinite(omegaK))throw new Error('curved chain row lacks omegak');
     return {H0,omegaR,omegaM,omegaK,omegaLambda:1-omegaR-omegaM-omegaK};
   }
