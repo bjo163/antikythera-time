@@ -2,7 +2,7 @@ use mtime_core::Provenance;
 #[derive(Debug,Clone,PartialEq)]
 pub struct Site{pub id:String,pub latitude_deg:f64,pub longitude_deg:f64,pub height_m:f64,pub datum:String}
 #[derive(Debug,Clone,PartialEq)]
-pub struct BodyState{pub right_ascension_deg:f64,pub declination_deg:f64,pub distance_au:f64}
+pub struct BodyState{pub right_ascension_deg:f64,pub declination_deg:f64,pub distance_au:Option<f64>}
 #[derive(Debug,Clone,PartialEq)]
 pub struct SunMoonState{
  pub jd_tt:f64,pub site:Site,pub sun:BodyState,pub moon:BodyState,
