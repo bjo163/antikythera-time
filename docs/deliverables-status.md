@@ -1,52 +1,62 @@
-# Deliverables Status
+# Deliverables Status — U-Time 1.0.0
 
-Scope source: Cosmic Chronology research brief.
+## Core platform
 
-| Deliverable | Status | Repository output |
-|---|---|---|
-| 1. Repository audit | COMPLETE | `docs/repository-audit.md` |
-| 2. Scientific feasibility report | COMPLETE | `docs/cosmology-feasibility.md` |
-| 3. Architecture decision record | COMPLETE | `docs/adr-001-cosmology-separation.md` |
-| 4. Cosmology engine | COMPLETE | `src/cosmology/**` |
-| 5. ΛCDM engine | COMPLETE | flat + curved in `models.js`, `age.js` |
-| 6. w0waCDM engine | COMPLETE | CPL model in `models.js` |
-| 7. Uncertainty engine | COMPLETE | independent, covariance, posterior-chain paths |
-| 8. Validation suite | COMPLETE | 55/55 final test gate + official-chain gate |
-| 9. APIs | COMPLETE | age, reference, posterior chain |
-| 10. Web UI | COMPLETE | separated Cosmic Chronology Lab + static fallback |
-| 11. Qur'anic conceptual map | COMPLETE | `docs/quranic-celestial-computation-map.md` |
-| 12. Updated README | COMPLETE | root README |
-| 13. Updated roadmap | COMPLETE | `docs/long-term-roadmap.md` |
-| 14. Test report | COMPLETE | `docs/test-report.md` |
-| 15. Reproducibility report | COMPLETE | `docs/reproducibility.md` |
-| Claim/result/evidence matrix | COMPLETE | `docs/claim-matrix.md` |
-| Quantitative cosmic ages | COMPLETE | `docs/cosmology-age-results.md` |
-| Official DESI posterior reproduction | COMPLETE | `docs/official-desi-posterior.md` |
+| Deliverable | Status |
+|---|---|
+| SI/J2000 integer time core | COMPLETE |
+| UTC/TAI/TT handling | COMPLETE WITH DECLARED LEAP-TABLE WINDOW |
+| TT/TCG canonical transform | COMPLETE |
+| TDB/TCB canonical transform | COMPLETE |
+| TT/TDB explicit-dtr transform | COMPLETE |
+| Automatic geocentric TDB−TT approximation | COMPLETE / APPROXIMATE |
+| ERFA external benchmark | COMPLETE / PASS |
 
-## Public deployment
+## Antikythera / astronomy
 
-GitHub Pages is now **COMPLETE**. Successful deploy run: `36826609111`.
+| Deliverable | Status |
+|---|---|
+| Metonic/Saros cycle layer | COMPLETE |
+| Lunar calibration/holdout validation | COMPLETE |
+| Anomalistic/draconic residual layer | COMPLETE |
+| Saros/Exeligmos eclipse recurrence | COMPLETE |
+| NASA Saros 139 validation | COMPLETE / PASS |
+| Full Besselian eclipse geometry | FUTURE v1.2 |
+| JPL approximate classical-planet model | COMPLETE |
+| JPL Horizons planetary benchmark | COMPLETE / PASS |
+| Full historical planetary gear reconstruction | FUTURE v1.3 |
 
-Canonical public site: `https://bjo163.github.io/antikythera-time/`
+## Cosmology
 
-Full server-backed `/api/**` endpoints still require a serverless host such as Vercel.
+| Deliverable | Status |
+|---|---|
+| Separate CosmicAgeEstimate | COMPLETE |
+| flat/curved ΛCDM | COMPLETE |
+| CPL w0waCDM | COMPLETE |
+| numerical/covariance/posterior uncertainty | COMPLETE |
+| official DESI posterior reproduction | COMPLETE / PASS |
+| Qur'anic conceptual map outside numerical pipeline | COMPLETE |
+
+## v1 protocol
+
+| Deliverable | Status |
+|---|---|
+| U-Time 1.0 normative specification | COMPLETE |
+| JSON Schema | COMPLETE |
+| Golden vectors | COMPLETE |
+| Evidence/provenance ontology | COMPLETE |
+| JavaScript reference implementation | COMPLETE |
+| Independent Python compatibility implementation | COMPLETE |
+| Cross-language compatibility gate | COMPLETE / PASS |
+| GitHub Pages research dashboard | COMPLETE |
 
 ## External gates that remain
 
-### Scientific standard adoption
-A repository cannot self-declare itself a universal standard. Independent implementation, peer review, external reproducibility and standards-community adoption remain external future gates.
+### International standard adoption
+NOT CLAIMED. Requires external review, multiple third-party implementations and relevant standards-community adoption.
 
-### Future research roadmap
-The v0.8 relativistic coordinate-time core is now implemented and reference-validated. Remaining roadmap work includes the full automatic TDB−TT provider, eclipse engine, planetary reconstruction, and full historical Antikythera reconstruction. They are not required to make the present cosmological chronology implementation internally complete.
+### NASA/JPL replacement
+NOT A GOAL and NOT CLAIMED. High-precision ephemerides, SPICE, mission navigation and orbit determination remain reference operational capabilities.
 
-
-## v0.8 relativistic extension
-
-| Deliverable | Status | Repository output |
-|---|---|---|
-| Separate coordinate-time type | COMPLETE | `src/relativity/coordinate-time.js` |
-| TT↔TCG canonical transform | COMPLETE | `src/relativity/transforms.js` |
-| TDB↔TCB canonical transform | COMPLETE | `src/relativity/transforms.js` |
-| TT↔TDB canonical wrapper | COMPLETE WITH EXPLICIT dtr | `src/relativity/transforms.js` |
-| SOFA reference-vector validation | COMPLETE | `src/relativity/validation.js`, `test/relativity.test.js` |
-| Automatic ephemeris-dependent TDB−TT provider | OPEN v0.8.1 | intentionally not approximated |
+### Full Antikythera digital twin
+The existing software adopts documented cycle/computation principles and selected planetary modelling. A fragment-by-fragment, gear-by-gear scholarly reconstruction remains future research.
