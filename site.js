@@ -142,7 +142,7 @@ $('cosmologyBtn').addEventListener('click', async () => {
   metrics.classList.add('hidden');
   $('cosmicParams').textContent='';
   try {
-    const r=await fetch('/api/cosmology-age?preset='+encodeURIComponent(preset)+'&uncertainty=none');
+    const r=await fetch('/api/cosmology-age?preset='+encodeURIComponent(preset)+'&uncertainty=independent&samples=400&seed=20261001');
     const d=await r.json();
     if(!r.ok) throw new Error(d.error || ('HTTP '+r.status));
     $('cosmicAge').textContent=d.result.gyr.toFixed(6);
@@ -150,9 +150,10 @@ $('cosmologyBtn').addEventListener('click', async () => {
     $('cosmicH0').textContent=d.parameters.H0.toFixed(3)+' km/s/Mpc';
     $('cosmicOmegaM').textContent=d.parameters.omegaM.toFixed(6);
     $('cosmicNumError').textContent=d.numericalUncertainty.gyr.toExponential(2)+' Gyr';
+    $('cosmicParamSigma').textContent=d.parameterUncertainty ? d.parameterUncertainty.ageGyr.standardDeviation.toFixed(3)+' Gyr*' : '—';
     $('cosmicSource').textContent=d.provenance?.dataset || d.observationalSource || 'explicit parameters';
     $('cosmicParams').textContent=JSON.stringify(d.parameters,null,2);
-    status.innerHTML='<b>'+d.status+'</b> · '+(d.provenance?.publication || d.parameterSource || 'explicit parameter set')+'<br><span class="small">Antikythera determines cosmic age: false · Scripture used as numerical prior: false</span>';
+    status.innerHTML='<b>'+d.status+'</b> · '+(d.provenance?.publication || d.parameterSource || 'explicit parameter set')+'<br><span class="small">* Level-1 σ assumes independent quoted parameters; use covariance/posterior chains for authoritative uncertainty. Antikythera determines cosmic age: false · Scripture prior: false</span>';
     metrics.classList.remove('hidden');
   } catch(e) {
     status.className='result error';
