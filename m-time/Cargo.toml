@@ -1,6 +1,9 @@
 [workspace]
 members = [
   "crates/mtime-core",
+  "crates/mtime-timescales",
+  "crates/mtime-eop",
+  "crates/mtime-astro",
   "crates/mtime-antikythera",
   "crates/mtime-calendar",
   "crates/mtime-hijri",
