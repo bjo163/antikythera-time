@@ -1,12 +1,22 @@
 # Deployment Status
 
-## Static package
+## GitHub Pages
 
-Workflow: `static-site`
+**Status: DEPLOYED**
 
-Successful run: `36825497347`.
+Successful Pages workflow:
 
-The artifact contains:
+- Run: `36826609111`
+- Commit: `7fb2f05003c62522aeb6ac3ec632a7d52040da31`
+- Conclusion: `success`
+
+Canonical site URL:
+
+```text
+https://bjo163.github.io/antikythera-time/
+```
+
+The deployed static site contains:
 
 ```text
 index.html
@@ -15,33 +25,14 @@ styles.css
 src/**
 ```
 
-Cosmology calculations have a client-side fallback and therefore work on static hosting.
+Cosmology calculations have a client-side fallback and therefore work directly on GitHub Pages.
 
-JPL validation/calibration/residual endpoints under `/api/**` require serverless hosting such as Vercel.
+## Server-backed APIs
 
-## GitHub Pages
+JPL validation/calibration/residual endpoints under `/api/**` still require serverless hosting such as Vercel.
 
-An automated Pages deploy was attempted. GitHub returned:
+The GitHub Pages site remains useful as the public static research dashboard, while Vercel remains the preferred future target for the full API-backed experience.
 
-```text
-Resource not accessible by integration
-```
-
-when the connected GitHub App attempted to create/enable the Pages site.
-
-Therefore the remaining activation is an owner/repository-admin action:
-
-1. GitHub repository Settings;
-2. Pages;
-3. set Source to GitHub Actions;
-4. rerun/deploy a Pages workflow or publish the packaged static artifact.
-
-The source is already static-host compatible.
-
-## Vercel
-
-The repository includes `vercel.json` and serverless functions in `api/`.
-
-The active Vercel connector in this session did not expose a working project-creation/deploy action for this repository. Importing `bjo163/antikythera-time` as a Vercel project is therefore an account-level action.
+## Security
 
 No deployment token or secret is committed to the repository.
