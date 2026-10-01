@@ -35,6 +35,7 @@ jobs:
         run: |
           tar -czf artifacts/utime-2.0.0-standardization-candidate.tar.gz             spec src/v2 reference-python reference-rust benchmarks             README.md GOVERNANCE.md CONTRIBUTING.md SECURITY.md CHANGELOG.md CITATION.cff             docs/preprint.md docs/standardization-readiness.md docs/standards-mapping.md
           sha256sum artifacts/utime-2.0.0-standardization-candidate.tar.gz > artifacts/utime-2.0.0-standardization-candidate.tar.gz.sha256
+          cat artifacts/utime-2.0.0-standardization-candidate.tar.gz.sha256
       - uses: actions/upload-artifact@v4
         with:
           name: utime-2.0.0-standardization-candidate
