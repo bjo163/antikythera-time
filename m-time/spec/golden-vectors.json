@@ -1,0 +1,9 @@
+{
+ "version":"0.1.0-alpha",
+ "vectors":[
+  {"id":"SAROS_ONE","expected":2466994.5853,"tolerance":1e-9},
+  {"id":"MABIMS_BOUNDARY_PASS","input":{"altitude_deg":3.0,"elongation_deg":6.4},"expected":true},
+  {"id":"MABIMS_ALT_FAIL","input":{"altitude_deg":2.999,"elongation_deg":7.0},"expected":false},
+  {"id":"MABIMS_ELONG_FAIL","input":{"altitude_deg":4.0,"elongation_deg":6.399},"expected":false}
+ ]
+}
