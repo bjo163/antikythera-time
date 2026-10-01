@@ -1,0 +1,17 @@
+[package]
+name = "mtime-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+mtime-core = { path = "../mtime-core" }
+mtime-timescales = { path = "../mtime-timescales" }
+mtime-antikythera = { path = "../mtime-antikythera" }
+mtime-hijri = { path = "../mtime-hijri" }
+mtime-explain = { path = "../mtime-explain" }
+mtime-cosmology = { path = "../mtime-cosmology" }
+
+[lints]
+workspace = true

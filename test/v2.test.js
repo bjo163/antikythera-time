@@ -1,9 +1,0 @@
-import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
-import { makeV2Instant,makeV2ModelResult,makeV2Inference,checkV2Record,upgradeV1Record,makeInstantRecord,U_TIME_V2_VERSION,U_TIME_V2_STATUS } from '../src/index.js';
-
-test('v2 protocol is frozen at 2.0.0 standardization candidate',()=>{assert.equal(U_TIME_V2_VERSION,'2.0.0');assert.equal(U_TIME_V2_STATUS,'STANDARDIZATION_CANDIDATE');});
-test('v2 instant carries observer/reference transformation metadata',()=>{const r=makeV2Instant({d1:2451545,d2:0,scale:'TT',frame:'GCRS',provenance:{source:'IAU'},observer:{type:'earth-fixed'},algorithm:'canonical',referenceData:{source:'IERS'},transformChain:['UTC','TAI','TT']});assert.equal(checkV2Record(r).pass,true);assert.equal(r.transformChain.length,3);});
-test('approximate model must carry validity',()=>{const r=makeV2ModelResult({quantity:'planet_position',value:{x:1},model:'JPL_APPROX',quality:'APPROXIMATE',validity:'1800-2050',provenance:{source:'JPL'}});assert.equal(checkV2Record(r).pass,true);const bad={...r,validity:null};assert.equal(checkV2Record(bad).pass,false);});
-test('cosmic age is a v2 inference not instant',()=>{const r=makeV2Inference({quantity:'age_of_universe',value:{gyr:13.8},model:'lcdm',parameters:{H0:67},uncertainty:{gyr:.02},provenance:{source:'DESI'}});assert.equal(checkV2Record(r).pass,true);});
-test('v1 record upgrades without losing original value',()=>{const v1=makeInstantRecord({d1:2451545,d2:0,scale:'TT',frame:'GCRS',provenance:{source:'test'}});const v2=upgradeV1Record(v1);assert.equal(v2.version,'2.0.0');assert.equal(v2.value.d1,v1.value.d1);assert.ok(Array.isArray(v2.provenance));});
-test('all conformance corpus records pass semantic checker',()=>{const rows=JSON.parse(fs.readFileSync(new URL('../spec/v2-conformance-corpus.json',import.meta.url),'utf8'));for(const row of rows)assert.deepEqual(checkV2Record(row),{pass:true,errors:[]});});

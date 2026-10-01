@@ -1,0 +1,14 @@
+#[derive(Debug,Clone,Copy,PartialEq)]pub struct Cycle{pub id:&'static str,pub period_days:f64,pub evidence:EvidenceLabel}
+#[derive(Debug,Clone,Copy,PartialEq,Eq)]pub enum EvidenceLabel{SurvivingEvidence,StronglyIndicatedReconstruction,ReconstructedModel,Hypothetical,ModernReference}
+impl Cycle{#[must_use]pub fn phase(self,elapsed_days:f64)->f64{elapsed_days.rem_euclid(self.period_days)/self.period_days}#[must_use]pub fn recurrence_jd(self,seed_jd:f64,cycles:i32)->f64{seed_jd+f64::from(cycles)*self.period_days}}
+pub const MEAN_SYNODIC_MONTH:Cycle=Cycle{id:"MEAN_SYNODIC_MONTH",period_days:29.530_588_853,evidence:EvidenceLabel::ModernReference};
+pub const ANOMALISTIC_MONTH:Cycle=Cycle{id:"ANOMALISTIC_MONTH",period_days:27.554_549_88,evidence:EvidenceLabel::ModernReference};
+pub const DRACONIC_MONTH:Cycle=Cycle{id:"DRACONIC_MONTH",period_days:27.212_220_817,evidence:EvidenceLabel::ModernReference};
+pub const SAROS:Cycle=Cycle{id:"SAROS_223_SYNODIC_MONTHS",period_days:6_585.322_3,evidence:EvidenceLabel::SurvivingEvidence};
+pub const EXELIGMOS:Cycle=Cycle{id:"EXELIGMOS_3_SAROS",period_days:19_755.966_9,evidence:EvidenceLabel::SurvivingEvidence};
+#[derive(Debug,Clone,Copy,PartialEq,Eq)]pub struct RationalRelation{pub numerator:u64,pub denominator:u64}
+impl RationalRelation{#[must_use]pub const fn new(numerator:u64,denominator:u64)->Self{Self{numerator,denominator}}#[must_use]pub fn ratio(self)->f64{self.numerator as f64/self.denominator as f64}#[must_use]pub const fn compose(self,other:Self)->Self{Self{numerator:self.numerator.saturating_mul(other.numerator),denominator:self.denominator.saturating_mul(other.denominator)}}}
+pub const METONIC_LUNATIONS_PER_YEARS:RationalRelation=RationalRelation::new(235,19);pub const SAROS_SYNODIC_MONTHS:u16=223;
+#[derive(Debug,Clone,Copy,PartialEq,Eq)]pub struct AntikytheraComponent{pub id:&'static str,pub label:&'static str,pub evidence:EvidenceLabel}
+pub const EVIDENCE_MANIFEST:&[AntikytheraComponent]=&[AntikytheraComponent{id:"metonic",label:"Metonic dial",evidence:EvidenceLabel::SurvivingEvidence},AntikytheraComponent{id:"saros",label:"Saros eclipse dial",evidence:EvidenceLabel::SurvivingEvidence},AntikytheraComponent{id:"lunar-anomaly",label:"Lunar anomaly mechanism",evidence:EvidenceLabel::SurvivingEvidence},AntikytheraComponent{id:"planet-inscriptions",label:"Five classical planets in front-cosmos inscriptions",evidence:EvidenceLabel::SurvivingEvidence},AntikytheraComponent{id:"superior-planets",label:"Mars/Jupiter/Saturn gearing",evidence:EvidenceLabel::ReconstructedModel}];
+#[cfg(test)]mod tests{use super::*;#[test]fn saros_recurrence(){assert!((SAROS.recurrence_jd(2_460_409.263,1)-2_466_994.585_3).abs()<1e-9);}#[test]fn exeligmos_is_three_saros(){assert!((EXELIGMOS.period_days-3.0*SAROS.period_days).abs()<1e-9);}#[test]fn reconstruction_is_labelled(){assert_eq!(EVIDENCE_MANIFEST[4].evidence,EvidenceLabel::ReconstructedModel);}}

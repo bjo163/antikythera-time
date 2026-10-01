@@ -1,0 +1,2 @@
+use std::{env,fs};
+fn main(){let path=env::args().nth(1).expect("path");let text=fs::read_to_string(path).expect("read EOP");let rows=mtime_eop::parse_finals2000a(&text);assert!(rows.len()>1000,"unexpected IERS row count");let first=rows.first().unwrap();let last=rows.last().unwrap();let last_observed=rows.iter().rev().find(|x|x.evidence==mtime_eop::EopEvidence::Observed).unwrap();println!("rows={} first_mjd={} last_mjd={} last_observed_mjd={} ut1_utc={}",rows.len(),first.mjd,last.mjd,last_observed.mjd,last_observed.ut1_minus_utc_seconds);}

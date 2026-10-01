@@ -1,0 +1,46 @@
+name: m-time-pages
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "web/**"
+      - "crates/mtime-wasm/**"
+      - "crates/mtime-core/**"
+      - "crates/mtime-timescales/**"
+      - "crates/mtime-hijri/**"
+      - "spec/**"
+      - "docs/**"
+      - ".github/workflows/pages-mtime.yml"
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: m-time-pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - run: cargo install wasm-pack --locked
+      - run: wasm-pack build crates/mtime-wasm --target web --out-dir ../../web/pkg --release
+      - uses: actions/configure-pages@v5
+      - name: Assemble site
+        run: |
+          mkdir _site
+          cp -R web/* _site/
+          cp -R spec _site/spec
+          cp -R docs _site/docs
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
