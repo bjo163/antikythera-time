@@ -62,7 +62,7 @@ function weightedSummary(items){
 
 export function reproduceCosmicAgeFromCobaya(parsed,{model,maxSamples=5000,stride=1,integration={absoluteTolerance:1e-8,relativeTolerance:1e-8}}={}){
   if(!parsed?.rows?.length)throw new TypeError('parsed Cobaya rows required');
-  const ages=[],officialAges=[],residuals=[];let used=0,skipped=0;
+  const ages=[],officialAges=[],residuals=[];let used=0,skipped=0,firstError=null;
   for(let i=0;i<parsed.rows.length&&used<maxSamples;i+=stride){
     const row=parsed.rows[i],weight=firstExisting(row,['weight'])??1;
     try{
@@ -72,9 +72,10 @@ export function reproduceCosmicAgeFromCobaya(parsed,{model,maxSamples=5000,strid
       const official=firstExisting(row,['age','age_gyr','agegyr']);
       if(Number.isFinite(official)){officialAges.push({value:official,weight});residuals.push({value:computed-official,weight});}
       used++;
-    }catch{skipped++;}
+    }catch(error){skipped++;if(!firstError)firstError=error instanceof Error?error.message:String(error);}
   }
-  const result={model,usedSamples:used,skippedSamples:skipped,computedAgeGyr:weightedSummary(ages),officialAgeGyr:officialAges.length?weightedSummary(officialAges):null,engineMinusOfficialGyr:residuals.length?weightedSummary(residuals):null,columns:parsed.columns};
+  if(!ages.length)throw new Error('No valid cosmology samples. First error: '+firstError+'; columns: '+parsed.columns.join(','));
+  const result={model,usedSamples:used,skippedSamples:skipped,firstSkippedError:firstError,computedAgeGyr:weightedSummary(ages),officialAgeGyr:officialAges.length?weightedSummary(officialAges):null,engineMinusOfficialGyr:residuals.length?weightedSummary(residuals):null,columns:parsed.columns};
   if(result.engineMinusOfficialGyr)result.validation={meanAbsOffsetUpperBoundGyr:Math.max(Math.abs(result.engineMinusOfficialGyr.p2_5),Math.abs(result.engineMinusOfficialGyr.p97_5)),meanOffsetGyr:result.engineMinusOfficialGyr.mean};
   return result;
 }
