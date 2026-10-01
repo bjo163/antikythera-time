@@ -4,10 +4,10 @@
 
 **Status: DEPLOYED**
 
-Successful Pages workflow:
+Successful v1 Pages workflow:
 
-- Run: `36826609111`
-- Commit: `7fb2f05003c62522aeb6ac3ec632a7d52040da31`
+- Run: `36831062744`
+- Commit: `69539b0ffb8fdd0e44de6481dde123b4036c2174`
 - Conclusion: `success`
 
 Canonical site URL:
