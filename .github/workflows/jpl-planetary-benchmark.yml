@@ -1,0 +1,24 @@
+name: jpl-planetary-benchmark
+
+on:
+  push:
+    paths:
+      - "src/planetary/**"
+      - "scripts/jpl-planetary-benchmark.mjs"
+      - ".github/workflows/jpl-planetary-benchmark.yml"
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/jpl-planetary-benchmark.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jpl-planetary-benchmark
+          path: artifacts/
