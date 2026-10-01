@@ -16,11 +16,12 @@ jobs:
         run: |
           curl --fail --retry 5 --retry-delay 3             "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27301%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40399%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27106.8272%2C-6.1754%2C0.008%27&TLIST=%272461119.0000000%27&TLIST_TYPE=%27JD%27&TIME_TYPE=%27UT%27&QUANTITIES=%274%27&ANG_FORMAT=%27DEG%27&CSV_FORMAT=%27YES%27&APPARENT=%27AIRLESS%27"             -o /tmp/horizons-topo.txt
           grep -q '\$\$SOE' /tmp/horizons-topo.txt
-          grep -q '\$\$EOE' /tmp/horizons-topo.txt
-      - name: Query geocentric Sun-Moon elongation
+      - name: Query geometric Earth-centered Sun and Moon vectors
         run: |
-          curl --fail --retry 5 --retry-delay 3             "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27301%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27500%40399%27&TLIST=%272461119.0000000%27&TLIST_TYPE=%27JD%27&TIME_TYPE=%27UT%27&QUANTITIES=%2723%27&ANG_FORMAT=%27DEG%27&CSV_FORMAT=%27YES%27"             -o /tmp/horizons-geo.txt
-          grep -q '\$\$SOE' /tmp/horizons-geo.txt
-          grep -q '\$\$EOE' /tmp/horizons-geo.txt
-      - name: Combine with explicit observer semantics
-        run: cargo run -p mtime-jpl --example parse_observer -- /tmp/horizons-topo.txt /tmp/horizons-geo.txt
+          COMMON="OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27VECTORS%27&CENTER=%27500%40399%27&TLIST=%272461119.0000000%27&TLIST_TYPE=%27JD%27&TIME_TYPE=%27UT%27&OUT_UNITS=%27KM-S%27&VEC_TABLE=%271%27&VEC_CORR=%27NONE%27&VEC_LABELS=%27NO%27&CSV_FORMAT=%27YES%27&CAL_FORMAT=%27JD%27"
+          curl --fail --retry 5 --retry-delay 3 "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&$COMMON" -o /tmp/horizons-sun.txt
+          curl --fail --retry 5 --retry-delay 3 "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27301%27&$COMMON" -o /tmp/horizons-moon.txt
+          grep -q '\$\$SOE' /tmp/horizons-sun.txt
+          grep -q '\$\$SOE' /tmp/horizons-moon.txt
+      - name: Combine with explicit topocentric/geocentric semantics
+        run: cargo run -p mtime-jpl --example parse_observer -- /tmp/horizons-topo.txt /tmp/horizons-sun.txt /tmp/horizons-moon.txt
