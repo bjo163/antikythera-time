@@ -1,0 +1,15 @@
+[package]
+name = "mtime-profile"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+mtime-core = { path = "../mtime-core" }
+mtime-hijri = { path = "../mtime-hijri" }
+
+[lints]
+workspace = true
