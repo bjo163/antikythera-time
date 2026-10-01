@@ -1,14 +1,12 @@
 {
   "name": "antikythera-time",
-  "version": "0.2.0",
-  "description": "Experimental universal time protocol: SI-second core + explicit time scale/reference frame + Antikythera-inspired cycle engine.",
+  "version": "0.3.0-alpha.1",
+  "description": "U-Time research prototype: SI-second core, validated scale transforms, Antikythera-inspired cycles, and evidence dashboard.",
   "type": "module",
   "scripts": {
     "test": "node --test",
     "demo": "node examples/demo.js"
   },
-  "engines": {
-    "node": ">=20"
-  },
+  "engines": { "node": ">=20" },
   "license": "MIT"
 }
