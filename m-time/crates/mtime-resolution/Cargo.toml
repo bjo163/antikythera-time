@@ -1,0 +1,11 @@
+[package]
+name="mtime-resolution"
+version.workspace=true
+edition.workspace=true
+license.workspace=true
+[dependencies]
+mtime-hijri={path="../mtime-hijri"}
+mtime-calendar={path="../mtime-calendar"}
+mtime-authority={path="../mtime-authority"}
+mtime-diff={path="../mtime-diff"}
+mtime-core={path="../mtime-core"}
