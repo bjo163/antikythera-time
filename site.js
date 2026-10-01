@@ -1,4 +1,4 @@
-import { METONIC_CYCLE, SAROS_CYCLE, lunarModelAtUtc, taiMinusUtcAt, utcDateToTt, getCosmologyPreset, materializePresetParameters, inferCosmicAge, propagateIndependentPreset, ttCoordinateFromUTime, ttToTcgCoordinate, coordinateDeltaSeconds, runRelativityReferenceVectors } from './src/index.js';
+import { METONIC_CYCLE, SAROS_CYCLE, lunarModelAtUtc, taiMinusUtcAt, utcDateToTt, getCosmologyPreset, materializePresetParameters, inferCosmicAge, propagateIndependentPreset, ttCoordinateFromUTime, ttToTcgCoordinate, coordinateDeltaSeconds, runRelativityReferenceVectors, nasaSimpleDtr, ttToTdbCoordinate, validateSaros139, jplApproxHeliocentric, U_TIME_V1_VERSION } from './src/index.js';
 const $ = (id) => document.getElementById(id);
 
 for (let y=2026; y>=2000; y--) {
@@ -18,6 +18,12 @@ function renderNow() {
     const tcgMinusTt=coordinateDeltaSeconds(tcgCoordinate,ttCoordinate);
     const relOffset=$('ttTcgOffset');
     if(relOffset) relOffset.textContent=`${tcgMinusTt.toFixed(9)} s`;
+    const dtr=nasaSimpleDtr(ttCoordinate);
+    const tdb=ttToTdbCoordinate(ttCoordinate,dtr);
+    if($('dtrNow')) $('dtrNow').textContent=`${(dtr.seconds*1000).toFixed(6)} ms`;
+    if($('marsLon')) $('marsLon').textContent=`${jplApproxHeliocentric('Mars',tdb.jd).longitudeDeg.toFixed(3)}°`;
+    if($('jupiterLon')) $('jupiterLon').textContent=`${jplApproxHeliocentric('Jupiter',tdb.jd).longitudeDeg.toFixed(3)}°`;
+    if($('saturnLon')) $('saturnLon').textContent=`${jplApproxHeliocentric('Saturn',tdb.jd).longitudeDeg.toFixed(3)}°`;
 
     for (const [cycle, barId, labelId] of [[METONIC_CYCLE,'metonicBar','metonicPhase'],[SAROS_CYCLE,'sarosBar','sarosPhase']]) {
       const p = cycle.positionAt(t);
@@ -40,6 +46,11 @@ renderNow();
 setInterval(renderNow, 1000);
 const relativityVectors=runRelativityReferenceVectors();
 if($('relativityVectorStatus')) $('relativityVectorStatus').textContent=`${relativityVectors.passCount}/${relativityVectors.total} PASS`;
+const sarosCheck=validateSaros139();
+if($('saros2042Residual')) $('saros2042Residual').textContent=`${sarosCheck.comparisons[0].residualMinutes.toFixed(2)} min`;
+if($('saros2060Residual')) $('saros2060Residual').textContent=`${sarosCheck.comparisons[1].residualMinutes.toFixed(2)} min`;
+if($('sarosGate')) $('sarosGate').textContent=sarosCheck.allPass?'PASS':'FAIL';
+if($('v1Version')) $('v1Version').textContent=U_TIME_V1_VERSION;
 
 $('validateBtn').addEventListener('click', async () => {
   const year = $('yearSelect').value;
