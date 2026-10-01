@@ -7,3 +7,4 @@ license.workspace=true
 [dependencies]
 mtime-calendar={path="../mtime-calendar"}
 mtime-authority={path="../mtime-authority"}
+mtime-core={path="../mtime-core"}
