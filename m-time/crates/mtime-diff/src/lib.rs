@@ -17,6 +17,24 @@ pub struct ResolutionSummary {
  pub calendar_result:String,
 }
 
+pub fn plain_language(diffs:&[Difference])->String{
+ if diffs.is_empty(){return "No represented cause differs.".into()}
+ diffs.iter().map(|d|match d.category{
+  DiffCategory::PhysicalInput=>format!("Astronomical/reference input differs: {}",d.message),
+  DiffCategory::Ephemeris=>format!("Ephemeris/source differs: {}",d.message),
+  DiffCategory::Observer=>format!("Observer/site differs: {}",d.message),
+  DiffCategory::Criterion=>format!("Calendar criterion/profile differs: {}",d.message),
+  DiffCategory::Observation=>format!("Observation evidence differs: {}",d.message),
+  DiffCategory::Jurisdiction=>format!("Jurisdiction differs: {}",d.message),
+  DiffCategory::Authority=>format!("Authority decision differs: {}",d.message),
+  DiffCategory::SourceVersion=>format!("Source version differs: {}",d.message),
+  DiffCategory::Unknown=>format!("Cause is not fully represented: {}",d.message),
+ }).collect::<Vec<_>>().join(" ")
+}
+pub fn explanation_confidence(diffs:&[Difference])->&'static str{
+ if diffs.iter().any(|x|x.category==DiffCategory::Unknown){"INCOMPLETE"}else{"REPRESENTED_CAUSES_ONLY"}
+}
+
 pub fn explain_difference(a:&ResolutionSummary,b:&ResolutionSummary)->Vec<Difference>{
  let mut out=Vec::new();
  if a.astronomical_fingerprint!=b.astronomical_fingerprint{out.push(Difference{category:DiffCategory::PhysicalInput,message:"astronomical state/reference input differs".into()});}
@@ -43,5 +61,5 @@ mod tests{
  fn criterion(id:&str,pass:bool)->CriterionResult{CriterionResult{profile_id:id.into(),profile_version:"1".into(),clauses:vec![],pass}}
  fn base(id:&str)->ResolutionSummary{ResolutionSummary{astronomical_fingerprint:"same-sky".into(),observer_id:"jakarta".into(),criterion:criterion(id,true),observation_fingerprint:None,authority:None,calendar_result:"date-a".into()}}
  #[test] fn explains_profile_difference(){let a=base("A");let b=base("B");let d=explain_difference(&a,&b);assert!(d.iter().any(|x|x.category==DiffCategory::Criterion));}
- #[test] fn unknown_is_explicit(){let a=base("A");let mut b=base("A");b.calendar_result="date-b".into();let d=explain_difference(&a,&b);assert_eq!(d[0].category,DiffCategory::Unknown);}
+ #[test] fn unknown_is_explicit(){let a=base("A");let mut b=base("A");b.calendar_result="date-b".into();let d=explain_difference(&a,&b);assert_eq!(d[0].category,DiffCategory::Unknown);assert_eq!(explanation_confidence(&d),"INCOMPLETE");assert!(plain_language(&d).contains("not fully represented"));}
 }
