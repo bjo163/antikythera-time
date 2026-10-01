@@ -1,0 +1,14 @@
+{
+  "name": "antikythera-time",
+  "version": "0.2.0",
+  "description": "Experimental universal time protocol: SI-second core + explicit time scale/reference frame + Antikythera-inspired cycle engine.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "demo": "node examples/demo.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}
