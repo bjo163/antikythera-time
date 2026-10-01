@@ -1,0 +1,35 @@
+name: v1-compatibility
+
+on:
+  push:
+    paths:
+      - "src/v1/**"
+      - "src/relativity/**"
+      - "src/cosmology/**"
+      - "src/eclipse/**"
+      - "src/planetary/**"
+      - "reference-python/**"
+      - "scripts/generate-js-v1-vectors.mjs"
+      - "scripts/check-v1-compat.mjs"
+      - "spec/**"
+      - ".github/workflows/v1-compatibility.yml"
+  workflow_dispatch:
+
+jobs:
+  compatibility:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: node scripts/generate-js-v1-vectors.mjs
+      - run: python reference-python/utime_v1.py
+      - run: node scripts/check-v1-compat.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v1-compatibility
+          path: artifacts/
