@@ -1,5 +1,5 @@
 use mtime_authority::{AuthorityDecision, DecisionKind};
-use mtime_hijri::{ComputedMonthAction, CriterionResult, HijriAstronomicalState, GeometrySemantics};
+use mtime_hijri::{CalendarResult, ComputedMonthAction, CriterionResult, GeometrySemantics, HijriAstronomicalState};
 use mtime_observation::{ObservationReport, ObservationSummary};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
