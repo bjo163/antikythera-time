@@ -26,3 +26,12 @@ DESI's official DR2 publications page also lists later 2026 DR2 Lyα/AP cosmolog
 ## Uncertainty warning
 
 Published parameters are correlated. Level-1 independent Gaussian Monte Carlo is implemented only as a diagnostic. Faithful reproduction of published age posteriors requires covariance or the released cosmology chains. DESI released DR2 cosmology chains/data products in October 2025; the engine includes a posterior-chain adapter for later ingestion.
+
+
+## Current DESI DR2 status as of 2026-10-01
+
+DESI released **DR2 Results IV: Alcock-Paczyński Measurements from the Lyman-Alpha Forest and Cosmological Constraints** on 2026-07-30 (arXiv:2607.27410). The new Lyα full-shape/AP measurement reports, among other results, an approximately 1% AP constraint at z_eff=2.33; under ΛCDM, Lyα plus a nucleosynthesis prior gives H0 = 66.5 ± 1.3 km s^-1 Mpc^-1, while the AP result corresponds to Ωm = 0.325 ± 0.018.
+
+This 2026 product is recorded as a **current external constraint**, but it is not silently merged into the existing 2025 DR2 Table-V age presets. The age engine requires one internally compatible parameter posterior/model combination. A dedicated Results-IV age preset should be added only after ingesting the paper's appropriate joint posterior/covariance or released chain.
+
+Therefore the 2025 DR2+CMB / +SN presets remain reproducible named combinations rather than being overwritten by the latest individual Lyα constraints.
