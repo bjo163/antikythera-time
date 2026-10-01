@@ -1,0 +1,17 @@
+name: m-time-iers-eop
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "crates/mtime-eop/**"
+      - ".github/workflows/iers-eop.yml"
+jobs:
+  official-eop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Download IERS finals.all IAU2000
+        run: curl --fail --retry 5 --retry-delay 3 -o /tmp/finals.all.iau2000.txt https://datacenter.iers.org/data/latestVersion/finals.all.iau2000.txt
+      - name: Parse official product using Rust core
+        run: cargo run -p mtime-eop --example parse_snapshot -- /tmp/finals.all.iau2000.txt
