@@ -34,6 +34,9 @@ jobs:
           mkdir _site
           cp index.html site.js styles.css _site/
           cp -R src _site/src
+          cp -R spec _site/spec
+          cp -R benchmarks _site/benchmarks
+          cp -R docs _site/docs
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
