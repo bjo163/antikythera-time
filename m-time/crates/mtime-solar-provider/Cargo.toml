@@ -10,3 +10,4 @@ serde_json="1"
 mtime-core={path="../mtime-core"}
 mtime-astro={path="../mtime-astro"}
 mtime-hijri={path="../mtime-hijri"}
+mtime-eop={path="../mtime-eop"}
