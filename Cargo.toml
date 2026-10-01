@@ -3,6 +3,7 @@ resolver = "2"
 members = [
   "crates/mtime-core",
   "crates/mtime-timescales",
+  "crates/mtime-eop",
   "crates/mtime-antikythera",
   "crates/mtime-astro",
   "crates/mtime-hijri",
