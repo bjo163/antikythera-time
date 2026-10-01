@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="U-Time v0.6 Calibration Lab: SI time, Antikythera cycles, NASA/GSFC lunar calibration and JPL Horizons error metrics." />
+  <meta name="description" content="U-Time v0.7 Cosmic Chronology Lab: time/astronomy validation plus separate model-dependent Friedmann cosmic-age inference." />
   <title>U-Time v0.7 — Cosmic Chronology Lab</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
@@ -12,7 +12,7 @@
   <main>
     <header class="hero">
       <div class="eyebrow">ALLAH PROMISE · MOONWITNESS · VALIDATION LAB</div>
-      <h1>U‑Time <span>v0.6‑alpha</span></h1>
+      <h1>U‑Time <span>v0.7‑alpha</span></h1>
       <p class="lead">Measure the model against the sky reference — do not assume the model is right.</p>
       <div class="pills"><span>SI second</span><span>J2000.0 TT</span><span>Leap-second table</span><span>Antikythera cycles</span><span>JPL validation</span><span>Cosmic chronology</span></div>
     </header>
@@ -127,7 +127,7 @@
         <div><span>MODEL</span><strong id="cosmicModel">—</strong></div>
         <div><span>H₀</span><strong id="cosmicH0">—</strong></div>
         <div><span>Ωm</span><strong id="cosmicOmegaM">—</strong></div>
-        <div><span>NUMERICAL ERROR</span><strong id="cosmicNumError">—</strong></div>
+        <div><span>NUMERICAL ERROR</span><strong id="cosmicNumError">—</strong></div><div><span>LEVEL-1 PARAM σ</span><strong id="cosmicParamSigma">—</strong></div>
         <div><span>OBSERVATIONAL SOURCE</span><strong id="cosmicSource">—</strong></div>
       </div>
       <div id="cosmicParams" class="mono cosmic-params"></div>
@@ -161,7 +161,7 @@
       <p>“Universal” means a reproducible protocol with declared coordinates. v0.6 adds a second principle: <b>every astronomical model should expose its measured error.</b></p>
     </section>
 
-    <footer><a href="https://github.com/bjo163/antikythera-time">GitHub source</a><span>·</span><span>v0.7-alpha Calibration Lab</span></footer>
+    <footer><a href="https://github.com/bjo163/antikythera-time">GitHub source</a><span>·</span><span>v0.7-alpha Cosmic Chronology Lab</span></footer>
   </main>
   <script type="module" src="/site.js"></script>
 </body>
