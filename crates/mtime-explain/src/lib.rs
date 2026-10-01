@@ -24,12 +24,14 @@ pub struct TemporalResolution {
     pub observations: Vec<ObservationReport>,
     pub observation_summary: Option<ObservationSummary>,
     pub authority: Option<AuthorityDecision>,
+    pub calendar_result: Option<CalendarResult>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ResolutionDiff {
     pub categories: Vec<DiffCategory>,
     pub shared_astronomy: bool,
+    pub outcome_differs: bool,
     pub explanation: String,
 }
 
@@ -82,9 +84,12 @@ pub fn explain_difference(a: &TemporalResolution, b: &TemporalResolution) -> Res
         _ => push_unique(&mut cats, DiffCategory::Authority),
     }
 
-    if a.computed_action != b.computed_action
+    let outcome_differs = a.calendar_result != b.calendar_result;
+    if (a.computed_action != b.computed_action || outcome_differs)
         && !cats.contains(&DiffCategory::Criterion)
         && !cats.contains(&DiffCategory::Authority)
+        && !cats.contains(&DiffCategory::Observation)
+        && !cats.contains(&DiffCategory::Jurisdiction)
     {
         push_unique(&mut cats, DiffCategory::Unknown);
     }
@@ -102,6 +107,7 @@ pub fn explain_difference(a: &TemporalResolution, b: &TemporalResolution) -> Res
     ResolutionDiff {
         categories: cats,
         shared_astronomy: shared,
+        outcome_differs,
         explanation,
     }
 }
@@ -160,6 +166,7 @@ mod tests {
             observations: vec![],
             observation_summary: None,
             authority: None,
+            calendar_result: None,
         };
         let b = TemporalResolution {
             id: "B".into(),
@@ -169,6 +176,7 @@ mod tests {
             observations: vec![],
             observation_summary: None,
             authority: None,
+            calendar_result: None,
         };
         let d = explain_difference(&a, &b);
         assert!(d.shared_astronomy);
