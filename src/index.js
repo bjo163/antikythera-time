@@ -15,3 +15,4 @@ export * from './v1/index.js';
 export * from './eop/index.js';
 export * from './observer.js';
 export * from './antikythera/index.js';
+export * from './v2/index.js';
