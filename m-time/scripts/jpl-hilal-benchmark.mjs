@@ -16,7 +16,10 @@ function nums(fields){return fields.map(Number).filter(Number.isFinite)}
 const common={format:'text',COMMAND:"'301'",OBJ_DATA:"'NO'",MAKE_EPHEM:"'YES'",EPHEM_TYPE:"'OBSERVER'",TLIST:"'2461118.95'",TLIST_TYPE:"'JD'",TIME_TYPE:"'UT'",CAL_FORMAT:"'JD'",CSV_FORMAT:"'YES'",ANG_FORMAT:"'DEG'"};
 const top=await query({...common,CENTER:"'coord@399'",COORD_TYPE:"'GEODETIC'",SITE_COORD:"'106.8,-6.2,0.01'",APPARENT:"'AIRLESS'",QUANTITIES:"'4'"});
 const geo=await query({...common,CENTER:"'500@399'",QUANTITIES:"'23'"});
-const tn=nums(row(top)),gn=nums(row(geo));
+const topFields=row(top),geoFields=row(geo);
+console.error('TOP_ROW',JSON.stringify(topFields));
+console.error('GEO_ROW',JSON.stringify(geoFields));
+const tn=nums(topFields),gn=nums(geoFields);
 if(tn.length<3||gn.length<2)throw new Error('unexpected numeric Horizons columns\nTOP '+row(top).join('|')+'\nGEO '+row(geo).join('|'));
 const jplAltitude=tn.at(-1); // quantity 4 => azimuth, elevation; final numeric is elevation
 const jplElongation=gn.at(-1); // quantity 23 => elongation plus non-numeric lead/trail code
