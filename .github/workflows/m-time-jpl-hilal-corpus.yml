@@ -1,0 +1,26 @@
+name: m-time-jpl-hilal-corpus
+on:
+  workflow_dispatch:
+  push:
+    branches: [m-time-bootstrap]
+    paths:
+      - "m-time/crates/mtime-solar-provider/**"
+      - "m-time/scripts/jpl-hilal-corpus.mjs"
+      - ".github/workflows/m-time-jpl-hilal-corpus.yml"
+jobs:
+  corpus:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-node@v4
+        with: {node-version: 20}
+      - working-directory: m-time
+        run: cargo run -q -p mtime-solar-provider --bin provider_grid > /tmp/provider-grid.json
+      - working-directory: m-time
+        run: node scripts/jpl-hilal-corpus.mjs /tmp/provider-grid.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m-time-jpl-hilal-corpus
+          path: m-time/artifacts/
