@@ -18,6 +18,33 @@ pub fn snapshot_json(jd_utc:f64,site:&Site)->Result<Value,String>{
  Ok(v)
 }
 
+
+fn state_at_with_solar_eop(jd_utc:f64,site:&Site,eop:solar_ephemeris::earth_orientation::EarthOrientation,provenance_label:String)->Result<SunMoonState,String>{
+ use solar_ephemeris::{coords,earth_orientation,elpmpp02,planets,time,timescales::AstroTime};
+ if !jd_utc.is_finite(){return Err("finite JD UTC required".into())}
+ let astro=AstroTime::from_jd_utc_with_eop(jd_utc,eop);
+ let t=time::centuries(astro.jd_tt);let(dpsi,deps)=time::nutation_deg(t);let eps=time::mean_obliquity_deg(t)+deps;
+ let(observer_lat,observer_lon)=earth_orientation::corrected_observer_geodetic(site.latitude_deg,site.longitude_deg,astro.eop.xp_arcsec,astro.eop.yp_arcsec);
+ let lst=(time::gast_deg(astro.jd_ut1,dpsi,eps)+observer_lon).rem_euclid(360.0);let(rho_sin,rho_cos)=coords::observer_rho(observer_lat,site.height_m);
+ let(slon,slat,sdist_au)=planets::sun_apparent_ecliptic(astro.jd_tt,dpsi);let(sra,sdec)=coords::ecl_to_equ(slon,slat,eps);
+ let(mlon,mlat,mdist_km)=elpmpp02::moon_apparent_ecliptic(astro.jd_tt,dpsi);let(mra,mdec)=coords::ecl_to_equ(mlon,mlat,eps);
+ let(mra_t,mdec_t)=coords::topocentric(mra,mdec,mdist_km,lst,rho_sin,rho_cos);let(malt,_)=coords::alt_az(mra_t,mdec_t,lst,observer_lat);
+ let elong=angular_separation_deg(sra,sdec,mra,mdec);
+ Ok(SunMoonState{jd_tt:astro.jd_tt,site:site.clone(),
+  sun:BodyState{right_ascension_deg:sra,declination_deg:sdec,distance_au:Some(sdist_au)},
+  moon:BodyState{right_ascension_deg:mra,declination_deg:mdec,distance_au:Some(mdist_km/coords::AU_KM)},
+  moon_topocentric_altitude_deg:malt,moon_sun_geocentric_elongation_deg:elong,
+  illumination_fraction:(1.0-elong.to_radians().cos())/2.0,
+  provenance:vec![Provenance{source:provenance_label,version:Some("solar-ephemeris=0.2.0".into()),retrieved_at:None}]})
+}
+
+pub fn state_at_with_iers(jd_utc:f64,site:&Site,eop:&mtime_eop::EopRecord)->Result<SunMoonState,String>{
+ use solar_ephemeris::earth_orientation::{EarthOrientation,Quality};
+ let q=if eop.observed{Quality::Rapid}else{Quality::Predicted};
+ let se=EarthOrientation{dut1_seconds:eop.ut1_minus_utc_seconds,xp_arcsec:eop.xp_arcsec,yp_arcsec:eop.yp_arcsec,dut1_uncertainty_seconds:if eop.observed{0.001}else{0.1},source:"external IERS finals.all IAU2000 via M-Time",quality:q};
+ state_at_with_solar_eop(jd_utc,site,se,format!("solar-ephemeris numerical model + M-Time IERS finals.all EOP MJD {:.5}",eop.mjd))
+}
+
 pub fn state_at(jd_utc:f64,site:&Site)->Result<SunMoonState,String>{
  use solar_ephemeris::{coords,earth_orientation,elpmpp02,planets,time,timescales::AstroTime};
  if !jd_utc.is_finite(){return Err("finite JD UTC required".into())}
