@@ -1,10 +1,10 @@
-# Antikythera Time — U-Time v0.7-alpha
+# Antikythera Time — U-Time v0.8-alpha
 
 ## Live site
 
 https://bjo163.github.io/antikythera-time/
 
-U-Time is an experimental astronomical time-representation and validation project. v0.7 fast-tracks a **separate model-dependent Cosmic Chronology Lab** without redefining UTime as time since the Big Bang.
+U-Time is an experimental astronomical time-representation and validation project. v0.8 adds a standards-aligned **Relativistic Time Core** while keeping Cosmic Chronology semantically separate from UTime.
 
 > Universal protocol ≠ absolute cosmic clock.
 
@@ -34,6 +34,24 @@ observational dataset
 ```
 
 CosmicAgeEstimate is **not** UTime and has status `MODEL_DEPENDENT_INFERENCE`.
+
+
+## v0.8 Relativistic Time Core
+
+Implemented:
+
+- explicit `TCG` scale;
+- separate two-part-JD `CoordinateTime` representation;
+- TT ↔ TCG using the IAU 2000 B1.9 canonical relation;
+- TDB ↔ TCB using the IAU 2006 B3 canonical relation;
+- TT ↔ TDB only with explicit caller-supplied `dtr = TDB-TT`;
+- six IAU SOFA validation vectors;
+- uncertainty/provenance propagation;
+- live GitHub Pages status panel.
+
+Automatic `TDB-TT` is intentionally not fabricated. A future provider must use a validated SOFA/ERFA-compatible model or authoritative time ephemeris.
+
+This project is **not a replacement for NASA/JPL Horizons or SPICE**. JPL remains the reference for high-precision solar-system ephemerides and operational mission geometry; U-Time is an experimental integration/protocol layer.
 
 ## Supported cosmology
 
@@ -89,7 +107,7 @@ Cosmology tests include:
 - phase ≠ absolute age invariant;
 - rejection of Antikythera→Big-Bang semantic misuse.
 
-Existing Solar-System tests remain intact. Final CI gate: **55 tests / 55 pass / 0 fail**.
+Existing Solar-System and cosmology tests remain intact. v0.8 gate: **67 tests / 67 pass / 0 fail**.
 
 ## Documentation
 
@@ -109,6 +127,9 @@ Existing Solar-System tests remain intact. Final CI gate: **55 tests / 55 pass /
 - `docs/deliverables-status.md`
 - `docs/deployment.md`
 - `docs/final-research-report.md`
+- `docs/relativistic-time-core.md`
+- `docs/sofa-derived-work.md`
+- `docs/engine-positioning.md`
 
 
 ## Official DESI posterior reproduction
