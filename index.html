@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="U-Time v0.5 Calibration Lab: SI time, Antikythera cycles, NASA/GSFC lunar calibration and JPL Horizons error metrics." />
-  <title>U-Time v0.5 — Calibration Lab</title>
+  <meta name="description" content="U-Time v0.6 Calibration Lab: SI time, Antikythera cycles, NASA/GSFC lunar calibration and JPL Horizons error metrics." />
+  <title>U-Time v0.6 — Calibration Lab</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -12,7 +12,7 @@
   <main>
     <header class="hero">
       <div class="eyebrow">ALLAH PROMISE · MOONWITNESS · VALIDATION LAB</div>
-      <h1>U‑Time <span>v0.5‑alpha</span></h1>
+      <h1>U‑Time <span>v0.6‑alpha</span></h1>
       <p class="lead">Measure the model against the sky reference — do not assume the model is right.</p>
       <div class="pills"><span>SI second</span><span>J2000.0 TT</span><span>Leap-second table</span><span>Antikythera cycles</span><span>JPL validation</span></div>
     </header>
@@ -85,6 +85,23 @@
       <p class="foot">Acceptance rule: calibration is accepted only when the score improves on data the optimizer never saw.</p>
     </section>
 
+    <section class="card lab">
+      <div class="section-title">V0.6 ANTIKYTHERA ANOMALY / RESIDUAL ENGINE</div>
+      <div class="lab-head">
+        <div><h2>Do fixed lunar cycles explain residual error?</h2><p>The residual layer uses only two declared physical periods: anomalistic month 27.554551 d and draconic month 27.212220 d. It does not search arbitrary frequencies.</p></div>
+        <button id="residualBtn">Run residual + holdout</button>
+      </div>
+      <div id="residualStatus" class="result muted">Deploy on Vercel, then compare the fixed-cycle residual model against untouched JPL holdout data.</div>
+      <div id="residualMetrics" class="metrics hidden">
+        <div><span>Anomalistic illum. amp.</span><strong id="anomIllumAmp">—</strong></div>
+        <div><span>Draconic illum. amp.</span><strong id="dracIllumAmp">—</strong></div>
+        <div><span>Train improvement</span><strong id="resTrainImprove">—</strong></div>
+        <div><span>Holdout improvement</span><strong id="resHoldoutImprove">—</strong></div>
+      </div>
+      <div id="residualVerdict" class="verdict hidden"></div>
+      <div class="source-note">Saros coherence diagnostic: 223 synodic months ≈ 239 anomalistic months ≈ 242 draconic months. This is a physically constrained, gear-like basis rather than free curve fitting.</div>
+    </section>
+
     <section class="card">
       <div class="section-title">EVIDENCE GATE</div>
       <div class="evidence-grid">
@@ -102,10 +119,10 @@
     <section class="principle card">
       <div class="section-title">CORE PRINCIPLE</div>
       <code>U‑Time = SI duration + epoch + time scale + reference frame + uncertainty</code>
-      <p>“Universal” means a reproducible protocol with declared coordinates. v0.5 adds a second principle: <b>every astronomical model should expose its measured error.</b></p>
+      <p>“Universal” means a reproducible protocol with declared coordinates. v0.6 adds a second principle: <b>every astronomical model should expose its measured error.</b></p>
     </section>
 
-    <footer><a href="https://github.com/bjo163/antikythera-time">GitHub source</a><span>·</span><span>v0.5-alpha Calibration Lab</span></footer>
+    <footer><a href="https://github.com/bjo163/antikythera-time">GitHub source</a><span>·</span><span>v0.6-alpha Calibration Lab</span></footer>
   </main>
   <script type="module" src="/site.js"></script>
 </body>
