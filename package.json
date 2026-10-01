@@ -1,11 +1,12 @@
 {
   "name": "antikythera-time",
-  "version": "1.0.0",
-  "description": "U-Time 1.0 specification candidate: metrology, relativistic coordinate time, Antikythera-inspired astronomy, JPL validation, and model-dependent cosmic chronology.",
+  "version": "2.0.0",
+  "description": "U-Time 2.0 standardization candidate: explicit astronomical time semantics, observer/EOP provenance, historical-model evidence states, external validation, and multi-language conformance.",
   "type": "module",
   "scripts": {
     "test": "node --test",
-    "demo": "node examples/demo.js"
+    "demo": "node examples/demo.js",
+    "conformance": "node scripts/utime-conformance.mjs spec/v2-conformance-corpus.json"
   },
   "engines": { "node": ">=20" },
   "license": "MIT"
