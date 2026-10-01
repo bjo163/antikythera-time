@@ -6,6 +6,7 @@ license.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+mtime-core = { path = "../mtime-core" }
 mtime-hijri = { path = "../mtime-hijri" }
 mtime-observation = { path = "../mtime-observation" }
 mtime-authority = { path = "../mtime-authority" }
