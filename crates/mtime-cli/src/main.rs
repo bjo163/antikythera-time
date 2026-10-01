@@ -1,7 +1,7 @@
 use mtime_core::{Provenance, QualityClass};
 use mtime_cosmology::{infer_age, planck_2018_flat_reference};
 use mtime_explain::{explain_difference, TemporalResolution};
-use mtime_hijri::{computed_action, CalendarProfile, HijriAstronomicalState};
+use mtime_hijri::{computed_action, CalendarProfile, HijriAstronomicalState, GeometrySemantics};
 
 fn main() {
     let astronomy = HijriAstronomicalState {
@@ -9,6 +9,7 @@ fn main() {
         sunset_jd_ut1: None,
         moon_altitude_topocentric_deg: 3.1,
         elongation_geocentric_deg: 6.5,
+        geometry_semantics: GeometrySemantics::mabims_required(),
         moon_age_hours: Some(18.0),
         moon_lag_minutes: Some(35.0),
         site_id: "DEMO-JAKARTA".into(),
