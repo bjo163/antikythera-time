@@ -60,9 +60,19 @@ function weightedSummary(items){
   return {count:valid.length,totalWeight:total,mean,median:q(.5),standardDeviation:Math.sqrt(variance),p16:q(.16),p84:q(.84),p2_5:q(.025),p97_5:q(.975)};
 }
 
-export function reproduceCosmicAgeFromCobaya(parsed,{model,maxSamples=5000,stride=1,integration={absoluteTolerance:1e-8,relativeTolerance:1e-8}}={}){
+export function reproduceCosmicAgeFromCobaya(parsed,{model,maxSamples=5000,stride=1,integration={absoluteTolerance:1e-8,relativeTolerance:1e-8},agreementToleranceGyr=0.001}={}){
   if(!parsed?.rows?.length)throw new TypeError('parsed Cobaya rows required');
-  const ages=[],officialAges=[],residuals=[];let used=0,skipped=0,firstError=null;
+
+  // Full official posterior summary is cheap because "age" is already a Cobaya-derived column.
+  const officialFull=[];
+  for(const row of parsed.rows){
+    const age=firstExisting(row,['age','age_gyr','agegyr']);
+    const weight=firstExisting(row,['weight'])??1;
+    if(Number.isFinite(age)&&Number.isFinite(weight)&&weight>0)officialFull.push({value:age,weight});
+  }
+
+  // Recompute a deterministic subsample through our independent Friedmann integrator.
+  const ages=[],officialSample=[],residuals=[];let used=0,skipped=0,firstError=null;
   for(let i=0;i<parsed.rows.length&&used<maxSamples;i+=stride){
     const row=parsed.rows[i],weight=firstExisting(row,['weight'])??1;
     try{
@@ -70,13 +80,30 @@ export function reproduceCosmicAgeFromCobaya(parsed,{model,maxSamples=5000,strid
       const computed=inferCosmicAge(model,params,{integration}).result.gyr;
       ages.push({value:computed,weight});
       const official=firstExisting(row,['age','age_gyr','agegyr']);
-      if(Number.isFinite(official)){officialAges.push({value:official,weight});residuals.push({value:computed-official,weight});}
+      if(Number.isFinite(official)){officialSample.push({value:official,weight});residuals.push({value:computed-official,weight});}
       used++;
     }catch(error){skipped++;if(!firstError)firstError=error instanceof Error?error.message:String(error);}
   }
   if(!ages.length)throw new Error('No valid cosmology samples. First error: '+firstError+'; columns: '+parsed.columns.join(','));
-  const result={model,usedSamples:used,skippedSamples:skipped,firstSkippedError:firstError,computedAgeGyr:weightedSummary(ages),officialAgeGyr:officialAges.length?weightedSummary(officialAges):null,engineMinusOfficialGyr:residuals.length?weightedSummary(residuals):null,columns:parsed.columns};
-  if(result.engineMinusOfficialGyr)result.validation={meanAbsOffsetUpperBoundGyr:Math.max(Math.abs(result.engineMinusOfficialGyr.p2_5),Math.abs(result.engineMinusOfficialGyr.p97_5)),meanOffsetGyr:result.engineMinusOfficialGyr.mean};
+
+  const result={
+    model,usedSamples:used,skippedSamples:skipped,firstSkippedError:firstError,
+    computedAgeGyr:weightedSummary(ages),
+    officialAgeGyr:officialFull.length?weightedSummary(officialFull):null,
+    officialSampleAgeGyr:officialSample.length?weightedSummary(officialSample):null,
+    engineMinusOfficialGyr:residuals.length?weightedSummary(residuals):null,
+    columns:parsed.columns
+  };
+  if(result.engineMinusOfficialGyr){
+    const meanOffset=Math.abs(result.engineMinusOfficialGyr.mean);
+    result.validation={
+      agreementToleranceGyr,
+      meanOffsetGyr:result.engineMinusOfficialGyr.mean,
+      maxCentral95AbsOffsetGyr:Math.max(Math.abs(result.engineMinusOfficialGyr.p2_5),Math.abs(result.engineMinusOfficialGyr.p97_5)),
+      pass:meanOffset<=agreementToleranceGyr
+    };
+    if(!result.validation.pass)throw new Error(`Engine/Cobaya mean age offset ${meanOffset} Gyr exceeds tolerance ${agreementToleranceGyr} Gyr`);
+  }
   return result;
 }
 
