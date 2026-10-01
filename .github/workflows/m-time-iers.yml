@@ -1,0 +1,19 @@
+name: m-time-iers-reference
+on:
+  workflow_dispatch:
+  push:
+    branches: [m-time-bootstrap]
+    paths:
+      - "m-time/crates/mtime-eop/**"
+      - ".github/workflows/m-time-iers.yml"
+jobs:
+  iers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Download official IERS finals.all IAU2000
+        run: curl --fail --retry 4 --retry-delay 2 -L "https://datacenter.iers.org/data/latestVersion/finals.all.iau2000.txt" -o /tmp/finals.all.iau2000.txt
+      - name: Parse official EOP product
+        working-directory: m-time
+        run: cargo run -p mtime-eop --bin iers_snapshot -- /tmp/finals.all.iau2000.txt
