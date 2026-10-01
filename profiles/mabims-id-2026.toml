@@ -1,0 +1,9 @@
+id = "MABIMS_ID_2026"
+name = "Indonesia MABIMS / PMA No. 1 Tahun 2026"
+effective_from = "2026-01-01"
+moon_altitude_topocentric_min_deg = 3.0
+moon_sun_elongation_geocentric_min_deg = 6.4
+fallback_if_not_met = "COMPLETE_CURRENT_MONTH_TO_30_DAYS"
+observation_layer = "SEPARATE"
+authority_layer = "SEPARATE"
+source = "Kementerian Agama RI, PMA No. 1 Tahun 2026"
