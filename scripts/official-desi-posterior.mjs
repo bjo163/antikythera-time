@@ -5,9 +5,9 @@ import { parseCobayaText, reproduceCosmicAgeFromCobaya } from '../src/cosmology/
 
 const ROOT='https://data.desi.lbl.gov/public/papers/y3/bao-cosmo-params/cobaya/';
 const registry={
-  'desi-dr2-lcdm-cmb':{root:'base/',model:'flat-lcdm',must:['desi-bao-all','planck-act-dr6-lensing'],avoid:['desy5sn','pantheonplus','union3']},
-  'desi-dr2-lcdm-curved-cmb':{root:'base_omegak/',model:'lcdm',must:['desi-bao-all','planck-act-dr6-lensing'],avoid:['desy5sn','pantheonplus','union3']},
-  'desi-dr2-w0wa-cmb-desy5':{root:'base_w_wa/',model:'w0wa-cdm',must:['desi-bao-all','planck-act-dr6-lensing','desy5sn'],avoid:[]},
+  'desi-dr2-lcdm-cmb':{root:'base/',model:'flat-lcdm',must:['desi-bao-all','planck-NPIPE-highl-CamSpec-TTTEEE','planck-act-dr6-lensing'],avoid:['desy5sn','pantheonplus','union3']},
+  'desi-dr2-lcdm-curved-cmb':{root:'base_omegak/',model:'lcdm',must:['desi-bao-all','planck-NPIPE-highl-CamSpec-TTTEEE','planck-act-dr6-lensing'],avoid:['desy5sn','pantheonplus','union3']},
+  'desi-dr2-w0wa-cmb-desy5':{root:'base_w_wa/',model:'w0wa-cdm',must:['desi-bao-all','desy5sn','planck-NPIPE-highl-CamSpec-TTTEEE','planck-act-dr6-lensing'],avoid:[]},
 };
 
 function links(html){return [...html.matchAll(/href="([^"]+\/?)"/g)].map(m=>m[1]).filter(x=>!x.startsWith('?')&&!x.startsWith('/'));}
