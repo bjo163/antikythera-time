@@ -98,3 +98,36 @@ $('calibrateBtn').addEventListener('click', async () => {
     status.textContent=`Calibration unavailable: ${e.message}`;
   }
 });
+
+
+$('residualBtn').addEventListener('click', async () => {
+  const status=$('residualStatus');
+  const metrics=$('residualMetrics');
+  const verdict=$('residualVerdict');
+
+  status.className='result';
+  status.textContent='Querying JPL 2000–2026 and fitting fixed anomalistic/draconic residuals…';
+  metrics.classList.add('hidden');
+  verdict.classList.add('hidden');
+
+  try {
+    const r=await fetch('/api/residuals');
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.error || `HTTP ${r.status}`);
+
+    status.innerHTML=`<b>${d.source}</b> · ${d.trainingSamples} training + ${d.holdoutSamples} holdout samples<br><span class="small">${d.basisPolicy}</span>`;
+    $('anomIllumAmp').textContent=`${d.residualModel.illuminationHarmonics.anomalistic.amplitude.toFixed(3)} pp`;
+    $('dracIllumAmp').textContent=`${d.residualModel.illuminationHarmonics.draconic.amplitude.toFixed(3)} pp`;
+    $('resTrainImprove').textContent=`${d.train.scoreImprovementPct.toFixed(2)}%`;
+    $('resHoldoutImprove').textContent=`${d.holdout.scoreImprovementPct.toFixed(2)}%`;
+    metrics.classList.remove('hidden');
+
+    verdict.className=`verdict ${d.holdout.generalizes?'accept':'reject'}`;
+    verdict.textContent=d.holdout.generalizes
+      ? 'ACCEPT: FIXED-CYCLE RESIDUALS GENERALIZE'
+      : 'REJECT: RESIDUAL CYCLES DO NOT IMPROVE HOLDOUT';
+  } catch(e) {
+    status.className='result error';
+    status.textContent=`Residual validation unavailable: ${e.message}`;
+  }
+});
