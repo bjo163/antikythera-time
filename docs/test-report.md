@@ -1,4 +1,4 @@
-# Test Report — U-Time v0.7-alpha
+# Test Report — U-Time v0.8-alpha
 
 Date: 2026-10-01
 
@@ -68,3 +68,23 @@ Workflow: `static-site`
 - Result: SUCCESS
 
 The static site is packaged as an Actions artifact. Public GitHub Pages publication remains an account/repository-administration action because the connected GitHub App cannot enable Pages.
+
+
+## Relativistic Time Core validation
+
+Added 12 v0.8 tests:
+
+- all six IAU SOFA reference vectors pass;
+- TT→TCG vector;
+- TCG→TT vector;
+- TCB→TDB vector;
+- TDB→TCB vector;
+- TT→TDB with explicit dtr;
+- TDB→TT with explicit dtr;
+- missing dtr is rejected;
+- TT/TCG roundtrip;
+- TDB/TCB roundtrip;
+- UTime TT → separate two-part CoordinateTime;
+- unsupported civil scale rejection.
+
+Reference-vector tolerance: `1e-12 day` on the SOFA-tested second JD component.
