@@ -6,3 +6,4 @@ export * from './references.js';
 export * from './uncertainty.js';
 export * from './validation.js';
 export * from './ontology.js';
+export * from './cobaya.js';
