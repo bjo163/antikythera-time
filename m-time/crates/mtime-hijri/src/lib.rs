@@ -67,4 +67,60 @@ mod tests{
   HijriAstronomicalState{conjunction_jd_tt:2460000.0,sunset_jd_utc:2460000.5,moon_topocentric_altitude_deg:a,moon_sun_geocentric_elongation_deg:e,moon_illumination_fraction:None,moon_age_hours:None,moon_lag_minutes:None,site:ObserverSite{id:"jakarta".into(),latitude_deg:-6.2,longitude_deg:106.8,height_m:10.0,timezone:"Asia/Jakarta".into(),datum:"WGS84".into()},provenance:vec![]}
  }
  #[test] fn mabims_requires_both_thresholds(){let p=mabims_indonesia_2026();assert!(evaluate_profile(&p,&state(3.0,6.4)).pass);assert!(!evaluate_profile(&p,&state(2.99,6.4)).pass);assert!(!evaluate_profile(&p,&state(3.0,6.39)).pass);}
+ #[test] fn khgt_syawal_1447_pkg1_matches_published_route(){
+  let scan=KhgtScan{conjunction_utc_hour:1.391111,conjunction_before_new_zealand_dawn:true,points:vec![GlobalHilalPoint{id:"published-first-qualifying-site".into(),sunset_utc_hour:15.400833,moon_geocentric_altitude_deg:6.4889,moon_sun_geocentric_elongation_deg:8.0,in_american_landmass:false}]};
+  let r=evaluate_khgt_muhammadiyah_2026(&scan);assert!(r.pass);assert_eq!(r.route,KhgtRoute::Pkg1Before24Utc);
+ }
+ #[test] fn khgt_ramadan_1447_pkg2_route_is_representable(){
+  let scan=KhgtScan{conjunction_utc_hour:12.019167,conjunction_before_new_zealand_dawn:true,points:vec![GlobalHilalPoint{id:"Alaska-published-point".into(),sunset_utc_hour:25.0,moon_geocentric_altitude_deg:5.3931,moon_sun_geocentric_elongation_deg:8.0031,in_american_landmass:true}]};
+  let r=evaluate_khgt_muhammadiyah_2026(&scan);assert!(r.pass);assert_eq!(r.route,KhgtRoute::Pkg2AmericanTransfer);
+ }
+}
+
+
+#[derive(Debug,Clone,PartialEq)]
+pub struct GlobalHilalPoint {
+ pub id:String,
+ pub sunset_utc_hour:f64,
+ pub moon_geocentric_altitude_deg:f64,
+ pub moon_sun_geocentric_elongation_deg:f64,
+ pub in_american_landmass:bool,
+}
+
+#[derive(Debug,Clone,PartialEq)]
+pub struct KhgtScan {
+ pub conjunction_utc_hour:f64,
+ pub conjunction_before_new_zealand_dawn:bool,
+ pub points:Vec<GlobalHilalPoint>,
+}
+
+#[derive(Debug,Clone,Copy,PartialEq,Eq)]
+pub enum KhgtRoute { Pkg1Before24Utc, Pkg2AmericanTransfer, NotSatisfied }
+
+#[derive(Debug,Clone,PartialEq)]
+pub struct KhgtResult {
+ pub route:KhgtRoute,
+ pub triggering_site:Option<String>,
+ pub pass:bool,
+ pub profile_id:&'static str,
+ pub profile_version:&'static str,
+}
+
+fn khgt_5_8(p:&GlobalHilalPoint)->bool {
+ p.moon_geocentric_altitude_deg>=5.0 && p.moon_sun_geocentric_elongation_deg>=8.0
+}
+
+/// Muhammadiyah KHGT profile represented from its published 2026 methodology.
+/// Astronomy supplies candidate global sunset points; this function applies the
+/// calendrical/global-transfer rule only.
+pub fn evaluate_khgt_muhammadiyah_2026(scan:&KhgtScan)->KhgtResult {
+ if let Some(p)=scan.points.iter().find(|p|p.sunset_utc_hour<24.0 && khgt_5_8(p)){
+  return KhgtResult{route:KhgtRoute::Pkg1Before24Utc,triggering_site:Some(p.id.clone()),pass:true,profile_id:"KHGT-MUHAMMADIYAH",profile_version:"MUNAS-XXXII/KEP-86-2025"};
+ }
+ if scan.conjunction_before_new_zealand_dawn {
+  if let Some(p)=scan.points.iter().find(|p|p.sunset_utc_hour>=24.0 && p.in_american_landmass && khgt_5_8(p)){
+   return KhgtResult{route:KhgtRoute::Pkg2AmericanTransfer,triggering_site:Some(p.id.clone()),pass:true,profile_id:"KHGT-MUHAMMADIYAH",profile_version:"MUNAS-XXXII/KEP-86-2025"};
+  }
+ }
+ KhgtResult{route:KhgtRoute::NotSatisfied,triggering_site:None,pass:false,profile_id:"KHGT-MUHAMMADIYAH",profile_version:"MUNAS-XXXII/KEP-86-2025"}
 }
