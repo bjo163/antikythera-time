@@ -1,0 +1,17 @@
+name: m-time-rust-ci
+on:
+  workflow_dispatch:
+  push:
+    branches: [m-time-bootstrap]
+    paths: ["m-time/**"]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: m-time
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --workspace
+      - run: cargo run -p mtime-cli
