@@ -25,7 +25,7 @@ export function normalizeCosmologyParameters(model,input,{flatnessTolerance=5e-4
   const omegaR=input.omegaR==null?omegaRadiationFromH0(H0):nonNegative('omegaR',Number(input.omegaR));
   const omegaM=nonNegative('omegaM',Number(input.omegaM));const warnings=[];let p;
   if(model==='flat-lcdm'){
-    const omegaLambda=input.omegaLambda==null?1-omegaR-omegaM:nonNegative('omegaLambda',Number(input.omegaLambda));
+    const omegaLambda=input.omegaLambda==null?1-omegaR-omegaM:nonNegative('omegaLambda',Number(input.omegaLambda));if(omegaLambda<0)throw new RangeError('derived omegaLambda must be non-negative');
     p={H0,omegaR,omegaM,omegaLambda,omegaK:0};const diag=flatnessDiagnostic(p,flatnessTolerance);
     if(!diag.consistent){const msg=`flat density sum ${diag.densitySum} differs from 1 by ${diag.deviationFromUnity}`;if(consistencyMode==='reject')throw new RangeError(msg);warnings.push(msg);}
     return {model,parameters:p,warnings,consistency:diag};
