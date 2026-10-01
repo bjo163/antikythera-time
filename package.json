@@ -1,7 +1,7 @@
 {
   "name": "antikythera-time",
-  "version": "0.8.0-alpha.1",
-  "description": "U-Time v0.8: standards-aligned relativistic coordinate-time core plus Antikythera astronomy and cosmic chronology.",
+  "version": "1.0.0",
+  "description": "U-Time 1.0 specification candidate: metrology, relativistic coordinate time, Antikythera-inspired astronomy, JPL validation, and model-dependent cosmic chronology.",
   "type": "module",
   "scripts": {
     "test": "node --test",
