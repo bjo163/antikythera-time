@@ -109,6 +109,66 @@ pub fn combine_hilal_reference(
     }
 }
 
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct HorizonsGeometricVector {
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
+}
+
+pub fn parse_geometric_vector_row(row: &str) -> Result<HorizonsGeometricVector, HorizonsParseError> {
+    let numeric = numeric_csv_fields(row);
+    if numeric.len() < 3 {
+        return Err(HorizonsParseError::TooFewNumericFields);
+    }
+    let n = numeric.len();
+    let v = HorizonsGeometricVector {
+        x: numeric[n - 3],
+        y: numeric[n - 2],
+        z: numeric[n - 1],
+    };
+    if ![v.x, v.y, v.z].iter().all(|x| x.is_finite()) {
+        return Err(HorizonsParseError::NonFinite);
+    }
+    Ok(v)
+}
+
+pub fn parse_single_geometric_vector(text: &str) -> Result<HorizonsGeometricVector, HorizonsParseError> {
+    let rows = extract_soe_rows(text)?;
+    parse_geometric_vector_row(rows[0])
+}
+
+pub fn geometric_center_to_center_elongation_deg(
+    sun_from_earth: HorizonsGeometricVector,
+    moon_from_earth: HorizonsGeometricVector,
+) -> Result<f64, HorizonsParseError> {
+    let dot = sun_from_earth.x * moon_from_earth.x
+        + sun_from_earth.y * moon_from_earth.y
+        + sun_from_earth.z * moon_from_earth.z;
+    let rs = (sun_from_earth.x.powi(2) + sun_from_earth.y.powi(2) + sun_from_earth.z.powi(2)).sqrt();
+    let rm = (moon_from_earth.x.powi(2) + moon_from_earth.y.powi(2) + moon_from_earth.z.powi(2)).sqrt();
+    if !dot.is_finite() || !rs.is_finite() || !rm.is_finite() || rs == 0.0 || rm == 0.0 {
+        return Err(HorizonsParseError::NonFinite);
+    }
+    Ok((dot / (rs * rm)).clamp(-1.0, 1.0).acos().to_degrees())
+}
+
+pub fn combine_hilal_reference_from_vectors(
+    topo: HorizonsTopocentricMoonSample,
+    sun_from_earth: HorizonsGeometricVector,
+    moon_from_earth: HorizonsGeometricVector,
+) -> Result<HorizonsHilalReference, HorizonsParseError> {
+    Ok(HorizonsHilalReference {
+        moon_altitude_topocentric_deg: topo.elevation_deg,
+        elongation_geocentric_deg: geometric_center_to_center_elongation_deg(
+            sun_from_earth,
+            moon_from_earth,
+        )?,
+        topocentric_azimuth_deg: topo.azimuth_deg,
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -129,18 +189,20 @@ mod tests {
     }
 
     #[test]
-    fn combines_only_after_observer_semantics_are_explicit() {
-        let h = combine_hilal_reference(
-            HorizonsTopocentricMoonSample {
-                azimuth_deg: 270.0,
-                elevation_deg: 3.1,
-            },
-            HorizonsGeocentricElongationSample {
-                solar_elongation_deg: 6.5,
-            },
-        );
+    fn geometric_vector_angle_is_center_to_center() {
+        let a = HorizonsGeometricVector { x: 1.0, y: 0.0, z: 0.0 };
+        let b = HorizonsGeometricVector { x: 0.0, y: 1.0, z: 0.0 };
+        assert!((geometric_center_to_center_elongation_deg(a, b).unwrap() - 90.0).abs() < 1e-12);
+    }
+
+    #[test]
+    fn combines_topocentric_altitude_with_geometric_geocentric_elongation() {
+        let topo = HorizonsTopocentricMoonSample { azimuth_deg: 270.0, elevation_deg: 3.1 };
+        let sun = HorizonsGeometricVector { x: 1.0, y: 0.0, z: 0.0 };
+        let moon = HorizonsGeometricVector { x: 0.9935718557, y: 0.1132032138, z: 0.0 };
+        let h = combine_hilal_reference_from_vectors(topo, sun, moon).unwrap();
         assert_eq!(h.moon_altitude_topocentric_deg, 3.1);
-        assert_eq!(h.elongation_geocentric_deg, 6.5);
+        assert!((h.elongation_geocentric_deg - 6.5).abs() < 0.01);
     }
 
     #[test]
