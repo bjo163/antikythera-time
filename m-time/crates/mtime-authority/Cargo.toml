@@ -1,0 +1,11 @@
+[package]
+name = "mtime-authority"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+[dependencies]
+serde.workspace = true
+mtime-core = { path = "../mtime-core" }
+mtime-calendar = { path = "../mtime-calendar" }
+mtime-hijri = { path = "../mtime-hijri" }
+mtime-observation = { path = "../mtime-observation" }
