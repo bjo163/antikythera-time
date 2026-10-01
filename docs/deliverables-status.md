@@ -1,62 +1,67 @@
-# Deliverables Status — U-Time 1.0.0
+# Deliverables Status — U-Time 2.0.0
 
-## Core platform
-
-| Deliverable | Status |
-|---|---|
-| SI/J2000 integer time core | COMPLETE |
-| UTC/TAI/TT handling | COMPLETE WITH DECLARED LEAP-TABLE WINDOW |
-| TT/TCG canonical transform | COMPLETE |
-| TDB/TCB canonical transform | COMPLETE |
-| TT/TDB explicit-dtr transform | COMPLETE |
-| Automatic geocentric TDB−TT approximation | COMPLETE / APPROXIMATE |
-| ERFA external benchmark | COMPLETE / PASS |
-
-## Antikythera / astronomy
+## v2 platform
 
 | Deliverable | Status |
 |---|---|
-| Metonic/Saros cycle layer | COMPLETE |
-| Lunar calibration/holdout validation | COMPLETE |
-| Anomalistic/draconic residual layer | COMPLETE |
-| Saros/Exeligmos eclipse recurrence | COMPLETE |
-| NASA Saros 139 validation | COMPLETE / PASS |
-| Full Besselian eclipse geometry | FUTURE v1.2 |
-| JPL approximate classical-planet model | COMPLETE |
-| JPL Horizons planetary benchmark | COMPLETE / PASS |
-| Full historical planetary gear reconstruction | FUTURE v1.3 |
+| U-Time 2.0 normative specification | COMPLETE |
+| v2 JSON Schema | COMPLETE |
+| Semantic conformance checker | COMPLETE |
+| Conformance CLI/API | COMPLETE |
+| Frozen conformance corpus | COMPLETE |
+| Evidence + quality classes | COMPLETE |
+| Observer/referenceData/algorithm/validity/transformChain fields | COMPLETE |
+| JavaScript implementation | COMPLETE |
+| Independent Python checker | COMPLETE |
+| Independent Rust checker | COMPLETE |
+| Three-language compatibility workflow | COMPLETE / PASS |
+| SHA-256 release bundle | COMPLETE |
+| Governance/change control | COMPLETE |
+| Public conformance issue template | COMPLETE |
+| Citation/security/contribution policy | COMPLETE |
+| Review-ready preprint | COMPLETE |
+
+## Time / observer
+
+| Deliverable | Status |
+|---|---|
+| UTC/TAI/TT/TCG/TDB/TCB semantics | COMPLETE WITH DECLARED BOUNDARIES |
+| SOFA time-vector validation | COMPLETE / PASS |
+| ERFA TDB−TT benchmark | COMPLETE / PASS |
+| IERS finals.all IAU2000 ingestion | COMPLETE / PASS |
+| UT1−UTC interpolation | COMPLETE |
+| WGS84 Earth observer geometry | COMPLETE |
+| Spacecraft observer state contract | COMPLETE |
+| Weak-field proper-time interface | COMPLETE / APPROXIMATE DEMO |
+
+## Astronomy / history
+
+| Deliverable | Status |
+|---|---|
+| Antikythera Metonic/Saros/anomaly layers | COMPLETE |
+| Evidence-labelled Antikythera digital-twin manifest | COMPLETE |
+| NASA Saros recurrence validation | COMPLETE / PASS |
+| NASA Besselian published-element evaluator | COMPLETE |
+| Independent Besselian element generation | NOT CLAIMED |
+| JPL approximate planetary layer | COMPLETE |
+| JPL Horizons benchmark | COMPLETE / PASS |
 
 ## Cosmology
 
 | Deliverable | Status |
 |---|---|
-| Separate CosmicAgeEstimate | COMPLETE |
-| flat/curved ΛCDM | COMPLETE |
-| CPL w0waCDM | COMPLETE |
-| numerical/covariance/posterior uncertainty | COMPLETE |
+| ΛCDM / curved / CPL chronology | COMPLETE |
+| uncertainty/posterior chain paths | COMPLETE |
 | official DESI posterior reproduction | COMPLETE / PASS |
-| Qur'anic conceptual map outside numerical pipeline | COMPLETE |
+| textual/Qur'anic layer isolated from numerical priors | COMPLETE |
 
-## v1 protocol
+## External gates
 
-| Deliverable | Status |
-|---|---|
-| U-Time 1.0 normative specification | COMPLETE |
-| JSON Schema | COMPLETE |
-| Golden vectors | COMPLETE |
-| Evidence/provenance ontology | COMPLETE |
-| JavaScript reference implementation | COMPLETE |
-| Independent Python compatibility implementation | COMPLETE |
-| Cross-language compatibility gate | COMPLETE / PASS |
-| GitHub Pages research dashboard | COMPLETE |
+The following cannot be completed unilaterally by repository code:
 
-## External gates that remain
+- independent peer review;
+- unaffiliated implementations/reviewers;
+- IAU/BIPM/ISO or other standards-body adoption;
+- operational replacement of NASA/JPL systems.
 
-### International standard adoption
-NOT CLAIMED. Requires external review, multiple third-party implementations and relevant standards-community adoption.
-
-### NASA/JPL replacement
-NOT A GOAL and NOT CLAIMED. High-precision ephemerides, SPICE, mission navigation and orbit determination remain reference operational capabilities.
-
-### Full Antikythera digital twin
-The existing software adopts documented cycle/computation principles and selected planetary modelling. A fragment-by-fragment, gear-by-gear scholarly reconstruction remains future research.
+Those are deliberately OPEN external gates.
