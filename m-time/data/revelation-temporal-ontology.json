@@ -1,0 +1,13 @@
+{
+  "status":"CONCEPTUAL_ONLY",
+  "numerical_influence":false,
+  "concepts":[
+    {"id":"quran-2-189","corpus":"Quran","concepts":["hilal","mawaqit","people","Hajj"],"class":"TEXTUAL_REFERENCE"},
+    {"id":"quran-10-5","corpus":"Quran","concepts":["Sun","Moon","manazil","years","hisab"],"class":"TEXTUAL_REFERENCE"},
+    {"id":"quran-55-5","corpus":"Quran","concepts":["Sun","Moon","reckoning"],"class":"TEXTUAL_REFERENCE"},
+    {"id":"quran-21-33","corpus":"Quran","concepts":["Sun","Moon","falak","motion"],"class":"TEXTUAL_REFERENCE"},
+    {"id":"genesis-1-14","corpus":"Torah/Hebrew Bible witness","concepts":["luminaries","signs","appointed times","days","years"],"class":"TEXTUAL_REFERENCE"},
+    {"id":"psalm-104-19","corpus":"Psalms witness","concepts":["Moon","appointed times"],"class":"TEXTUAL_REFERENCE"},
+    {"id":"mark-13-32","corpus":"Gospel witness","concepts":["day","hour","epistemic limit"],"class":"TEXTUAL_REFERENCE"}
+  ]
+}
