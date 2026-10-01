@@ -1,93 +1,99 @@
-# Antikythera Time — U-Time 1.0.0
+# Antikythera Time — U-Time 2.0.0
 
-## Live site
+## Live research lab
 
 https://bjo163.github.io/antikythera-time/
 
-U-Time is an experimental **time/astronomy protocol specification candidate** that combines:
+U-Time 2.0 is an experimental **astronomical-time standardization candidate**. It is not an adopted international standard and does not claim one absolute universal clock.
 
-- SI/J2000 time representation;
-- explicit UTC/TAI/TT/TCG/TDB/TCB semantics;
-- Antikythera-inspired cycle computation;
-- NASA/JPL external validation;
-- model-dependent Cosmic Chronology;
-- evidence/provenance/uncertainty labels.
+## Core protocol
 
-> Universal protocol ≠ absolute cosmic clock.
-
-## U-Time 1.0 specification candidate
-
-Normative assets:
-
-- `spec/UTIME-1.0.md`
-- `spec/utime-v1.schema.json`
-- `spec/golden-vectors.json`
-
-Protocol records distinguish:
+Every v2 record exposes:
 
 ```text
 value
-+ scale / frame / model context
-+ uncertainty
++ semantic quantity
++ scale / frame / observer or model context
 + evidence state
-+ provenance
-+ semantic boundary
++ quality class
++ uncertainty
++ provenance / reference data
++ algorithm / validity
++ transformation history
 ```
 
-Evidence states:
+Normative assets:
+
+- `spec/UTIME-2.0.md`
+- `spec/utime-v2.schema.json`
+- `spec/v2-conformance-corpus.json`
+
+## Status
 
 ```text
-OBSERVED · MEASURED · CALCULATED · MODELED
-INFERRED · RECONSTRUCTED · SPECULATIVE · TEXTUAL_REFERENCE
+VERSION                    2.0.0
+STATUS                     STANDARDIZATION_CANDIDATE
+CORE TESTS                 103 / 103 PASS
+LANGUAGE COMPATIBILITY     JAVASCRIPT / PYTHON / RUST PASS
+PUBLIC LAB                 LIVE
+INTERNATIONAL ADOPTION     NOT CLAIMED
+NASA/JPL REPLACEMENT       NO
+ABSOLUTE COSMIC CLOCK      NO
 ```
 
-## v1 validation summary
+## Time / relativity / observer
 
-### Core automated tests
+Implemented:
 
-**85 tests / 85 pass / 0 fail** before final documentation freeze.
+- UTC / TAI / TT;
+- TT ↔ TCG canonical IAU relation;
+- TDB ↔ TCB canonical IAU relation;
+- canonical TT ↔ TDB with explicit dtr;
+- compact automatic geocentric TDB−TT provider;
+- six SOFA reference vectors;
+- ERFA TDB−TT benchmark;
+- IERS finals.all IAU2000 ingestion;
+- UT1−UTC and polar-motion interpolation;
+- WGS84 Earth observer geometry;
+- spacecraft observer state contract;
+- weak-field proper-time-rate demonstration.
 
-Coverage includes metrology, lunar/Saros models, cosmology, official DESI posterior reproduction, relativistic coordinate time, automatic TDB−TT, eclipse recurrence, planetary approximation and v1 protocol records.
-
-### Relativistic coordinate time
-
-- TT ↔ TCG: IAU 2000 B1.9;
-- TDB ↔ TCB: IAU 2006 B3;
-- TT ↔ TDB: canonical wrapper with explicit `dtr=TDB−TT`;
-- six IAU SOFA reference vectors: PASS.
-
-A compact automatic geocentric TDB−TT provider is also available and explicitly labelled approximate.
-
-ERFA benchmark, 1900–2100:
+ERFA benchmark for the compact automatic dtr provider:
 
 ```text
-164 samples
+164 samples · 1900–2100
 max |error|   34.680 µs
 mean |error|  14.899 µs
 RMS error     17.172 µs
 gate          100 µs
-result        PASS
+PASS
 ```
 
-### Eclipse recurrence
+Official IERS ingestion workflow parsed 2,386 rows with the latest observed snapshot in that run dated 2026-09-08.
 
-The v0.9 engine implements Saros/Exeligmos recurrence rather than pretending to be a full Besselian solver.
+## Astronomy / Antikythera
 
-NASA Solar Saros 139 reference check:
+Implemented:
 
-- 2042 recurrence: < 30 min timing residual;
-- 2060 recurrence: < 30 min timing residual;
-- recurrence gate: PASS.
+- Metonic / Saros / Exeligmos;
+- lunar mean model + JPL validation;
+- bounded calibration and untouched holdout;
+- anomalistic/draconic residual engine;
+- NASA Saros 139 recurrence validation;
+- evaluator for published NASA Besselian polynomial elements;
+- JPL-published approximate planetary positions for Mercury–Saturn;
+- Horizons planetary benchmark;
+- evidence-labelled Antikythera digital-twin manifest.
 
-### Planetary Cosmos
+The Besselian layer evaluates published NASA elements; it does not claim independent generation of Besselian elements from a full high-precision Sun/Moon ephemeris.
 
-Implements JPL SSD's published **Approximate Positions of the Planets** Table-1 Keplerian model for 1800–2050.
+Historical Antikythera components are labelled as surviving evidence, strongly indicated reconstruction, reconstructed model or hypothetical feature.
 
-Bodies: Mercury, Venus, Earth/EM-barycenter approximation, Mars, Jupiter, Saturn.
+## Planetary benchmark
 
-15 external comparisons against JPL Horizons all pass declared model-specific gates.
+15 JPL Horizons vector comparisons pass their declared approximate-model gates.
 
-Observed vector-error ranges:
+Observed error ranges:
 
 ```text
 Mercury  0.7–3.4 thousand km
@@ -97,108 +103,112 @@ Jupiter  0.61–1.58 million km
 Saturn   2.03–3.85 million km
 ```
 
-This is a lower-accuracy display/research model. Horizons/integrated ephemerides remain the high-precision reference.
-
-### Independent implementation compatibility
-
-A separate Python implementation recomputes four v1 golden domains without calling the JavaScript implementation:
-
-- TT→TCG;
-- Planck flat-ΛCDM cosmic age;
-- Saros recurrence;
-- Mars J2000 approximate vector.
-
-Workflow `v1-compatibility`: **PASS**.
+These are lower-accuracy planetary models. JPL Horizons/integrated ephemerides remain the high-precision reference.
 
 ## Cosmic Chronology
 
-Cosmic age remains semantically separate from `UTime`.
+Cosmic age is represented as a model-dependent inference, never as an absolute coordinate-time instant.
 
-Supported:
+Implemented:
 
 - flat ΛCDM;
 - curved ΛCDM;
-- CPL `w0waCDM`;
+- CPL w0waCDM;
 - deterministic numerical integration;
-- independent/covariance uncertainty;
-- posterior-chain evaluation.
+- independent/covariance uncertainty propagation;
+- posterior-chain evaluation;
+- official DESI DR2 chain reproduction.
 
-Official DESI DR2 full-chain results reproduced in the project:
+Official full-chain age results reproduced by the project include:
 
 - DESI DR2 + CMB flat ΛCDM: **13.788868 ± 0.015691 Gyr**;
 - DESI DR2 + CMB curved ΛCDM: **13.703507 ± 0.045204 Gyr**;
 - DESI DR2 + CMB + DESY5 w0waCDM: **13.759532 ± 0.019103 Gyr**.
 
-The independent Friedmann engine passes a 1-Myr weighted-mean agreement gate against the official Cobaya-derived age on matched chain samples.
+## Three-language conformance
 
-## Antikythera boundary
+Independent calculations are run in:
 
-Antikythera contributes the computational architecture:
+- JavaScript;
+- Python;
+- Rust.
 
-```text
-astronomical phenomenon
-→ period / ratio
-→ state / recurrence
-→ prediction
-→ external validation
-```
+Compatibility domains:
 
-It does **not** historically provide:
+- TT → TCG;
+- Planck flat-ΛCDM age;
+- Saros recurrence;
+- Mars J2000 approximate vector.
 
-- atomic seconds;
-- relativistic coordinate time;
-- JPL-style planetary ephemerides;
-- Hubble parameters;
-- a Big-Bang date;
-- an exact age of the Universe.
+The v2 compatibility workflow passes across all three implementations.
 
-## Qur'anic research boundary
+## Evidence / quality semantics
 
-Qur'anic celestial/reckoning material is stored as a textual/conceptual research layer.
-
-It is never used as a numerical prior for H₀, Ωm, ΩΛ, w₀, wₐ, eclipse timing or planetary position.
-
-## NASA/JPL positioning
-
-U-Time is **not more advanced than NASA/JPL overall**.
-
-NASA/JPL remains substantially more mature for:
-
-- integrated high-precision ephemerides;
-- SPICE;
-- spacecraft navigation;
-- orbit determination;
-- operational mission geometry.
-
-U-Time's contribution is a transparent cross-domain protocol/integration architecture with explicit epistemic status, provenance and uncertainty.
-
-See `docs/engine-positioning.md`.
-
-## Documentation
-
-Key documents:
-
-- `spec/UTIME-1.0.md`
-- `docs/v1-conformance.md`
-- `docs/dtr-benchmark.md`
-- `docs/eclipse-engine.md`
-- `docs/planetary-cosmos.md`
-- `docs/relativistic-time-core.md`
-- `docs/cosmology-age-results.md`
-- `docs/official-desi-posterior.md`
-- `docs/quranic-celestial-computation-map.md`
-- `docs/claim-matrix.md`
-- `docs/test-report.md`
-- `docs/reproducibility.md`
-- `docs/long-term-roadmap.md`
-
-## Status
+Evidence:
 
 ```text
-VERSION                    1.0.0
-STATUS                     SPECIFICATION CANDIDATE
-INTERNATIONAL STANDARD     NO
-NASA/JPL REPLACEMENT       NO
-ABSOLUTE COSMIC CLOCK      NO
-PUBLIC REPRODUCIBLE LAB    YES
+OBSERVED · MEASURED · CALCULATED · MODELED
+INFERRED · RECONSTRUCTED · SPECULATIVE · TEXTUAL_REFERENCE
 ```
+
+Quality:
+
+```text
+REFERENCE · HIGH_PRECISION · APPROXIMATE
+RECONSTRUCTION · CONCEPTUAL
+```
+
+Textual/Qur'anic material remains `TEXTUAL_REFERENCE / CONCEPTUAL` and is never used as a hidden numerical prior.
+
+## Conformance
+
+CLI:
+
+```bash
+npm run conformance
+```
+
+API on serverless deployment:
+
+```text
+POST /api/conformance
+```
+
+A public GitHub issue template is provided for independent conformance reports/discrepancies.
+
+## Reproducibility / release
+
+The `v2-release` workflow:
+
+1. runs the full test suite;
+2. validates the conformance corpus;
+3. runs JS/Python/Rust golden-vector compatibility;
+4. generates SHA-256 hashes for normative/reference files;
+5. creates the `utime-2.0.0-standardization-candidate` bundle.
+
+See:
+
+- `benchmarks/v2-reference-results.json`
+- `docs/standardization-readiness.md`
+- `docs/preprint.md`
+- `GOVERNANCE.md`
+- `CONTRIBUTING.md`
+- `SECURITY.md`
+- `CITATION.cff`
+
+## Position relative to external authorities
+
+U-Time consumes and validates against authoritative external work:
+
+- BIPM for SI metrology;
+- IAU/IERS/SOFA for astronomical reference/time conventions;
+- NASA/JPL for eclipse/solar-system references;
+- Planck/DESI for cosmological observations/posteriors.
+
+It does not supersede those systems.
+
+## What v2 means
+
+`2.0.0` means the repository is internally packaged for independent evaluation as a **standardization candidate**.
+
+It does **not** mean external peer review, independent community adoption, or formal standards-body approval has already happened.
