@@ -1,0 +1,28 @@
+name: m-time-jpl-hilal
+on:
+  workflow_dispatch:
+  push:
+    branches: [m-time-bootstrap]
+    paths:
+      - "m-time/crates/mtime-solar-provider/**"
+      - "m-time/scripts/jpl-hilal-benchmark.mjs"
+      - ".github/workflows/m-time-jpl-hilal.yml"
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-node@v4
+        with: {node-version: 20}
+      - name: Compute offline provider point
+        working-directory: m-time
+        run: cargo run -q -p mtime-solar-provider --bin provider_point > /tmp/provider.json
+      - name: Compare to NASA/JPL Horizons
+        working-directory: m-time
+        run: node scripts/jpl-hilal-benchmark.mjs /tmp/provider.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m-time-jpl-hilal-benchmark
+          path: m-time/artifacts/
