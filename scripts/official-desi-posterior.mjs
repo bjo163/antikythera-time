@@ -1,5 +1,5 @@
-import https from 'node:https';
 #!/usr/bin/env node
+import https from 'node:https';
 import fs from 'node:fs/promises';
 import { parseCobayaText, reproduceCosmicAgeFromCobaya } from '../src/cosmology/cobaya.js';
 
