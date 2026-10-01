@@ -1,0 +1,9 @@
+[package]
+name="mtime-conformance"
+version.workspace=true
+edition.workspace=true
+license.workspace=true
+[dependencies]
+mtime-antikythera={path="../mtime-antikythera"}
+mtime-hijri={path="../mtime-hijri"}
+mtime-cosmology={path="../mtime-cosmology"}
