@@ -45,6 +45,6 @@ export class UTime {
     throw new Error(`U-Time core has no implicit ${this.scale}->${targetScale} conversion. Use the validated scale module.`);
   }
   toJSON() {
-    return { protocol: 'U-Time', version: '0.8-alpha', unit: 'SI nanosecond', epoch: 'J2000.0 (JD 2451545.0 TT)', nsSinceJ2000: this.nsSinceJ2000.toString(), scale: this.scale, frame: this.frame, uncertaintyNs: this.uncertaintyNs.toString() };
+    return { protocol: 'U-Time', version: '1.0.0', unit: 'SI nanosecond', epoch: 'J2000.0 (JD 2451545.0 TT)', nsSinceJ2000: this.nsSinceJ2000.toString(), scale: this.scale, frame: this.frame, uncertaintyNs: this.uncertaintyNs.toString() };
   }
 }
