@@ -77,22 +77,26 @@ pub fn find_conjunction_tt(start_jd_tt:f64,end_jd_tt:f64)->Result<f64,String>{
  Err("no conjunction root found in bracket".into())
 }
 
+fn event_jd(body:&Value,name:&str)->Option<f64>{
+ let e=&body["events"][name];
+ e.as_f64().or_else(||e["jd"].as_f64())
+}
 pub fn sunset_jd_utc(jd_utc:f64,site:&Site)->Result<f64,String>{
  let v=snapshot_json(jd_utc,site)?;let sun=body(&v,"Sun")?;
- sun["events"]["set"]["jd"].as_f64().ok_or_else(||"Sun set unavailable in local solar day".into())
+ event_jd(sun,"set").ok_or_else(||"Sun set unavailable in local solar day".into())
 }
 
 pub fn hilal_state_for_local_day(jd_utc:f64,site:&Site)->Result<HijriAstronomicalState,String>{
  let daily=snapshot_json(jd_utc,site)?;
  let sun=body(&daily,"Sun")?;let moon=body(&daily,"Moon")?;
- let sunset=sun["events"]["set"]["jd"].as_f64().ok_or("Sunset unavailable")?;
+ let sunset=event_jd(sun,"set").ok_or("Sunset unavailable")?;
  let at_set=snapshot_json(sunset,site)?;
  let moon_set=body(&at_set,"Moon")?;
  let state=state_at(sunset,site)?;
  let sunset_tt=num(&at_set["time"],"jd_tt")?;
  let conjunction=find_conjunction_tt(sunset_tt-3.0,sunset_tt+0.25)?;
  if conjunction>sunset_tt{return Err("nearest conjunction occurs after sunset; requested day is pre-conjunction".into())}
- let moon_set_jd=moon["events"]["set"]["jd"].as_f64().or_else(||moon_set["events"]["set"]["jd"].as_f64());
+ let moon_set_jd=event_jd(moon,"set").or_else(||event_jd(moon_set,"set"));
  let lag=moon_set_jd.map(|x|(x-sunset)*1440.0);
  Ok(HijriAstronomicalState{
   conjunction_jd_tt:conjunction,sunset_jd_utc:sunset,
