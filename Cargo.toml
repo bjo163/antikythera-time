@@ -1,0 +1,24 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/mtime-core",
+  "crates/mtime-timescales",
+  "crates/mtime-antikythera",
+  "crates/mtime-astro",
+  "crates/mtime-hijri",
+  "crates/mtime-observation",
+  "crates/mtime-authority",
+  "crates/mtime-explain",
+  "crates/mtime-cosmology",
+  "crates/mtime-revelation",
+  "crates/mtime-cli",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+rust-version = "1.75"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
