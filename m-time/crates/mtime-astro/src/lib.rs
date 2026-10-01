@@ -6,7 +6,7 @@ pub struct BodyState{pub right_ascension_deg:f64,pub declination_deg:f64,pub dis
 #[derive(Debug,Clone,PartialEq)]
 pub struct SunMoonState{
  pub jd_tt:f64,pub site:Site,pub sun:BodyState,pub moon:BodyState,
- pub moon_topocentric_altitude_deg:f64,pub moon_sun_geocentric_elongation_deg:f64,
+ pub moon_geocentric_altitude_deg:f64,pub moon_topocentric_altitude_deg:f64,pub moon_sun_geocentric_elongation_deg:f64,
  pub illumination_fraction:f64,pub provenance:Vec<Provenance>
 }
 pub trait EphemerisProvider{
