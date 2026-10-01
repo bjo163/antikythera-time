@@ -1,0 +1,10 @@
+[package]
+name = "mtime-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+[dependencies]
+clap.workspace = true
+mtime-calendar = { path = "../../crates/mtime-calendar" }
+mtime-hijri = { path = "../../crates/mtime-hijri" }
+mtime-conformance = { path = "../../crates/mtime-conformance" }
