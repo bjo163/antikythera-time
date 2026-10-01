@@ -33,6 +33,7 @@ fn main() {
         observations: vec![],
         observation_summary: None,
         authority: None,
+        calendar_result: None,
     };
     let b = TemporalResolution {
         id: "B".into(),
@@ -42,6 +43,7 @@ fn main() {
         observations: vec![],
         observation_summary: None,
         authority: None,
+        calendar_result: None,
     };
 
     let diff = explain_difference(&a, &b);
