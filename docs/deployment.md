@@ -1,38 +1,29 @@
-# Deployment Status
+# Deployment Status — U-Time 2.0
 
 ## GitHub Pages
 
-**Status: DEPLOYED**
+**LIVE**
 
-Successful v1 Pages workflow:
-
-- Run: `36831062744`
-- Commit: `69539b0ffb8fdd0e44de6481dde123b4036c2174`
-- Conclusion: `success`
-
-Canonical site URL:
+Canonical URL:
 
 ```text
 https://bjo163.github.io/antikythera-time/
 ```
 
-The deployed static site contains:
+v2 UI deployment run:
 
-```text
-index.html
-site.js
-styles.css
-src/**
-```
+`36914391968` — SUCCESS.
 
-Cosmology calculations have a client-side fallback and therefore work directly on GitHub Pages.
+Static browser calculations include the time/cycle/relativity/cosmology fallback layers and v2 status panels.
 
 ## Server-backed APIs
 
-JPL validation/calibration/residual endpoints under `/api/**` still require serverless hosting such as Vercel.
+Endpoints under `/api/**` require serverless hosting and are not executed by GitHub Pages itself.
 
-The GitHub Pages site remains useful as the public static research dashboard, while Vercel remains the preferred future target for the full API-backed experience.
+The repository remains Vercel-compatible for a future full API deployment.
 
-## Security
+## Release artifact
 
-No deployment token or secret is committed to the repository.
+The v2 standardization bundle is produced by GitHub Actions run `36914464594`, artifact ID `11189056329`.
+
+No deployment or API secrets are committed.
