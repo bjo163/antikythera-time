@@ -1,0 +1,18 @@
+name: m-time-compatibility
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "crates/**"
+      - "reference-python/**"
+      - ".github/workflows/compatibility.yml"
+jobs:
+  rust-python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python reference-python/mtime_reference.py
