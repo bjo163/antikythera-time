@@ -4,6 +4,7 @@ members = [
   "crates/mtime-timescales",
   "crates/mtime-eop",
   "crates/mtime-astro",
+  "crates/mtime-solar-provider",
   "crates/mtime-antikythera",
   "crates/mtime-calendar",
   "crates/mtime-hijri",
