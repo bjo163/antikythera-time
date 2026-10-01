@@ -21,8 +21,8 @@ console.error('TOP_ROW',JSON.stringify(topFields));
 console.error('GEO_ROW',JSON.stringify(geoFields));
 const tn=nums(topFields),gn=nums(geoFields);
 if(tn.length<3||gn.length<2)throw new Error('unexpected numeric Horizons columns\nTOP '+row(top).join('|')+'\nGEO '+row(geo).join('|'));
-const jplAltitude=tn.at(-1); // quantity 4 => azimuth, elevation; final numeric is elevation
-const jplElongation=gn.at(-1); // quantity 23 => elongation plus non-numeric lead/trail code
+const jplAltitude=Number(topFields[4]); // JD,* ,m,azimuth,elevation
+const jplElongation=Number(geoFields[3]); // JD,blank,blank,elongation,/T
 const altitudeError=Math.abs(provider.altitude_deg-jplAltitude);
 const elongationError=Math.abs(provider.elongation_deg-jplElongation);
 const thresholdDeg=0.1;
