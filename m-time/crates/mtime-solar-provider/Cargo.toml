@@ -11,3 +11,4 @@ mtime-core={path="../mtime-core"}
 mtime-astro={path="../mtime-astro"}
 mtime-hijri={path="../mtime-hijri"}
 mtime-eop={path="../mtime-eop"}
+mtime-timescales={path="../mtime-timescales"}
