@@ -156,6 +156,30 @@ fn fallback_sunset_jd_utc(jd_utc:f64,site:&Site)->Result<f64,String>{
  }
  Err("sunset crossing not found in local mean-solar day".into())
 }
+fn direct_moon_topocentric_altitude_deg(jd_utc:f64,site:&Site)->Result<f64,String>{
+ use solar_ephemeris::{coords,earth_orientation,elpmpp02,time,timescales::AstroTime};
+ let astro=AstroTime::from_jd_utc(jd_utc);let t=time::centuries(astro.jd_tt);let(dpsi,deps)=time::nutation_deg(t);let eps=time::mean_obliquity_deg(t)+deps;
+ let(observer_lat,observer_lon)=earth_orientation::corrected_observer_geodetic(site.latitude_deg,site.longitude_deg,astro.eop.xp_arcsec,astro.eop.yp_arcsec);
+ let lst=(time::gast_deg(astro.jd_ut1,dpsi,eps)+observer_lon).rem_euclid(360.0);let(rho_sin,rho_cos)=coords::observer_rho(observer_lat,site.height_m);
+ let(lon,lat,dist)=elpmpp02::moon_apparent_ecliptic(astro.jd_tt,dpsi);let(ra,dec)=coords::ecl_to_equ(lon,lat,eps);let(ra_t,dec_t)=coords::topocentric(ra,dec,dist,lst,rho_sin,rho_cos);
+ Ok(coords::alt_az(ra_t,dec_t,lst,observer_lat).0)
+}
+
+pub fn geometric_moonset_jd_utc(after_sunset_jd:f64,site:&Site)->Result<Option<f64>,String>{
+ let target=0.0;let steps=96usize;let mut a=after_sunset_jd;let mut fa=direct_moon_topocentric_altitude_deg(a,site)?-target;
+ if fa<=0.0{return Ok(Some(a))}
+ for i in 1..=steps{
+  let b=after_sunset_jd+0.75*i as f64/steps as f64;let fb=direct_moon_topocentric_altitude_deg(b,site)?-target;
+  if fa>0.0&&fb<=0.0{
+   let(mut lo,mut hi,mut flo)=(a,b,fa);
+   for _ in 0..60{let mid=(lo+hi)/2.0;let fm=direct_moon_topocentric_altitude_deg(mid,site)?-target;if(hi-lo)*86400.0<0.05{return Ok(Some(mid))}if flo.signum()==fm.signum(){lo=mid;flo=fm}else{hi=mid}}
+   return Ok(Some((lo+hi)/2.0))
+  }
+  a=b;fa=fb;
+ }
+ Ok(None)
+}
+
 pub fn sunset_jd_utc(jd_utc:f64,site:&Site)->Result<f64,String>{
  // Direct numeric fallback is authoritative for this adapter; snapshot events remain diagnostic.
  fallback_sunset_jd_utc(jd_utc,site)
@@ -167,7 +191,7 @@ pub fn hilal_state_for_local_day(jd_utc:f64,site:&Site)->Result<HijriAstronomica
  let sunset_tt=state.jd_tt;
  let conjunction=find_conjunction_tt(sunset_tt-3.0,sunset_tt+0.25)?;
  if conjunction>sunset_tt{return Err("nearest conjunction occurs after sunset; requested day is pre-conjunction".into())}
- let lag=None;
+ let lag=geometric_moonset_jd_utc(sunset,site)?.map(|x|(x-sunset)*1440.0);
  Ok(HijriAstronomicalState{
   conjunction_jd_tt:conjunction,sunset_jd_utc:sunset,
   moon_topocentric_altitude_deg:state.moon_topocentric_altitude_deg,
@@ -186,4 +210,5 @@ mod tests{
  #[test]fn offline_snapshot_is_finite(){let s=state_at(2461041.0,&jakarta()).unwrap();assert!(s.moon_topocentric_altitude_deg.is_finite());assert!((0.0..=180.0).contains(&s.moon_sun_geocentric_elongation_deg));}
  #[test]fn conjunction_solver_finds_root(){let root=find_conjunction_tt(2461115.0,2461120.0).unwrap();assert!(signed_lon_diff_deg(root).abs()<1e-5);}
  #[test]fn implicit_tt_to_utc_is_rejected(){let p=SolarEphemerisProvider;assert!(p.sun_moon_state(2461041.0,&jakarta()).is_err());}
+ #[test]fn geometric_moonset_is_after_sunset_when_moon_is_above_horizon(){let s=sunset_jd_utc(2461118.5,&jakarta()).unwrap();let m=geometric_moonset_jd_utc(s,&jakarta()).unwrap().unwrap();assert!(m>=s);assert!((m-s)*1440.0<240.0);}
 }
