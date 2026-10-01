@@ -1,0 +1,12 @@
+[package]
+name = "mtime-authority"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+mtime-core = { path = "../mtime-core" }
+
+[lints]
+workspace = true
