@@ -46,7 +46,7 @@ export class CoordinateTime {
 export function coordinateFrameForScale(scale) {
   if (scale === TimeScale.TT || scale === TimeScale.TCG) return ReferenceFrame.GCRS;
   if (scale === TimeScale.TDB || scale === TimeScale.TCB) return ReferenceFrame.BCRS;
-  throw new RangeError('unsupported relativistic coordinate time scale');
+  throw new RangeError('CoordinateTime scale must be TT, TCG, TDB or TCB');
 }
 
 export function coordinateFromTwoPartJD(scale, d1, d2, options = {}) {
