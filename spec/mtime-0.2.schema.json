@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bjo163.github.io/antikythera-time/spec/mtime-0.2.schema.json",
+  "title": "M-Time Temporal Resolution 0.2",
+  "type": "object",
+  "required": ["astronomy", "criterion", "computed_action"],
+  "properties": {
+    "astronomy": {
+      "type": "object",
+      "required": [
+        "moon_altitude_topocentric_deg",
+        "elongation_geocentric_deg",
+        "geometry_semantics",
+        "site_id",
+        "ephemeris_source"
+      ],
+      "properties": {
+        "moon_altitude_topocentric_deg": {"type": "number"},
+        "elongation_geocentric_deg": {"type": "number"},
+        "site_id": {"type": "string", "minLength": 1},
+        "ephemeris_source": {"type": "string", "minLength": 1},
+        "quality": {
+          "enum": ["REFERENCE", "HIGH_PRECISION", "APPROXIMATE", "RECONSTRUCTION", "CONCEPTUAL"]
+        },
+        "geometry_semantics": {
+          "type": "object",
+          "required": ["altitude_basis", "elongation_basis"],
+          "properties": {
+            "altitude_basis": {
+              "enum": ["TOPOCENTRIC", "GEOCENTRIC", "UNKNOWN"]
+            },
+            "elongation_basis": {
+              "enum": [
+                "GEOCENTRIC_CENTER_TO_CENTER",
+                "GEOCENTRIC_APPARENT",
+                "TOPOCENTRIC_APPARENT",
+                "UNKNOWN"
+              ]
+            },
+            "refraction_applied": {"type": "boolean"}
+          },
+          "additionalProperties": true
+        },
+        "reference_data": {
+          "type": "object",
+          "properties": {
+            "ephemeris": {"type": "string"},
+            "frame": {"type": "string"},
+            "time_scale": {"type": "string"},
+            "eop_source": {"type": ["string", "null"]}
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "criterion": {
+      "type": "object",
+      "required": ["profile_id", "profile_version", "met"],
+      "properties": {
+        "profile_id": {"type": "string"},
+        "profile_version": {"type": "string"},
+        "profile_scope": {
+          "enum": ["SINGLE_STATE", "GLOBAL_ANY_SITE"]
+        },
+        "met": {"type": ["boolean", "null"]}
+      },
+      "additionalProperties": true
+    },
+    "observations": {"type": "array"},
+    "authority": {"type": ["object", "null"]},
+    "calendar_result": {"type": ["object", "null"]},
+    "computed_action": {"type": "string"},
+    "source_artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source_id", "sha256_hex", "signature_status"],
+        "properties": {
+          "source_id": {"type": "string"},
+          "media_type": {"type": "string"},
+          "sha256_hex": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "signature_status": {
+            "enum": ["UNSIGNED", "VERIFIED_ED25519"]
+          },
+          "key_id": {"type": ["string", "null"]}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}
