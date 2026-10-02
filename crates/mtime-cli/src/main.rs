@@ -54,7 +54,7 @@ fn main() {
     )
     .expect("cosmology demo");
 
-    println!("M-Time v0.1 demo");
+    println!("M-Time v0.2 demo");
     println!("MABIMS computed action: {:?}", a.computed_action);
     println!("ExplainDifference: {}", diff.explanation);
     println!(
