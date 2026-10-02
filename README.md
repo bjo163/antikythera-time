@@ -9,6 +9,7 @@ Core rule: physical time, astronomy, calendar criteria, observation/rukyat, juri
 ## v0.2 highlights
 
 - Pure-Rust offline JPL DE440/SPK provider.
+- Integrated `mtime-hilal` engine: `UTC + observer + IERS + DE440 → HijriAstronomicalState`.
 - External DE440 ↔ JPL Horizons vector oracle.
 - WGS84 lunar topocentric parallax.
 - IAU 2006/2000A celestial→terrestrial transform with IERS polar motion.
@@ -18,6 +19,7 @@ Core rule: physical time, astronomy, calendar criteria, observation/rukyat, juri
 - Indonesia MABIMS/PMA No. 1/2026 source-linked profile.
 - Türkiye Diyanet 1978 global-any-site 5°/8° source-linked profile.
 - Rust/WASM profile comparison surface.
+- 60 Rust tests / 0 failures on the v0.2 hardening gate.
 - Indonesia 1447 H Ramadan/Syawal/Zulhijjah replay corpus.
 - ExplainDifference preserves astronomy vs criterion vs rukyat vs authority.
 
