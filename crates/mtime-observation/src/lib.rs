@@ -109,3 +109,68 @@ mod tests {
         assert_eq!(s.reported_sites, 117);
     }
 }
+
+
+use mtime_integrity::{IngestedArtifact, SignatureStatus};
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct VerifiedObservationArtifact {
+    pub report: ObservationReport,
+    pub source_artifact: IngestedArtifact,
+}
+
+impl VerifiedObservationArtifact {
+    #[must_use]
+    pub fn source_signature_verified(&self) -> bool {
+        matches!(
+            self.source_artifact.signature_status,
+            SignatureStatus::VerifiedEd25519 { .. }
+        )
+    }
+}
+
+#[must_use]
+pub fn bind_observation_artifact(
+    report: ObservationReport,
+    source_artifact: IngestedArtifact,
+) -> VerifiedObservationArtifact {
+    VerifiedObservationArtifact {
+        report,
+        source_artifact,
+    }
+}
+
+#[cfg(test)]
+mod integrity_binding_tests {
+    use super::*;
+    use mtime_integrity::ingest_unsigned;
+
+    fn fixture_report() -> ObservationReport {
+        ObservationReport {
+            id: "obs-1".into(),
+            site_id: "site-1".into(),
+            organization: "fixture".into(),
+            longitude_deg: None,
+            latitude_deg: None,
+            time_start_utc: None,
+            time_end_utc: None,
+            instrument: None,
+            weather: None,
+            horizon_condition: None,
+            sighting: SightingStatus::Negative,
+            verification: VerificationStatus::Reviewed,
+            attachment_hashes: vec![],
+            evidence: EvidenceState::Observed,
+            quality: QualityClass::Reference,
+            provenance: Provenance::new("fixture"),
+        }
+    }
+
+    #[test]
+    fn unsigned_source_remains_explicitly_unsigned() {
+        let artifact = ingest_unsigned("official-json-fixture", "application/json", b"{}");
+        let bound = bind_observation_artifact(fixture_report(), artifact);
+        assert!(!bound.source_signature_verified());
+        assert_eq!(bound.source_artifact.sha256_hex.len(), 64);
+    }
+}
