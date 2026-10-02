@@ -12,6 +12,7 @@ members = [
   "crates/mtime-profile",
   "crates/mtime-worship",
   "crates/mtime-observation",
+  "crates/mtime-integrity",
   "crates/mtime-authority",
   "crates/mtime-explain",
   "crates/mtime-cosmology",
