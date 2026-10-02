@@ -9,6 +9,8 @@ rust-version.workspace = true
 mtime-core = { path = "../mtime-core" }
 mtime-astro = { path = "../mtime-astro" }
 mtime-jpl = { path = "../mtime-jpl" }
+mtime-timescales = { path = "../mtime-timescales" }
+mtime-eop = { path = "../mtime-eop" }
 oxiephemeris-de = "0.1.1"
 
 [lints]
