@@ -261,3 +261,16 @@ mod global_tests {
         assert_eq!(r.passing_site_ids, vec!["B"]);
     }
 }
+
+
+#[must_use]
+pub fn bundled_mabims_id_2026() -> CompiledProfile {
+    compile_profile(&parse_profile(include_str!("../../../profiles/mabims-id-2026.toml")).expect("bundled MABIMS profile must parse"))
+        .expect("bundled MABIMS profile must compile")
+}
+
+#[must_use]
+pub fn bundled_diyanet_1978_global() -> CompiledProfile {
+    compile_profile(&parse_profile(include_str!("../../../profiles/diyanet-1978-global.toml")).expect("bundled Diyanet profile must parse"))
+        .expect("bundled Diyanet profile must compile")
+}
