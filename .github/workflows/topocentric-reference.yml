@@ -28,3 +28,7 @@ jobs:
       - name: Compare M-Time topocentric geometry with Horizons
         run: |
           cargo run -p mtime-spk --example validate_topocentric --             /tmp/de440s.bsp /tmp/horizons-topo.txt /tmp/finals.all
+
+      - name: Compare integrated HijriAstronomicalState with Horizons
+        run: |
+          cargo run -p mtime-hilal --example validate_state -- /tmp/de440s.bsp /tmp/horizons-topo.txt /tmp/finals.all
