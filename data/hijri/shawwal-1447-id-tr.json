@@ -1,0 +1,49 @@
+{
+  "corpus_version": "0.2",
+  "event": "SHAWWAL_1447",
+  "comparison": "Indonesia vs Türkiye/Diyanet",
+  "physical_event_note": "Both jurisdictions concern the same lunation; local sunset geometry, rule scope, observations, and authority processes differ.",
+  "indonesia": {
+    "observation_date": "2026-03-19",
+    "profile_id": "MABIMS_ID_2026",
+    "published_altitude_range_deg": [0.9075, 3.1311111],
+    "published_elongation_range_deg": [4.5444444, 6.1030556],
+    "reported_observation_sites": 117,
+    "accepted_positive_sightings": 0,
+    "official_1_shawwal": "2026-03-21",
+    "sources": [
+      "https://diy.kemenag.go.id/news/52041-pemerintah-tetapkan-1-syawal-1447-h-bertepatan-21-maret-2026.html",
+      "https://sulteng.kemenag.go.id/ppid/berita/16/03/2026/pemantauan-hilal-awal-syawal-1447-h-di-117-titik-ini-lokasinya"
+    ]
+  },
+  "turkiye_diyanet": {
+    "observation_date": "2026-03-19",
+    "profile_component_id": "DIYANET_1978_VISIBILITY",
+    "published_conjunction_utc": "2026-03-19T01:24:00Z",
+    "published_first_visibility_utc": "2026-03-19T15:24:00Z",
+    "published_ankara_moon_altitude_deg": 6.6666667,
+    "published_mecca_moon_altitude_deg": 5.9666667,
+    "reported_observation_sites_total": 111,
+    "published_observation": "Shawwal crescent observed and photographed in North America",
+    "official_1_shawwal": "2026-03-20",
+    "sources": [
+      "https://vakithesaplama.diyanet.gov.tr/icerik.php?icerik=108",
+      "https://fetva.diyanet.gov.tr/tr/duyuru/1447-sevval-ayi-hilali-goruldu/019d0a77-b7a2-7524-806f-e4f454f42601",
+      "https://vakithesaplama.diyanet.gov.tr/icerik.php?icerik=153"
+    ]
+  },
+  "safe_interpretation": {
+    "outcome_differs": true,
+    "documented_layers_that_differ": [
+      "calendar methodology/profile",
+      "observation scope/evidence",
+      "jurisdiction",
+      "authority outcome"
+    ],
+    "not_claimed": [
+      "that either religious methodology is scientifically or theologically superior",
+      "that one local astronomical state represents the entire globe",
+      "that the 5-degree/8-degree Diyanet visibility component alone is the complete current month-start rule"
+    ]
+  }
+}
