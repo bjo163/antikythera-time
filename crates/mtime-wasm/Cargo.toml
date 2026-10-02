@@ -13,6 +13,7 @@ wasm-bindgen = "0.2"
 mtime-core = { path = "../mtime-core" }
 mtime-timescales = { path = "../mtime-timescales" }
 mtime-hijri = { path = "../mtime-hijri" }
+mtime-profile = { path = "../mtime-profile" }
 
 [lints]
 workspace = true
