@@ -186,3 +186,102 @@ mod topocentric_tests {
         assert!(a.refraction_applied);
     }
 }
+
+
+const ARCSEC_TO_RAD: f64 = core::f64::consts::PI / (180.0 * 3600.0);
+
+/// High-accuracy geometric topocentric horizon transform using the
+/// IAU 2006/2000A celestial-to-terrestrial matrix (SOFA algorithm family),
+/// IERS polar motion, and WGS84 observer coordinates.
+///
+/// Input object vector is geocentric ICRF/GCRS-oriented km.
+/// TT and UT1 are supplied as two-part Julian Dates.
+pub fn topocentric_horizon_iau2006(
+    geocentric_object_icrf_km: [f64; 3],
+    observer: EarthObserver,
+    tt: (f64, f64),
+    ut1: (f64, f64),
+    xp_arcsec: f64,
+    yp_arcsec: f64,
+) -> Result<ApparentHorizonState, TemporalError> {
+    if !geocentric_object_icrf_km.iter().all(|x| x.is_finite())
+        || !tt.0.is_finite()
+        || !tt.1.is_finite()
+        || !ut1.0.is_finite()
+        || !ut1.1.is_finite()
+        || !xp_arcsec.is_finite()
+        || !yp_arcsec.is_finite()
+    {
+        return Err(TemporalError::NonFinite);
+    }
+
+    let rc2t = sofars::pnp::c2t06a(
+        tt.0,
+        tt.1,
+        ut1.0,
+        ut1.1,
+        xp_arcsec * ARCSEC_TO_RAD,
+        yp_arcsec * ARCSEC_TO_RAD,
+    );
+    let object_itrs = mat_vec(rc2t, geocentric_object_icrf_km);
+    let observer_itrs = observer_ecef_km(observer);
+    let topo = [
+        object_itrs[0] - observer_itrs[0],
+        object_itrs[1] - observer_itrs[1],
+        object_itrs[2] - observer_itrs[2],
+    ];
+    local_enu_horizon(topo, observer)
+}
+
+fn mat_vec(m: [[f64; 3]; 3], v: [f64; 3]) -> [f64; 3] {
+    [
+        m[0][0] * v[0] + m[0][1] * v[1] + m[0][2] * v[2],
+        m[1][0] * v[0] + m[1][1] * v[1] + m[1][2] * v[2],
+        m[2][0] * v[0] + m[2][1] * v[1] + m[2][2] * v[2],
+    ]
+}
+
+fn local_enu_horizon(
+    topo_itrs_km: [f64; 3],
+    observer: EarthObserver,
+) -> Result<ApparentHorizonState, TemporalError> {
+    let [x, y, z] = topo_itrs_km;
+    let lon = observer.longitude_deg.to_radians();
+    let lat = observer.latitude_deg.to_radians();
+
+    let east = -lon.sin() * x + lon.cos() * y;
+    let north =
+        -lat.sin() * lon.cos() * x - lat.sin() * lon.sin() * y + lat.cos() * z;
+    let up =
+        lat.cos() * lon.cos() * x + lat.cos() * lon.sin() * y + lat.sin() * z;
+
+    let r = (east * east + north * north + up * up).sqrt();
+    if !r.is_finite() || r == 0.0 {
+        return Err(TemporalError::NonFinite);
+    }
+    Ok(ApparentHorizonState {
+        altitude_deg: (up / r).clamp(-1.0, 1.0).asin().to_degrees(),
+        azimuth_deg: wrap_degrees(east.atan2(north).to_degrees()),
+        refraction_applied: false,
+    })
+}
+
+#[cfg(test)]
+mod iau_topocentric_tests {
+    use super::*;
+
+    #[test]
+    fn iau_transform_returns_finite_horizon() {
+        let observer = EarthObserver::new(106.8272, -6.1754, 8.0).unwrap();
+        let h = topocentric_horizon_iau2006(
+            [380_000.0, 40_000.0, 10_000.0],
+            observer,
+            (2_461_118.5, 0.417467407),
+            (2_461_118.5, 0.416667333),
+            0.1,
+            0.3,
+        )
+        .unwrap();
+        assert!(h.altitude_deg.is_finite() && h.azimuth_deg.is_finite());
+    }
+}
