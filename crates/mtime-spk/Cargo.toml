@@ -1,0 +1,14 @@
+[package]
+name = "mtime-spk"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+mtime-core = { path = "../mtime-core" }
+mtime-astro = { path = "../mtime-astro" }
+oxiephemeris-de = "0.1.1"
+
+[lints]
+workspace = true
