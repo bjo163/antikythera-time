@@ -1,18 +1,22 @@
-id = "DIYANET_1978_GLOBAL"
-name = "Türkiye Diyanet / 1978 Istanbul visibility criterion"
-version = "1978_CRITERION_CURRENT_REFERENCE"
+id = "DIYANET_1978_VISIBILITY"
+name = "Türkiye Diyanet visibility criterion — 1978 Istanbul basis, current rule component"
+version = "1978_2016_2026_VISIBILITY_COMPONENT"
 effective_from = "1978-01-01"
 require_all = true
 fallback_if_not_met = "NO_AUTOMATIC_CALENDAR_OUTCOME"
 observation_layer = "SEPARATE"
 authority_layer = "SEPARATE"
 scope = "GLOBAL_ANY_SITE"
-source = "T.C. Diyanet İşleri Başkanlığı — Kameri Ay Başları Hesap ve Haritaları"
-source_url = "https://vakithesaplama.diyanet.gov.tr/haritalar.php"
+source = "T.C. Diyanet İşleri Başkanlığı — Din İşleri Yüksek Kurulu, 1447/2026 Ramadan methodology statement"
+source_url = "https://kurul.diyanet.gov.tr/tr/duyuru/1447-2026-yili-ramazan-ayi-baslangicina-iliskin-aciklama/019c7121-78c4-775c-964e-e581a8efa2c8"
 
-# M-Time computational interpretation:
-# evaluate candidate sunset states globally; a passing site requires both clauses.
-# This profile does not make a fiqh claim and does not merge authority decisions.
+# IMPORTANT: the 5°/8° thresholds are a visibility criterion component,
+# not the complete current Diyanet month-start rule. The official 2026
+# statement also lists regional/timing conditions represented below.
+additional_calendar_conditions = [
+  "VISIBILITY_ON_NORTH_OR_SOUTH_AMERICA_MAINLAND",
+  "CONJUNCTION_BEFORE_WELLINGTON_FAJR"
+]
 
 [[clauses]]
 id = "ALTITUDE_TOPOCENTRIC_GE_5"
