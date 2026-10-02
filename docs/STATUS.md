@@ -1,7 +1,7 @@
 # M-Time Implementation Status
 
 Date: 2026-10-02  
-Version: **v0.2 Hardening Research Prototype**  
+Version: **v0.2.1 Integrity & Reproducibility Hardening**  
 Internal status: **HIGH-PRECISION FLAGSHIP PATH COMPLETE**
 
 M-Time is a Rust-first temporal interoperability framework. This status does **not** claim international standard adoption, religious/fiqh authority, or replacement of BIPM/IAU/IERS/JPL infrastructure.
@@ -11,11 +11,11 @@ M-Time is a Rust-first temporal interoperability framework. This status does **n
 | Gate | Result | Reference |
 |---|---|---|
 | Rust workspace CI | **PASS** | Actions run 36958335307 |
-| Rust tests | **60 passed / 0 failed** | same run |
-| Offline JPL DE440/SPK provider | PASS | 36956737541 |
+| Rust tests | **62 passed / 0 failed** | Actions run 36960648548 |
+| Offline JPL DE440/SPK provider | PASS | 36960602706 |
 | Integrated topocentric Hijri state vs Horizons | **PASS** | 36958335289 |
 | Topocentric acceptance threshold | **0.001° / 3.6 arcsec** | same run |
-| SHA-256 / Ed25519 verification | PASS | 36956837579 |
+| SHA-256 / Ed25519 verification | PASS | core + integrity binding tests |
 | WASM multi-profile engine | PASS | 36957501866 |
 | Indonesia 1447 H replay | PASS | core CI |
 | Indonesia–Türkiye Shawwal 1447 corpus | COMPLETE | source-linked corpus |
