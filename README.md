@@ -1,12 +1,12 @@
 # M-Time — Mīqāt Temporal Protocol
 
-**Status:** Rust-first **v0.2 Hardening Research Prototype**.
+**Status:** Rust-first **v0.2.2 Hardening Research Prototype**.
 
 M-Time is a temporal interoperability framework. It does **not** invent a new physical second, replace UTC, choose a fiqh position, or claim an absolute cosmic clock. Its flagship use-case is explainable Hijri/worship-calendar resolution.
 
 Core rule: physical time, astronomy, calendar criteria, observation/rukyat, jurisdiction, authority decisions, cosmic inference, historical reconstruction, and revelation-text concepts are separate semantic layers.
 
-## v0.2 highlights
+## v0.2.2 highlights
 
 - Pure-Rust offline JPL DE440/SPK provider.
 - Integrated `mtime-hilal` engine: `UTC + observer + IERS + DE440 → HijriAstronomicalState`.
@@ -14,12 +14,14 @@ Core rule: physical time, astronomy, calendar criteria, observation/rukyat, juri
 - WGS84 lunar topocentric parallax.
 - IAU 2006/2000A celestial→terrestrial transform with IERS polar motion.
 - Fixed Jakarta topocentric oracle agrees with Horizons at sub-arcsecond level and is gated at 0.001°.
+- 9-case Horizons oracle matrix: Ramadan/Syawal/Zulhijjah × Jakarta/Ankara/Makkah, all PASS; maximum physical sky-direction residual ≈ 0.000257° (~0.93 arcsec).
 - Explicit optional atmospheric-refraction model; airless geometry remains separately available.
-- SHA-256 + Ed25519 source-artifact integrity primitives.
+- Surveyed local-horizon profile, horizon obstruction interpolation, and observer-height geometric dip utilities remain separate from calendar criteria.
+- SHA-256 + Ed25519 source-artifact integrity primitives plus validity/revocation-aware trusted-key registry.
 - Indonesia MABIMS/PMA No. 1/2026 source-linked profile.
-- Türkiye Diyanet 1978 global-any-site 5°/8° source-linked profile.
+- Türkiye Diyanet 1978/2016/2026 global profile: 5°/8° visibility plus executable Americas-mainland and conjunction-before-Wellington-Fajr conditions.
 - Rust/WASM profile comparison surface.
-- 60 Rust tests / 0 failures on the v0.2 hardening gate.
+- 74 Rust tests / 0 failures on the v0.2.2 hardening gate.
 - Indonesia 1447 H Ramadan/Syawal/Zulhijjah replay corpus.
 - ExplainDifference preserves astronomy vs criterion vs rukyat vs authority.
 
