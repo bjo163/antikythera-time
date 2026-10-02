@@ -17,6 +17,8 @@ pub struct ProfileFile {
     pub authority_layer: String,
     pub source: String,
     pub source_url: Option<String>,
+    #[serde(default)]
+    pub scope: Option<String>,
     pub clauses: Vec<ClauseFile>,
 }
 
@@ -152,5 +154,110 @@ mod tests {
             compile_calendar_profile(&file),
             Err(ProfileLoadError::InvalidLayerSeparation)
         );
+    }
+}
+
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProfileScope {
+    SingleState,
+    GlobalAnySite,
+}
+
+#[derive(Debug)]
+pub struct CompiledProfile {
+    pub calendar: CalendarProfile,
+    pub scope: ProfileScope,
+}
+
+pub fn compile_profile(file: &ProfileFile) -> Result<CompiledProfile, ProfileLoadError> {
+    let scope = match file.scope.as_deref() {
+        None | Some("SINGLE_STATE") => ProfileScope::SingleState,
+        Some("GLOBAL_ANY_SITE") => ProfileScope::GlobalAnySite,
+        Some(x) => return Err(ProfileLoadError::UnsupportedReference(x.into())),
+    };
+    Ok(CompiledProfile {
+        calendar: compile_calendar_profile(file)?,
+        scope,
+    })
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct GlobalCriterionResult {
+    pub met: Option<bool>,
+    pub evaluated_sites: usize,
+    pub passing_site_ids: Vec<String>,
+}
+
+#[must_use]
+pub fn evaluate_global_any_site(
+    profile: &CalendarProfile,
+    states: &[mtime_hijri::HijriAstronomicalState],
+) -> GlobalCriterionResult {
+    let mut passing = Vec::new();
+    let mut any_unknown = false;
+    for state in states {
+        match profile.evaluate(state).met {
+            Some(true) => passing.push(state.site_id.clone()),
+            Some(false) => {}
+            None => any_unknown = true,
+        }
+    }
+    let met = if !passing.is_empty() {
+        Some(true)
+    } else if any_unknown {
+        None
+    } else {
+        Some(false)
+    };
+    GlobalCriterionResult {
+        met,
+        evaluated_sites: states.len(),
+        passing_site_ids: passing,
+    }
+}
+
+#[cfg(test)]
+mod global_tests {
+    use super::*;
+    use mtime_core::QualityClass;
+    use mtime_hijri::{GeometrySemantics, HijriAstronomicalState};
+
+    const DIYANET: &str = include_str!("../../../profiles/diyanet-1978-global.toml");
+
+    fn state(id: &str, altitude: f64, elongation: f64) -> HijriAstronomicalState {
+        HijriAstronomicalState {
+            conjunction_jd_tt: None,
+            sunset_jd_ut1: None,
+            moon_altitude_topocentric_deg: altitude,
+            elongation_geocentric_deg: elongation,
+            geometry_semantics: GeometrySemantics::mabims_required(),
+            moon_age_hours: None,
+            moon_lag_minutes: None,
+            site_id: id.into(),
+            ephemeris_source: "fixture".into(),
+            quality: QualityClass::Reference,
+        }
+    }
+
+    #[test]
+    fn diyanet_profile_is_global_any_site_and_uses_5_8_thresholds() {
+        let file = parse_profile(DIYANET).unwrap();
+        let p = compile_profile(&file).unwrap();
+        assert_eq!(p.scope, ProfileScope::GlobalAnySite);
+        assert_eq!(p.calendar.clauses[0].threshold, 5.0);
+        assert_eq!(p.calendar.clauses[1].threshold, 8.0);
+    }
+
+    #[test]
+    fn one_passing_site_satisfies_global_any_site_profile() {
+        let file = parse_profile(DIYANET).unwrap();
+        let p = compile_profile(&file).unwrap();
+        let r = evaluate_global_any_site(
+            &p.calendar,
+            &[state("A", 4.9, 9.0), state("B", 5.2, 8.1)],
+        );
+        assert_eq!(r.met, Some(true));
+        assert_eq!(r.passing_site_ids, vec!["B"]);
     }
 }
