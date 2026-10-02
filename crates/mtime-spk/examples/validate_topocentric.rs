@@ -66,11 +66,10 @@ fn main() {
     println!("azimuth_error_deg={az_error_deg:.12}");
     println!("ut1_minus_utc_seconds={:.9}", eop.ut1_minus_utc_seconds);
 
-    // IAU 2006/2000A + IERS EOP diagnostic gate.
-    // Keep this at 0.1 deg until light-time/apparent-place semantics are
-    // explicitly matched to the Horizons observer quantity.
-    if elevation_error_deg > 0.1 || az_error_deg > 0.1 {
-        eprintln!("diagnostic gate failed: residual exceeds 0.1 deg");
+    // High-precision airless geometric gate. 0.001 deg = 3.6 arcsec.
+    // The fixed oracle currently agrees at sub-arcsecond level.
+    if elevation_error_deg > 0.001 || az_error_deg > 0.001 {
+        eprintln!("reference gate failed: residual exceeds 0.001 deg");
         std::process::exit(1);
     }
 }
