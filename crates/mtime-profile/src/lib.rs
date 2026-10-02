@@ -41,6 +41,7 @@ pub enum ProfileLoadError {
     UnsupportedReference(String),
     UnsupportedComparator(String),
     UnsupportedFallback(String),
+    UnsupportedAdditionalCondition(String),
     InvalidLayerSeparation,
     EmptyClauses,
 }
@@ -286,4 +287,205 @@ pub fn bundled_mabims_id_2026() -> CompiledProfile {
 pub fn bundled_diyanet_1978_global() -> CompiledProfile {
     compile_profile(&parse_profile(include_str!("../../../profiles/diyanet-1978-global.toml")).expect("bundled Diyanet profile must parse"))
         .expect("bundled Diyanet profile must compile")
+}
+
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AdditionalCalendarCondition {
+    VisibilityOnAmericanMainland,
+    ConjunctionBeforeWellingtonFajr,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct AdditionalCalendarContext {
+    /// Whether the 5°/8° visibility criterion is met at a qualifying site
+    /// on the North or South American mainland.
+    pub visibility_on_american_mainland: Option<bool>,
+    /// Whether conjunction occurs before Wellington/New Zealand fajr,
+    /// according to the explicitly selected worship-time profile.
+    pub conjunction_before_wellington_fajr: Option<bool>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AdditionalConditionResult {
+    pub condition: AdditionalCalendarCondition,
+    pub met: Option<bool>,
+    pub reason: String,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct CompiledProfileEvaluation {
+    pub threshold_met: Option<bool>,
+    pub additional_conditions_met: Option<bool>,
+    pub complete_rule_met: Option<bool>,
+    pub evaluated_sites: usize,
+    pub passing_site_ids: Vec<String>,
+    pub additional_results: Vec<AdditionalConditionResult>,
+}
+
+fn additional_condition(id: &str) -> Result<AdditionalCalendarCondition, ProfileLoadError> {
+    match id {
+        "VISIBILITY_ON_NORTH_OR_SOUTH_AMERICA_MAINLAND" => {
+            Ok(AdditionalCalendarCondition::VisibilityOnAmericanMainland)
+        }
+        "CONJUNCTION_BEFORE_WELLINGTON_FAJR" => {
+            Ok(AdditionalCalendarCondition::ConjunctionBeforeWellingtonFajr)
+        }
+        other => Err(ProfileLoadError::UnsupportedAdditionalCondition(other.into())),
+    }
+}
+
+pub fn evaluate_additional_conditions(
+    ids: &[String],
+    context: &AdditionalCalendarContext,
+) -> Result<Vec<AdditionalConditionResult>, ProfileLoadError> {
+    ids.iter()
+        .map(|id| {
+            let condition = additional_condition(id)?;
+            let (met, reason) = match condition {
+                AdditionalCalendarCondition::VisibilityOnAmericanMainland => (
+                    context.visibility_on_american_mainland,
+                    "Diyanet 2026 methodology: qualifying ru'yet/visibility must occur on North or South American mainland".to_string(),
+                ),
+                AdditionalCalendarCondition::ConjunctionBeforeWellingtonFajr => (
+                    context.conjunction_before_wellington_fajr,
+                    "Diyanet 2026 methodology: conjunction must occur before Wellington/New Zealand fajr".to_string(),
+                ),
+            };
+            Ok(AdditionalConditionResult { condition, met, reason })
+        })
+        .collect()
+}
+
+fn combine_all(values: impl Iterator<Item = Option<bool>>) -> Option<bool> {
+    let mut any_unknown = false;
+    for value in values {
+        match value {
+            Some(false) => return Some(false),
+            Some(true) => {}
+            None => any_unknown = true,
+        }
+    }
+    if any_unknown { None } else { Some(true) }
+}
+
+/// Execute both the numerical threshold component and any additional,
+/// explicitly represented calendar-policy conditions.
+///
+/// The caller remains responsible for producing the policy context from
+/// independently versioned astronomy/worship computations. M-Time does not
+/// infer "American mainland" or Wellington fajr from an unlabeled scalar.
+pub fn evaluate_compiled_profile(
+    profile: &CompiledProfile,
+    states: &[mtime_hijri::HijriAstronomicalState],
+    context: &AdditionalCalendarContext,
+) -> Result<CompiledProfileEvaluation, ProfileLoadError> {
+    let (threshold_met, passing_site_ids) = match profile.scope {
+        ProfileScope::SingleState => {
+            let result = states.first().map(|state| profile.calendar.evaluate(state).met).unwrap_or(None);
+            let passing = if result == Some(true) {
+                states.first().map(|s| vec![s.site_id.clone()]).unwrap_or_default()
+            } else {
+                Vec::new()
+            };
+            (result, passing)
+        }
+        ProfileScope::GlobalAnySite => {
+            let result = evaluate_global_any_site(&profile.calendar, states);
+            (result.met, result.passing_site_ids)
+        }
+    };
+
+    let additional_results =
+        evaluate_additional_conditions(&profile.additional_calendar_conditions, context)?;
+    let additional_conditions_met =
+        combine_all(additional_results.iter().map(|result| result.met));
+    let complete_rule_met = combine_all([threshold_met, additional_conditions_met].into_iter());
+
+    Ok(CompiledProfileEvaluation {
+        threshold_met,
+        additional_conditions_met,
+        complete_rule_met,
+        evaluated_sites: states.len(),
+        passing_site_ids,
+        additional_results,
+    })
+}
+
+#[cfg(test)]
+mod executable_policy_tests {
+    use super::*;
+    use mtime_core::QualityClass;
+    use mtime_hijri::{GeometrySemantics, HijriAstronomicalState};
+
+    fn state(id: &str, altitude: f64, elongation: f64) -> HijriAstronomicalState {
+        HijriAstronomicalState {
+            conjunction_jd_tt: None,
+            sunset_jd_ut1: None,
+            moon_altitude_topocentric_deg: altitude,
+            elongation_geocentric_deg: elongation,
+            geometry_semantics: GeometrySemantics::mabims_required(),
+            moon_age_hours: None,
+            moon_lag_minutes: None,
+            site_id: id.into(),
+            ephemeris_source: "fixture".into(),
+            quality: QualityClass::Reference,
+        }
+    }
+
+    #[test]
+    fn diyanet_threshold_pass_is_not_complete_without_policy_context() {
+        let p = bundled_diyanet_1978_global();
+        let r = evaluate_compiled_profile(
+            &p,
+            &[state("AMERICAS-CANDIDATE", 5.5, 8.5)],
+            &AdditionalCalendarContext::default(),
+        ).unwrap();
+        assert_eq!(r.threshold_met, Some(true));
+        assert_eq!(r.additional_conditions_met, None);
+        assert_eq!(r.complete_rule_met, None);
+    }
+
+    #[test]
+    fn diyanet_complete_rule_passes_when_all_four_conditions_are_explicitly_met() {
+        let p = bundled_diyanet_1978_global();
+        let r = evaluate_compiled_profile(
+            &p,
+            &[state("AMERICAS-CANDIDATE", 5.5, 8.5)],
+            &AdditionalCalendarContext {
+                visibility_on_american_mainland: Some(true),
+                conjunction_before_wellington_fajr: Some(true),
+            },
+        ).unwrap();
+        assert_eq!(r.complete_rule_met, Some(true));
+        assert_eq!(r.additional_results.len(), 2);
+    }
+
+    #[test]
+    fn diyanet_complete_rule_fails_if_wellington_condition_fails() {
+        let p = bundled_diyanet_1978_global();
+        let r = evaluate_compiled_profile(
+            &p,
+            &[state("AMERICAS-CANDIDATE", 5.5, 8.5)],
+            &AdditionalCalendarContext {
+                visibility_on_american_mainland: Some(true),
+                conjunction_before_wellington_fajr: Some(false),
+            },
+        ).unwrap();
+        assert_eq!(r.threshold_met, Some(true));
+        assert_eq!(r.complete_rule_met, Some(false));
+    }
+
+    #[test]
+    fn mabims_has_no_hidden_additional_policy_condition() {
+        let p = bundled_mabims_id_2026();
+        let r = evaluate_compiled_profile(
+            &p,
+            &[state("ID", 3.1, 6.5)],
+            &AdditionalCalendarContext::default(),
+        ).unwrap();
+        assert_eq!(r.threshold_met, Some(true));
+        assert_eq!(r.additional_conditions_met, Some(true));
+        assert_eq!(r.complete_rule_met, Some(true));
+    }
 }
