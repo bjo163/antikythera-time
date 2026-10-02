@@ -1,0 +1,61 @@
+name: m-time-topocentric-matrix
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "crates/mtime-astro/**"
+      - "crates/mtime-spk/**"
+      - "crates/mtime-eop/**"
+      - "crates/mtime-timescales/**"
+      - "crates/mtime-hilal/**"
+      - ".github/workflows/topocentric-matrix.yml"
+
+jobs:
+  oracle-matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Download official DE440 short kernel and IERS EOP
+        run: |
+          curl --fail --retry 5 --retry-delay 3             "https://naif.jpl.nasa.gov/pub/naif/JUNO/kernels/spk/de440s.bsp"             -o /tmp/de440s.bsp
+          curl --fail --retry 5 --retry-delay 3             "https://datacenter.iers.org/data/latestVersion/finals.all.iau2000.txt"             -o /tmp/finals.all
+          mkdir -p /tmp/mtime-matrix
+          sha256sum /tmp/de440s.bsp /tmp/finals.all | tee /tmp/mtime-matrix/source-sha256.txt
+
+      - name: Validate 3 locations x 3 Hijri-boundary epochs against Horizons
+        shell: bash
+        run: |
+          set -euo pipefail
+          cases=(
+            "RAMADAN_JAKARTA|106.8272|-6.1754|0.000|2461089.9166666665"
+            "RAMADAN_ANKARA|32.8597|39.9334|0.000|2461089.9166666665"
+            "RAMADAN_MAKKAH|39.8262|21.4225|0.000|2461089.9166666665"
+            "SHAWWAL_JAKARTA|106.8272|-6.1754|0.000|2461118.9166666665"
+            "SHAWWAL_ANKARA|32.8597|39.9334|0.000|2461118.9166666665"
+            "SHAWWAL_MAKKAH|39.8262|21.4225|0.000|2461118.9166666665"
+            "DHULHIJJAH_JAKARTA|106.8272|-6.1754|0.000|2461177.9166666665"
+            "DHULHIJJAH_ANKARA|32.8597|39.9334|0.000|2461177.9166666665"
+            "DHULHIJJAH_MAKKAH|39.8262|21.4225|0.000|2461177.9166666665"
+          )
+
+          : > /tmp/mtime-matrix/report.txt
+          for row in "${cases[@]}"; do
+            IFS='|' read -r label lon lat height_km jd <<< "$row"
+            out="/tmp/mtime-matrix/${label}.txt"
+
+            curl --fail --retry 5 --retry-delay 3 --get               "https://ssd.jpl.nasa.gov/api/horizons.api"               --data-urlencode "format=text"               --data-urlencode "COMMAND='301'"               --data-urlencode "OBJ_DATA='NO'"               --data-urlencode "MAKE_EPHEM='YES'"               --data-urlencode "EPHEM_TYPE='OBSERVER'"               --data-urlencode "CENTER='coord@399'"               --data-urlencode "COORD_TYPE='GEODETIC'"               --data-urlencode "SITE_COORD='${lon},${lat},${height_km}'"               --data-urlencode "TLIST='${jd}'"               --data-urlencode "TLIST_TYPE='JD'"               --data-urlencode "TIME_TYPE='UT'"               --data-urlencode "QUANTITIES='4'"               --data-urlencode "ANG_FORMAT='DEG'"               --data-urlencode "CSV_FORMAT='YES'"               --data-urlencode "APPARENT='AIRLESS'"               -o "$out"
+
+            grep -q '\$\$SOE' "$out"
+
+            echo "===== $label =====" | tee -a /tmp/mtime-matrix/report.txt
+            cargo run --quiet -p mtime-spk --example validate_topocentric_case --               /tmp/de440s.bsp "$out" /tmp/finals.all               "$lon" "$lat" "0" "$jd" "$label"               | tee -a /tmp/mtime-matrix/report.txt
+          done
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mtime-topocentric-oracle-matrix
+          path: /tmp/mtime-matrix/
