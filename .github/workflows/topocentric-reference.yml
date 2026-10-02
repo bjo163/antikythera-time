@@ -7,6 +7,7 @@ on:
       - "crates/mtime-spk/**"
       - "crates/mtime-eop/**"
       - "crates/mtime-timescales/**"
+      - "crates/mtime-hilal/**"
       - ".github/workflows/topocentric-reference.yml"
 
 jobs:
