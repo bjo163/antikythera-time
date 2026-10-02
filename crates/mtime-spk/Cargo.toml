@@ -8,6 +8,7 @@ rust-version.workspace = true
 [dependencies]
 mtime-core = { path = "../mtime-core" }
 mtime-astro = { path = "../mtime-astro" }
+mtime-jpl = { path = "../mtime-jpl" }
 oxiephemeris-de = "0.1.1"
 
 [lints]
