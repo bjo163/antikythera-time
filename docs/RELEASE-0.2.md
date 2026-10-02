@@ -29,7 +29,8 @@ v0.1 proved the semantic architecture end-to-end. v0.2 hardens the flagship astr
 - active topocentric gate: **0.001°**
 - SHA-256 / Ed25519 integrity tests: **PASS** — run 36956837579
 - WASM multi-profile engine: **PASS**
-- final Pages deployment is required before the release branch is frozen.
+- public Pages deployment: **PASS** — run `36958566739`
+- final documentation CI: **PASS** — run `36958585404` (60/60 tests)
 
 ## Scientific meaning
 
