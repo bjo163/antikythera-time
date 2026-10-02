@@ -1,0 +1,31 @@
+id = "DIYANET_1978_GLOBAL"
+name = "Türkiye Diyanet / 1978 Istanbul visibility criterion"
+version = "1978_CRITERION_CURRENT_REFERENCE"
+effective_from = "1978-01-01"
+require_all = true
+fallback_if_not_met = "NO_AUTOMATIC_CALENDAR_OUTCOME"
+observation_layer = "SEPARATE"
+authority_layer = "SEPARATE"
+scope = "GLOBAL_ANY_SITE"
+source = "T.C. Diyanet İşleri Başkanlığı — Kameri Ay Başları Hesap ve Haritaları"
+source_url = "https://vakithesaplama.diyanet.gov.tr/haritalar.php"
+
+# M-Time computational interpretation:
+# evaluate candidate sunset states globally; a passing site requires both clauses.
+# This profile does not make a fiqh claim and does not merge authority decisions.
+
+[[clauses]]
+id = "ALTITUDE_TOPOCENTRIC_GE_5"
+metric = "MOON_ALTITUDE_TOPOCENTRIC_DEG"
+reference = "TOPOCENTRIC"
+comparator = "GE"
+threshold = 5.0
+unit = "deg"
+
+[[clauses]]
+id = "ELONGATION_GEOCENTRIC_GE_8"
+metric = "ELONGATION_GEOCENTRIC_DEG"
+reference = "GEOCENTRIC_CENTER_TO_CENTER"
+comparator = "GE"
+threshold = 8.0
+unit = "deg"
