@@ -1,115 +1,151 @@
 # M-Time Implementation Status
 
-Date: 2026-10-02  
-Version: **v0.2.1 Integrity & Reproducibility Hardening**  
-Internal status: **HIGH-PRECISION FLAGSHIP PATH COMPLETE**
+Date: 2026-10-03  
+Version: **v0.2.2 Hardening Research Prototype**  
+Internal status: **HIGH-PRECISION FLAGSHIP PATH + POLICY/INTEGRITY HARDENING COMPLETE**
 
 M-Time is a Rust-first temporal interoperability framework. This status does **not** claim international standard adoption, religious/fiqh authority, or replacement of BIPM/IAU/IERS/JPL infrastructure.
 
-## Final v0.2 internal gates
+## Final v0.2.2 internal gates
 
 | Gate | Result | Reference |
 |---|---|---|
-| Rust workspace CI | **PASS** | Actions run 36958335307 |
-| Rust tests | **62 passed / 0 failed** | Actions run 36960648548 |
-| Offline JPL DE440/SPK provider | PASS | 36960602706 |
-| Integrated topocentric Hijri state vs Horizons | **PASS** | 36958335289 |
-| Topocentric acceptance threshold | **0.001° / 3.6 arcsec** | same run |
-| SHA-256 / Ed25519 verification | PASS | core + integrity binding tests |
-| WASM multi-profile engine | PASS | 36957501866 |
+| Rust workspace CI | **PASS** | Actions run 37054820440 |
+| Rust tests | **74 passed / 0 failed** | same run |
+| Rust↔Python compatibility | **PASS** | Actions run 37054820611 |
+| Offline JPL DE440/SPK provider | PASS | prior SPK reference gates |
+| Fixed Jakarta topocentric reference | PASS | prior topocentric reference gate |
+| 9-case Horizons topocentric oracle matrix | **9/9 PASS** | Actions run 37054820402 |
+| Matrix physical pointing threshold | **0.001°** | same run |
+| Matrix maximum direction residual | **~0.000257° (~0.93 arcsec)** | same run |
+| Executable Diyanet additional calendar conditions | PASS | core CI |
+| SHA-256 / Ed25519 verification | PASS | core CI |
+| Validity/revocation-aware trusted key registry | PASS | core CI |
+| Surveyed local-horizon interpolation | PASS | core CI |
+| Observer-height geometric horizon dip | PASS | core CI |
 | Indonesia 1447 H replay | PASS | core CI |
 | Indonesia–Türkiye Shawwal 1447 corpus | COMPLETE | source-linked corpus |
 | Revelation no-numerical-prior invariant | PASS | core CI |
 | Planck-like cosmology inference | PASS | core CI |
 
-## v0.2 high-precision reference path
+## Broad astronomy oracle matrix
 
-DE440/SPK ICRF vector oracle at JD TDB 2461119.0:
+The matrix uses official DE440 short SPK + current IERS finals.all and compares M-Time against JPL Horizons AIRLESS topocentric Moon coordinates.
 
-~~~text
-Sun max component difference   0.000025597 km
-Moon max component difference  0.002110027 km
-~~~
+Cases:
 
-Fixed Jakarta topocentric oracle at 2026-03-19 10:00 UTC:
+- Ramadan 1447 boundary epoch × Jakarta / Ankara / Makkah;
+- Shawwal 1447 boundary epoch × Jakarta / Ankara / Makkah;
+- Dhulhijjah 1447 boundary epoch × Jakarta / Ankara / Makkah.
 
-~~~text
-M-Time altitude   17.062943893901°
-Horizons altitude 17.062815000000°
-altitude residual 0.000128893901°
-azimuth residual  0.000152801998°
-~~~
+Maximum measured physical horizon-direction residual:
 
-The previous GMST-only diagnostic had about 0.3146° altitude error. IAU 2006/2000A plus IERS UT1/polar motion reduces the fixed-oracle residual to sub-arcsecond scale.
+```text
+~0.000257° ≈ 0.93 arcsec
+```
 
-## Integrated HilalEngine
+All 9 cases pass the fixed 0.001° gate.
 
-The mtime-hilal crate now executes:
+Raw azimuth is still reported, but the broad matrix uses spherical sky-direction error as the physical pointing metric because azimuth becomes ill-conditioned near zenith. This was discovered empirically in the Dhulhijjah/Makkah case and fixed without weakening the physical threshold.
 
-~~~text
+## Diyanet current-policy execution
+
+The profile no longer stores current methodology beyond 5°/8° as opaque metadata only.
+
+Executable conditions now include:
+
+1. a qualifying visibility event on North or South American mainland;
+2. conjunction before Wellington/New Zealand fajr.
+
+The evaluator therefore distinguishes:
+
+```text
+5°/8° threshold component
++
+global-site scope
++
+Americas-mainland condition
++
+Wellington-fajr timing condition
+=
+complete represented policy result
+```
+
+Missing policy context produces UNKNOWN rather than a false complete decision.
+
+## Integrity hardening
+
+`mtime-integrity` now supports:
+
+- SHA-256 content hashes;
+- Ed25519 verification;
+- institution/key identifiers;
+- validity windows;
+- explicit revocation status;
+- duplicate-key rejection;
+- source-artifact binding to observation/authority records.
+
+A valid signature authenticates content relative to a trusted key registry. It does not establish astronomical, legal, theological, or observational truth.
+
+## Local-horizon hardening
+
+`mtime-astro` now provides:
+
+- surveyed obstruction altitude vs azimuth;
+- circular interpolation through north;
+- observer-height geometric horizon dip;
+- explicit local-horizon clearance.
+
+Local horizon and atmospheric refraction remain separate inputs. They are not silently merged into the astronomical altitude used by a calendar profile.
+
+## High-precision flagship path
+
+```text
 UTC + observer + IERS EOP + DE440
 → TT / TDB / UT1
 → IAU 2006/2000A topocentric transform
 → Moon altitude + geocentric elongation
 → HijriAstronomicalState
-~~~
-
-The integrated state itself passes the 0.001° Horizons altitude gate. It also provides an explicit local-sunset solver whose Sun-center altitude definition is caller-provided rather than hidden.
-
-## Source integrity
-
-mtime-integrity provides SHA-256 content hashes and Ed25519 signature verification. A signature proves integrity/authentication relative to a key; it does not prove scientific, legal, or theological correctness.
-
-## Multi-profile interoperability
-
-Bundled source-linked profile components include:
-
-- MABIMS_ID_2026;
-- DIYANET_1978_VISIBILITY.
-
-The Diyanet 5°/8° criterion is stored as a visibility component only. Current official methodology also states additional regional/timing conditions, stored explicitly as additional_calendar_conditions. A candidate-site threshold pass is not a complete Diyanet month-start decision.
-
-## Cross-jurisdiction validation
-
-Machine-readable corpus: data/hijri/shawwal-1447-id-tr.json.
-
-Documented official outcomes:
-
-- Indonesia: 1 Shawwal 1447 H = **21 March 2026**;
-- Türkiye/Diyanet: 1 Shawwal 1447 H = **20 March 2026**.
-
-The corpus preserves methodology/profile, observation scope/evidence, jurisdiction and authority as separate causal layers without ranking the religious methods.
-
-## What is now internally complete
-
-For research-prototype purposes, M-Time can now trace:
-
-~~~text
-physical / coordinate time
-→ validated high-precision celestial geometry
-→ HijriAstronomicalState
 → versioned calendar profile
-→ criterion result
-→ observation / rukyat
-→ jurisdiction
-→ authority
-→ final calendar result
+→ criterion / policy result
+→ observation / jurisdiction / authority
+→ final CalendarResult
 → ExplainDifference
-~~~
+```
 
-This is the core original mission in executable form.
+## What is internally complete
+
+For research-prototype purposes, M-Time can now:
+
+- compute a high-precision offline Sun/Moon reference path;
+- validate topocentric geometry against Horizons over a small multi-site/multi-epoch matrix;
+- execute MABIMS and represented Diyanet policy conditions without collapsing them into one rule;
+- preserve observation, authority and source-integrity layers separately;
+- explain why two temporal/calendar outcomes differ.
 
 ## Open production / external gates
 
-1. Broad multi-epoch and multi-location astronomy oracle matrix.
-2. Operational atmospheric/refraction and local-horizon validation.
-3. Automatic execution of the additional international-profile conditions preserved in policy metadata.
-4. Live signed institutional ingestion and key registries.
-5. Larger multi-country, multi-decade historical replay corpus.
-6. Unaffiliated implementation and expert review.
-7. Formal standardization/adoption.
-8. Migration from bjo163/antikythera-time to a dedicated M-Time repository.
+These remain deliberately **OPEN**:
+
+1. Much broader multi-year and global astronomy oracle matrix.
+2. Field validation of atmospheric refraction and surveyed local-horizon profiles.
+3. Automatic geospatial determination of “American mainland” from visibility maps rather than caller-supplied policy context.
+4. Automatic Wellington fajr computation wired directly into the Diyanet policy evaluator with a versioned worship profile.
+5. Live institutional public-key registries and signed production ingestion.
+6. Larger multi-country, multi-decade historical replay corpus.
+7. Unaffiliated implementation and expert review.
+8. Formal standardization/adoption.
+9. Migration from `bjo163/antikythera-time` to a dedicated M-Time repository.
 
 ## Next-stage priority
 
-Do not redesign the ontology. Prioritize broad validation, complete policy execution, signed source ingestion, historical falsification, independent implementation, peer review, and external standardization discussion.
+Do not redesign the ontology.
+
+Priority order:
+
+1. wire policy contexts to computed astronomy/worship/geospatial providers;
+2. broaden validation matrix;
+3. signed real-source ingestion;
+4. historical falsification across jurisdictions;
+5. independent implementation and peer review;
+6. external standardization discussion.
