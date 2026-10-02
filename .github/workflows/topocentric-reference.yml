@@ -1,0 +1,29 @@
+name: m-time-topocentric-reference
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "crates/mtime-astro/**"
+      - "crates/mtime-spk/**"
+      - "crates/mtime-eop/**"
+      - "crates/mtime-timescales/**"
+      - ".github/workflows/topocentric-reference.yml"
+
+jobs:
+  jakarta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Download DE440 and IERS EOP
+        run: |
+          curl --fail --retry 5 --retry-delay 3             "https://naif.jpl.nasa.gov/pub/naif/JUNO/kernels/spk/de440s.bsp"             -o /tmp/de440s.bsp
+          curl --fail --retry 5 --retry-delay 3             "https://datacenter.iers.org/data/latestVersion/finals.all.iau2000.txt"             -o /tmp/finals.all
+      - name: Query Horizons airless topocentric Moon
+        run: |
+          curl --fail --retry 5 --retry-delay 3             "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27301%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27OBSERVER%27&CENTER=%27coord%40399%27&COORD_TYPE=%27GEODETIC%27&SITE_COORD=%27106.8272%2C-6.1754%2C0.008%27&TLIST=%272461118.9166666665%27&TLIST_TYPE=%27JD%27&TIME_TYPE=%27UT%27&QUANTITIES=%274%27&ANG_FORMAT=%27DEG%27&CSV_FORMAT=%27YES%27&APPARENT=%27AIRLESS%27"             -o /tmp/horizons-topo.txt
+          grep -q '$$SOE' /tmp/horizons-topo.txt
+      - name: Compare M-Time topocentric geometry with Horizons
+        run: |
+          cargo run -p mtime-spk --example validate_topocentric --             /tmp/de440s.bsp /tmp/horizons-topo.txt /tmp/finals.all
