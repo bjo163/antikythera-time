@@ -285,3 +285,177 @@ mod iau_topocentric_tests {
         assert!(h.altitude_deg.is_finite() && h.azimuth_deg.is_finite());
     }
 }
+
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct HorizonPoint {
+    pub azimuth_deg: f64,
+    pub obstruction_altitude_deg: f64,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LocalHorizonProfile {
+    points: Vec<HorizonPoint>,
+    pub provenance: String,
+}
+
+impl LocalHorizonProfile {
+    pub fn new(
+        mut points: Vec<HorizonPoint>,
+        provenance: impl Into<String>,
+    ) -> Result<Self, TemporalError> {
+        if points.len() < 2
+            || points.iter().any(|p| {
+                !p.azimuth_deg.is_finite()
+                    || !p.obstruction_altitude_deg.is_finite()
+                    || !(0.0..360.0).contains(&p.azimuth_deg)
+                    || !(-10.0..=90.0).contains(&p.obstruction_altitude_deg)
+            })
+        {
+            return Err(TemporalError::InvalidInput(
+                "local horizon requires >=2 finite azimuth points in [0,360) and obstruction altitude in [-10,90]",
+            ));
+        }
+        points.sort_by(|a, b| {
+            a.azimuth_deg
+                .partial_cmp(&b.azimuth_deg)
+                .unwrap_or(core::cmp::Ordering::Equal)
+        });
+        if points
+            .windows(2)
+            .any(|w| (w[0].azimuth_deg - w[1].azimuth_deg).abs() < 1e-12)
+        {
+            return Err(TemporalError::InvalidInput(
+                "local horizon azimuth points must be unique",
+            ));
+        }
+        Ok(Self {
+            points,
+            provenance: provenance.into(),
+        })
+    }
+
+    #[must_use]
+    pub fn obstruction_altitude_deg(&self, azimuth_deg: f64) -> f64 {
+        let az = wrap_degrees(azimuth_deg);
+        for pair in self.points.windows(2) {
+            if az >= pair[0].azimuth_deg && az <= pair[1].azimuth_deg {
+                return linear_horizon(pair[0], pair[1], az);
+            }
+        }
+
+        // Circular interpolation across north (360 -> 0).
+        let last = *self.points.last().expect("validated non-empty horizon");
+        let first = self.points[0];
+        let first_wrapped = HorizonPoint {
+            azimuth_deg: first.azimuth_deg + 360.0,
+            obstruction_altitude_deg: first.obstruction_altitude_deg,
+        };
+        let az_wrapped = if az < first.azimuth_deg { az + 360.0 } else { az };
+        linear_horizon(last, first_wrapped, az_wrapped)
+    }
+}
+
+fn linear_horizon(a: HorizonPoint, b: HorizonPoint, azimuth_deg: f64) -> f64 {
+    let width = b.azimuth_deg - a.azimuth_deg;
+    if width.abs() < 1e-15 {
+        return a.obstruction_altitude_deg;
+    }
+    let t = (azimuth_deg - a.azimuth_deg) / width;
+    a.obstruction_altitude_deg
+        + t * (b.obstruction_altitude_deg - a.obstruction_altitude_deg)
+}
+
+/// Geometric depression of the ideal sea horizon caused by observer height.
+/// Returns a positive angle in degrees; the ideal horizon is lower by this amount.
+pub fn geometric_horizon_dip_deg(height_m: f64) -> Result<f64, TemporalError> {
+    if !height_m.is_finite() || height_m < 0.0 {
+        return Err(TemporalError::InvalidInput(
+            "observer height for horizon dip must be finite and non-negative",
+        ));
+    }
+    let h_km = height_m / 1000.0;
+    Ok((WGS84_A_KM / (WGS84_A_KM + h_km))
+        .clamp(-1.0, 1.0)
+        .acos()
+        .to_degrees())
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct LocalHorizonClearance {
+    pub apparent_altitude_deg: f64,
+    pub obstruction_altitude_deg: f64,
+    pub clearance_deg: f64,
+}
+
+/// Compare an already-selected geometric/apparent altitude with a surveyed
+/// local-horizon profile. No calendar rule is applied here.
+pub fn local_horizon_clearance(
+    horizon: ApparentHorizonState,
+    profile: &LocalHorizonProfile,
+) -> LocalHorizonClearance {
+    let obstruction = profile.obstruction_altitude_deg(horizon.azimuth_deg);
+    LocalHorizonClearance {
+        apparent_altitude_deg: horizon.altitude_deg,
+        obstruction_altitude_deg: obstruction,
+        clearance_deg: horizon.altitude_deg - obstruction,
+    }
+}
+
+#[cfg(test)]
+mod local_horizon_tests {
+    use super::*;
+
+    #[test]
+    fn horizon_profile_interpolates_across_north_wrap() {
+        let h = LocalHorizonProfile::new(
+            vec![
+                HorizonPoint { azimuth_deg: 350.0, obstruction_altitude_deg: 2.0 },
+                HorizonPoint { azimuth_deg: 10.0, obstruction_altitude_deg: 4.0 },
+                HorizonPoint { azimuth_deg: 180.0, obstruction_altitude_deg: 1.0 },
+            ],
+            "survey fixture",
+        )
+        .unwrap();
+        assert!((h.obstruction_altitude_deg(0.0) - 3.0).abs() < 1e-12);
+    }
+
+    #[test]
+    fn duplicate_horizon_azimuth_is_rejected() {
+        assert!(LocalHorizonProfile::new(
+            vec![
+                HorizonPoint { azimuth_deg: 10.0, obstruction_altitude_deg: 1.0 },
+                HorizonPoint { azimuth_deg: 10.0, obstruction_altitude_deg: 2.0 },
+            ],
+            "bad fixture",
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn horizon_dip_is_zero_at_sea_level_and_positive_above_it() {
+        assert!(geometric_horizon_dip_deg(0.0).unwrap().abs() < 1e-12);
+        assert!(geometric_horizon_dip_deg(1000.0).unwrap() > 0.9);
+    }
+
+    #[test]
+    fn clearance_preserves_obstruction_as_separate_input() {
+        let p = LocalHorizonProfile::new(
+            vec![
+                HorizonPoint { azimuth_deg: 0.0, obstruction_altitude_deg: 2.0 },
+                HorizonPoint { azimuth_deg: 180.0, obstruction_altitude_deg: 2.0 },
+            ],
+            "survey fixture",
+        )
+        .unwrap();
+        let c = local_horizon_clearance(
+            ApparentHorizonState {
+                altitude_deg: 3.5,
+                azimuth_deg: 90.0,
+                refraction_applied: true,
+            },
+            &p,
+        );
+        assert!((c.clearance_deg - 1.5).abs() < 1e-12);
+    }
+}
