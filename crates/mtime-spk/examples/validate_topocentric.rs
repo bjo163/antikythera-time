@@ -1,6 +1,6 @@
 use std::{env, fs};
 
-use mtime_astro::{topocentric_geometric_horizon_from_vector, Body};
+use mtime_astro::{topocentric_geometric_horizon_from_vector, topocentric_horizon_iau2006, Body};
 use mtime_core::EarthObserver;
 use mtime_eop::{interpolate, parse_finals2000a, utc_jd_to_ut1_jd};
 use mtime_jpl::parse_single_topocentric_moon_4;
@@ -38,8 +38,17 @@ fn main() {
         .expect("Moon vector");
 
     let observer = EarthObserver::new(106.8272, -6.1754, 8.0).expect("observer");
-    let ours =
-        topocentric_geometric_horizon_from_vector(moon, observer, jd_ut1).expect("topocentric");
+    let legacy =
+        topocentric_geometric_horizon_from_vector(moon, observer, jd_ut1).expect("legacy topocentric");
+    let ours = topocentric_horizon_iau2006(
+        moon,
+        observer,
+        (tt.jd_parts().d1, tt.jd_parts().d2),
+        (2_400_000.5, jd_ut1 - 2_400_000.5),
+        eop.xp_arcsec,
+        eop.yp_arcsec,
+    )
+    .expect("IAU topocentric");
 
     let htxt = fs::read_to_string(horizons_path).expect("Horizons");
     let href = parse_single_topocentric_moon_4(&htxt).expect("Horizons quantity 4");
@@ -48,6 +57,7 @@ fn main() {
     let az_error_deg = circular_delta_deg(ours.azimuth_deg, href.azimuth_deg).abs();
 
     println!("M-Time topocentric diagnostic 2026-03-19T10:00:00Z");
+    println!("legacy_altitude_deg={:.12}", legacy.altitude_deg);
     println!("ours_altitude_deg={:.12}", ours.altitude_deg);
     println!("horizons_altitude_deg={:.12}", href.elevation_deg);
     println!("altitude_error_deg={elevation_error_deg:.12}");
@@ -56,10 +66,11 @@ fn main() {
     println!("azimuth_error_deg={az_error_deg:.12}");
     println!("ut1_minus_utc_seconds={:.9}", eop.ut1_minus_utc_seconds);
 
-    // Diagnostic gate: catches missing parallax / frame gross errors.
-    // A tighter production gate requires full IAU precession-nutation/CIO transforms.
-    if elevation_error_deg > 0.5 || az_error_deg > 0.5 {
-        eprintln!("diagnostic gate failed: residual exceeds 0.5 deg");
+    // IAU 2006/2000A + IERS EOP diagnostic gate.
+    // Keep this at 0.1 deg until light-time/apparent-place semantics are
+    // explicitly matched to the Horizons observer quantity.
+    if elevation_error_deg > 0.1 || az_error_deg > 0.1 {
+        eprintln!("diagnostic gate failed: residual exceeds 0.1 deg");
         std::process::exit(1);
     }
 }
