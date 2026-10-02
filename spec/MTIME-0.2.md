@@ -75,15 +75,19 @@ A single-site evaluation of a `GLOBAL_ANY_SITE` profile is only a candidate-site
 
 Source-linked Indonesian profile implementing PMA No. 1/2026 criterion semantics. Observation/rukyat and Sidang Isbat remain separate records.
 
-### DIYANET_1978_GLOBAL
+### DIYANET_1978_VISIBILITY
 
-Source-linked computational representation of the Diyanet/Türkiye 1978 visibility criterion:
+Source-linked computational representation of the 5°/8° visibility component used in the Diyanet/Türkiye methodology:
 
 - topocentric altitude >= 5 degrees;
 - geocentric angular separation >= 8 degrees;
-- global-any-site scope.
+- candidate visibility can be searched globally.
 
-This representation is an interoperability profile. It is not a declaration that one fiqh methodology is scientifically or religiously mandatory.
+The current official methodology also states additional month-start conditions, including a relevant visibility condition on the North/South American mainland and conjunction occurring before Fajr at Wellington/New Zealand. M-Time therefore records those as unresolved `additional_calendar_conditions`.
+
+A passing 5°/8° site is **not** equivalent to a final Diyanet calendar outcome until the additional conditions and authority layer are evaluated.
+
+This representation is an interoperability profile component. It is not a declaration that one fiqh methodology is scientifically or religiously mandatory.
 
 ## 6. Source artifact integrity
 
