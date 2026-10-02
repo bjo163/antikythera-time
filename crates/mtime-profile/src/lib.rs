@@ -19,6 +19,8 @@ pub struct ProfileFile {
     pub source_url: Option<String>,
     #[serde(default)]
     pub scope: Option<String>,
+    #[serde(default)]
+    pub additional_calendar_conditions: Vec<String>,
     pub clauses: Vec<ClauseFile>,
 }
 
@@ -168,6 +170,14 @@ pub enum ProfileScope {
 pub struct CompiledProfile {
     pub calendar: CalendarProfile,
     pub scope: ProfileScope,
+    pub additional_calendar_conditions: Vec<String>,
+}
+
+impl CompiledProfile {
+    #[must_use]
+    pub fn threshold_result_is_complete_calendar_rule(&self) -> bool {
+        self.additional_calendar_conditions.is_empty()
+    }
 }
 
 pub fn compile_profile(file: &ProfileFile) -> Result<CompiledProfile, ProfileLoadError> {
@@ -179,6 +189,7 @@ pub fn compile_profile(file: &ProfileFile) -> Result<CompiledProfile, ProfileLoa
     Ok(CompiledProfile {
         calendar: compile_calendar_profile(file)?,
         scope,
+        additional_calendar_conditions: file.additional_calendar_conditions.clone(),
     })
 }
 
@@ -247,6 +258,8 @@ mod global_tests {
         assert_eq!(p.scope, ProfileScope::GlobalAnySite);
         assert_eq!(p.calendar.clauses[0].threshold, 5.0);
         assert_eq!(p.calendar.clauses[1].threshold, 8.0);
+        assert_eq!(p.additional_calendar_conditions.len(), 2);
+        assert!(!p.threshold_result_is_complete_calendar_rule());
     }
 
     #[test]
