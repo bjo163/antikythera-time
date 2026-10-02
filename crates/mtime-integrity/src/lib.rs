@@ -168,3 +168,183 @@ mod tests {
         );
     }
 }
+
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum KeyStatus {
+    Active,
+    Revoked,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TrustedEd25519Key {
+    pub key_id: String,
+    pub institution_id: String,
+    pub public_key_hex: String,
+    /// Inclusive Unix-second validity start.
+    pub valid_from_unix_seconds: i64,
+    /// Exclusive Unix-second validity end; None means open-ended.
+    pub valid_through_unix_seconds: Option<i64>,
+    pub status: KeyStatus,
+    pub provenance: String,
+}
+
+impl TrustedEd25519Key {
+    #[must_use]
+    pub fn valid_at(&self, unix_seconds: i64) -> bool {
+        if self.status != KeyStatus::Active || unix_seconds < self.valid_from_unix_seconds {
+            return false;
+        }
+        self.valid_through_unix_seconds
+            .map(|end| unix_seconds < end)
+            .unwrap_or(true)
+    }
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct TrustedKeyRegistry {
+    keys: Vec<TrustedEd25519Key>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum RegistryError {
+    DuplicateKeyId,
+    UnknownKey,
+    KeyNotValidAtInstant,
+    Integrity(IntegrityError),
+}
+
+impl TrustedKeyRegistry {
+    #[must_use]
+    pub fn new() -> Self {
+        Self { keys: Vec::new() }
+    }
+
+    pub fn add(&mut self, key: TrustedEd25519Key) -> Result<(), RegistryError> {
+        if self.keys.iter().any(|existing| existing.key_id == key.key_id) {
+            return Err(RegistryError::DuplicateKeyId);
+        }
+        self.keys.push(key);
+        Ok(())
+    }
+
+    #[must_use]
+    pub fn key(&self, key_id: &str) -> Option<&TrustedEd25519Key> {
+        self.keys.iter().find(|key| key.key_id == key_id)
+    }
+
+    pub fn verify_ed25519(
+        &self,
+        source_id: impl Into<String>,
+        media_type: impl Into<String>,
+        payload: &[u8],
+        key_id: &str,
+        signature_hex: &str,
+        signed_at_unix_seconds: i64,
+    ) -> Result<IngestedArtifact, RegistryError> {
+        let key = self.key(key_id).ok_or(RegistryError::UnknownKey)?;
+        if !key.valid_at(signed_at_unix_seconds) {
+            return Err(RegistryError::KeyNotValidAtInstant);
+        }
+        ingest_ed25519(
+            source_id,
+            media_type,
+            payload,
+            key_id,
+            &key.public_key_hex,
+            signature_hex,
+        )
+        .map_err(RegistryError::Integrity)
+    }
+}
+
+#[cfg(test)]
+mod trusted_registry_tests {
+    use super::*;
+
+    fn test_key(status: KeyStatus) -> TrustedEd25519Key {
+        TrustedEd25519Key {
+            key_id: "institution-test-key-1".into(),
+            institution_id: "TEST-INSTITUTION".into(),
+            public_key_hex:
+                "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a".into(),
+            valid_from_unix_seconds: 1_700_000_000,
+            valid_through_unix_seconds: Some(1_900_000_000),
+            status,
+            provenance: "RFC8032 test vector only; not a real institutional key".into(),
+        }
+    }
+
+    fn signature() -> &'static str {
+        concat!(
+            "e5564300c360ac729086e2cc806e828a",
+            "84877f1eb8e5d974d873e06522490155",
+            "5fb8821590a33bacc61e39701cf9b46b",
+            "d25bf5f0595bbe24655141438e7a100b"
+        )
+    }
+
+    #[test]
+    fn registry_verifies_active_key_inside_validity_window() {
+        let mut registry = TrustedKeyRegistry::new();
+        registry.add(test_key(KeyStatus::Active)).unwrap();
+        let artifact = registry
+            .verify_ed25519(
+                "fixture",
+                "application/octet-stream",
+                b"",
+                "institution-test-key-1",
+                signature(),
+                1_800_000_000,
+            )
+            .unwrap();
+        assert!(matches!(
+            artifact.signature_status,
+            SignatureStatus::VerifiedEd25519 { .. }
+        ));
+    }
+
+    #[test]
+    fn revoked_key_is_rejected_before_signature_verification() {
+        let mut registry = TrustedKeyRegistry::new();
+        registry.add(test_key(KeyStatus::Revoked)).unwrap();
+        assert_eq!(
+            registry.verify_ed25519(
+                "fixture",
+                "application/octet-stream",
+                b"",
+                "institution-test-key-1",
+                signature(),
+                1_800_000_000,
+            ),
+            Err(RegistryError::KeyNotValidAtInstant)
+        );
+    }
+
+    #[test]
+    fn expired_key_is_rejected() {
+        let mut registry = TrustedKeyRegistry::new();
+        registry.add(test_key(KeyStatus::Active)).unwrap();
+        assert_eq!(
+            registry.verify_ed25519(
+                "fixture",
+                "application/octet-stream",
+                b"",
+                "institution-test-key-1",
+                signature(),
+                1_900_000_000,
+            ),
+            Err(RegistryError::KeyNotValidAtInstant)
+        );
+    }
+
+    #[test]
+    fn duplicate_key_ids_are_rejected() {
+        let mut registry = TrustedKeyRegistry::new();
+        registry.add(test_key(KeyStatus::Active)).unwrap();
+        assert_eq!(
+            registry.add(test_key(KeyStatus::Active)),
+            Err(RegistryError::DuplicateKeyId)
+        );
+    }
+}
