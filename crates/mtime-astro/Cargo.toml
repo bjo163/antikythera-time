@@ -7,6 +7,7 @@ rust-version.workspace = true
 
 [dependencies]
 mtime-core = { path = "../mtime-core" }
+sofars = "0.6.1"
 
 [lints]
 workspace = true
