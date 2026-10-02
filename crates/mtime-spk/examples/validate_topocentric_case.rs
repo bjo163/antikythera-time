@@ -56,6 +56,12 @@ fn main() {
 
     let elevation_error_deg = (ours.altitude_deg - href.elevation_deg).abs();
     let az_error_deg = circular_delta_deg(ours.azimuth_deg, href.azimuth_deg).abs();
+    let direction_error_deg = horizon_direction_separation_deg(
+        ours.altitude_deg,
+        ours.azimuth_deg,
+        href.elevation_deg,
+        href.azimuth_deg,
+    );
 
     println!("case={label}");
     println!("jd_utc={jd_utc:.12}");
@@ -67,10 +73,14 @@ fn main() {
     println!("ours_azimuth_deg={:.12}", ours.azimuth_deg);
     println!("horizons_azimuth_deg={:.12}", href.azimuth_deg);
     println!("azimuth_error_deg={az_error_deg:.12}");
+    println!("direction_error_deg={direction_error_deg:.12}");
     println!("ut1_minus_utc_seconds={:.9}", eop.ut1_minus_utc_seconds);
 
-    if elevation_error_deg > 0.001 || az_error_deg > 0.001 {
-        eprintln!("matrix reference gate failed: residual exceeds 0.001 deg");
+    // The physical pointing gate uses spherical direction separation rather
+    // than raw azimuth difference. Azimuth is coordinate-singular/ill-conditioned
+    // near the zenith, where a larger Δaz can still represent a tiny sky-angle.
+    if elevation_error_deg > 0.001 || direction_error_deg > 0.001 {
+        eprintln!("matrix reference gate failed: physical residual exceeds 0.001 deg");
         std::process::exit(1);
     }
 }
@@ -92,4 +102,23 @@ fn utc_from_jd(jd_utc: f64) -> UtcInstant {
 
 fn circular_delta_deg(a: f64, b: f64) -> f64 {
     (a - b + 180.0).rem_euclid(360.0) - 180.0
+}
+
+
+fn horizon_direction_separation_deg(
+    altitude_a_deg: f64,
+    azimuth_a_deg: f64,
+    altitude_b_deg: f64,
+    azimuth_b_deg: f64,
+) -> f64 {
+    let alt_a = altitude_a_deg.to_radians();
+    let alt_b = altitude_b_deg.to_radians();
+    let daz = (azimuth_a_deg - azimuth_b_deg).to_radians();
+    (
+        alt_a.sin() * alt_b.sin()
+            + alt_a.cos() * alt_b.cos() * daz.cos()
+    )
+    .clamp(-1.0, 1.0)
+    .acos()
+    .to_degrees()
 }
