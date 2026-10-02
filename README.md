@@ -25,10 +25,10 @@ Core rule: physical time, astronomy, calendar criteria, observation/rukyat, juri
 
 `MABIMS_ID_2026`: topocentric Moon altitude ≥ 3° AND geocentric center-to-center elongation ≥ 6.4°. Observation and Sidang Isbat authority decisions remain separate records.
 
-`DIYANET_1978_GLOBAL`: candidate sunset states use altitude ≥ 5° AND elongation ≥ 8°, evaluated under a global-any-site scope. It is represented as a distinct calendar profile, not as a claim that one fiqh methodology is scientifically mandatory.
+`DIYANET_1978_VISIBILITY`: the 5° altitude / 8° separation visibility component, evaluated across candidate sites. The current official methodology also states additional regional/timing conditions (including an Americas-mainland condition and conjunction-before-Wellington-Fajr condition); therefore a 5°/8° site pass is **not serialized as a complete Diyanet month-start decision**.
 
 ## Scientific boundaries
 
 Antikythera supplies a computational grammar—cycle/ratio/state/recurrence—not a metrological authority and not a direct cosmic-age clock. Cosmic age remains a model-dependent inference. Revelation texts remain TEXTUAL_REFERENCE / CONCEPTUAL and supply no hidden numerical physics priors.
 
-See `CHARTER.md`, `spec/MTIME-0.1.md`, `docs/BLUEPRINT.md`, and `docs/STATUS.md`.
+See `CHARTER.md`, `spec/MTIME-0.2.md`, `docs/BLUEPRINT.md`, and `docs/STATUS.md`.
