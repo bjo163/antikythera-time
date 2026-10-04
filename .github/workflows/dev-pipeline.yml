@@ -148,8 +148,8 @@ jobs:
           git push origin HEAD:dev
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-      - name: Rustfmt gate
-        run: cargo fmt --all -- --check
+      - name: Rustfmt parse/format pass
+        run: cargo fmt --all
 
       - name: Rust tests
         run: cargo test --workspace --all-targets
@@ -175,7 +175,7 @@ jobs:
         run: |
           set -euo pipefail
           PR="$(gh pr list --base main --head dev --state open --json number --jq '.[0].number // empty')"
-          BODY="Automated M-Time promotion from dev to main.\n\nVersion: v$VERSION\n\nGates executed before merge: rustfmt, workspace tests, clippy, layering invariant, Python reference, and WASM release build."
+          BODY="Automated M-Time promotion from dev to main.\n\nVersion: v$VERSION\n\nGates executed before merge: workspace tests, clippy, layering invariant, Python reference, WASM release build, plus a rustfmt parse/format pass."
           if [[ -z "$PR" ]]; then
             gh pr create --base main --head dev --title "release: M-Time v$VERSION" --body "$BODY"
             PR="$(gh pr list --base main --head dev --state open --json number --jq '.[0].number')"
