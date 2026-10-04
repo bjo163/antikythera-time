@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.14.1 - 2026-10-04
+
+- docs(governance): codify dev to main promotion topology (`fb70ca6`)
+
 ## v0.14.0 - 2026-10-04
 
 - docs(m-time): finalize v0.14.0 systems integration release (`0c211d8`)
