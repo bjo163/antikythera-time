@@ -9,6 +9,7 @@ on:
       - "crates/mtime-observation/**"
       - "crates/mtime-authority/**"
       - "data/hijri/historical-falsification-v0.7.json"
+      - "data/hijri/historical-falsification-v0.11.json"
       - ".github/workflows/historical-falsification.yml"
 
 jobs:
@@ -21,3 +22,11 @@ jobs:
         run: cargo test -p mtime-explain --test historical_falsification -- --nocapture
       - name: Existing Indonesia 1447 replay
         run: cargo test -p mtime-explain --test indonesia_1447 -- --nocapture
+      - name: Multi-country 1445-1447 source-backed replay
+        run: |
+          set -euo pipefail
+          cargo test -p mtime-explain --test historical_multicountry -- --nocapture             | tee /tmp/mtime-historical-multicountry.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mtime-historical-multicountry-v0.11
+          path: /tmp/mtime-historical-multicountry.txt

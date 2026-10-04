@@ -36,6 +36,21 @@ async function loadBuildInfo(){
   }catch(e){ console.warn(e); }
 }
 
+async function loadHistoryCorpus(){
+  try{
+    const r=await fetch("./data/hijri/historical-falsification-v0.11.json",{cache:"no-store"});
+    if(!r.ok) throw new Error("historical corpus unavailable");
+    const x=await r.json();
+    const real=(x.cases||[]).filter(c=>c.kind==="REAL");
+    const counts={REPRODUCED:0,FALSIFIED:0,INCOMPLETE:0};
+    for(const c of x.cases||[]) counts[c.expected_replay_verdict]=(counts[c.expected_replay_verdict]||0)+1;
+    document.getElementById("historyRealCases").textContent=real.length+" cases";
+    document.getElementById("historyScope").textContent=(x.scope?.jurisdictions?.length||0)+" jurisdictions · "+(x.scope?.civil_years?.join("–")||"multi-year");
+    document.getElementById("historyVerdicts").textContent=
+      counts.REPRODUCED+" reproduced · "+counts.FALSIFIED+" falsified controls · "+counts.INCOMPLETE+" incomplete";
+  }catch(e){ console.warn(e); }
+}
+
 async function loadGithub(){
   try{
     const [releaseRes,runsRes]=await Promise.all([
@@ -97,6 +112,7 @@ async function boot(){
 
   document.getElementById("eval").addEventListener("click",evaluate);
   evaluate();
+  loadHistoryCorpus();
   loadGithub();
 }
 boot().catch(e=>{
