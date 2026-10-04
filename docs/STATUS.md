@@ -1,12 +1,12 @@
 # M-Time Implementation Status
 
 Date: 2026-10-04  
-Version: **v0.4.0 Global Oracle Research Prototype**  
-Internal status: **GLOBAL 21-CASE HORIZONS ORACLE + PROVIDER-WIRED POLICY/INTEGRITY HARDENING COMPLETE**
+Version: **v0.5.0 Global + Multi-Year Oracle Research Prototype**  
+Internal status: **GLOBAL + MULTI-YEAR HORIZONS ORACLE + PROVIDER-WIRED POLICY/INTEGRITY HARDENING COMPLETE**
 
 M-Time is a Rust-first temporal interoperability framework. This status does **not** claim international standard adoption, religious/fiqh authority, or replacement of BIPM/IAU/IERS/JPL infrastructure.
 
-## Final v0.4.0 internal gates
+## Final v0.5.0 internal gates
 
 | Gate | Result | Reference |
 |---|---|---|
@@ -19,6 +19,10 @@ M-Time is a Rust-first temporal interoperability framework. This status does **n
 | Matrix physical pointing threshold | **0.001°** | same run |
 | Matrix maximum direction residual | **0.000359059275° (~1.29 arcsec)** | same run |
 | Matrix worst case | **Ramadan × Wellington** | same run |
+| 21-case multi-year Horizons oracle | **21/21 PASS** | Actions run 37192584075 |
+| Multi-year maximum residual | **0.000336345642° (~1.21 arcsec)** | same run |
+| Multi-year worst case | **2026-03-01 12:00 UTC × Ankara** | same run |
+| Combined external Horizons coverage | **42 cases** | 21 boundary + 21 multi-year |
 | Executable Diyanet additional calendar conditions | PASS | core CI |
 | Provider-derived Americas/Wellington policy context | **PASS** | provider-wiring CI |
 | SHA-256 / Ed25519 verification | PASS | core CI |
@@ -53,6 +57,22 @@ Worst case: Ramadan × Wellington.
 All 21 cases pass the fixed 0.001° gate. The matrix workflow now emits an explicit case count, maximum residual, and fixed threshold summary in its artifact.
 
 Raw azimuth is still reported, but the broad matrix uses spherical sky-direction error as the physical pointing metric because azimuth becomes ill-conditioned near zenith. This was discovered empirically in the Dhulhijjah/Makkah case and fixed without weakening the physical threshold.
+
+## Multi-year astronomy oracle
+
+A second external matrix now checks the same seven sites at fixed geometry-regression epochs on 2024-03-01, 2025-03-01, and 2026-03-01 at 12:00 UTC. These dates are deliberately astronomical regression epochs, not Hijri calendar decisions.
+
+Result:
+
+```text
+21 / 21 PASS
+max_direction_error_deg = 0.000336345642
+threshold_deg = 0.001000000000
+```
+
+Worst case: 2026-03-01 12:00 UTC × Ankara (~1.21 arcsec).
+
+Combined with the 21-case 1447 H boundary matrix, M-Time now has 42 external JPL Horizons topocentric direction comparisons in the active regression suite.
 
 ## Diyanet current-policy execution
 
@@ -135,7 +155,7 @@ For research-prototype purposes, M-Time can now:
 
 These remain deliberately **OPEN**:
 
-1. Multi-year expansion of the now-global astronomy oracle matrix; geographic breadth is 7 sites / 21 cases as of v0.4.0.
+1. Further temporal expansion beyond the current 2024-2026 / 42-case active Horizons suite, including more years and more intra-year epochs.
 2. Field validation of atmospheric refraction and surveyed local-horizon profiles.
 3. Production-grade geospatial determination of “American mainland” backed by an authoritative/versioned polygon or visibility-map dataset.
 4. Production Wellington imsak/fajr provider backed by an explicitly versioned authoritative worship-time method; v0.3.0 wires the provider interface but does not hard-code a universal fajr angle.
@@ -151,9 +171,9 @@ Do not redesign the ontology.
 
 Priority order:
 
-1. wire policy contexts to computed astronomy/worship/geospatial providers;
-2. broaden validation matrix;
-3. signed real-source ingestion;
-4. historical falsification across jurisdictions;
+1. signed real-source ingestion;
+2. historical falsification across jurisdictions;
+3. broaden the now-global/multi-year validation matrix further;
+4. production geospatial and worship-time providers;
 5. independent implementation and peer review;
 6. external standardization discussion.
