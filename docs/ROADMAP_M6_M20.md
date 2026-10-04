@@ -33,8 +33,6 @@ Modern references such as JPL DE, IERS, BIPM/UTC and GNSS may be used as calibra
 9. Unknown evidence remains unknown.
 10. A v1.0 claim requires independent software reproduction plus external scientific, security, historical-reconstruction and textual-boundary review.
 
-Milestone identifiers M11 and M12 are intentionally unused after the software-only scope reset.
-
 ---
 
 ## M6 — Antikythera Accuracy Program I
