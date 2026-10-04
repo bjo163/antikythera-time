@@ -1,14 +1,16 @@
 {
   "schema": "mtime-external-review-requirements-1",
   "candidate": {
-    "release": "UNSET",
-    "git_sha": ""
+    "release": "m20-review-candidate-1",
+    "git_sha": "39c2705fa18d7d487803f8a37b8fe79df639daaa"
   },
   "requirements": [
     {
       "category": "independent_reproduction",
       "v1_gate_id": "external-independent-reproduction",
-      "allowed_relationships": ["UNAFFILIATED"],
+      "allowed_relationships": [
+        "UNAFFILIATED"
+      ],
       "required_topics": [
         "mts2_wire_conformance",
         "digital_antikythera_state",
