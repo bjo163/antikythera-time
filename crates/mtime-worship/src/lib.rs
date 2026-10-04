@@ -140,6 +140,21 @@ where
     Err(SolarEventError::IterationLimit)
 }
 
+
+#[must_use]
+pub fn conjunction_before_fajr_ut1(
+    conjunction_jd_ut1: f64,
+    fajr: SolarEvent,
+) -> Result<bool, SolarEventError> {
+    if !conjunction_jd_ut1.is_finite() || !fajr.jd_ut1.is_finite() {
+        return Err(SolarEventError::NonFinite);
+    }
+    if fajr.kind != SolarEventKind::FajrThreshold {
+        return Err(SolarEventError::WrongDirection);
+    }
+    Ok(conjunction_jd_ut1 < fajr.jd_ut1)
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct FastingWindow {
     pub profile_id: String,
@@ -200,6 +215,31 @@ mod tests {
         )
         .unwrap();
         assert!((e.jd_ut1 - (base + 0.05)).abs() < 1e-7);
+    }
+
+    #[test]
+    fn conjunction_must_be_strictly_before_fajr() {
+        let fajr = SolarEvent {
+            jd_ut1: 2_460_000.25,
+            altitude_deg: -18.0,
+            kind: SolarEventKind::FajrThreshold,
+        };
+        assert_eq!(conjunction_before_fajr_ut1(2_460_000.20, fajr), Ok(true));
+        assert_eq!(conjunction_before_fajr_ut1(2_460_000.25, fajr), Ok(false));
+        assert_eq!(conjunction_before_fajr_ut1(2_460_000.30, fajr), Ok(false));
+    }
+
+    #[test]
+    fn conjunction_comparison_rejects_non_fajr_event() {
+        let sunset = SolarEvent {
+            jd_ut1: 2_460_000.25,
+            altitude_deg: 0.0,
+            kind: SolarEventKind::Sunset,
+        };
+        assert_eq!(
+            conjunction_before_fajr_ut1(2_460_000.20, sunset),
+            Err(SolarEventError::WrongDirection)
+        );
     }
 
     #[test]

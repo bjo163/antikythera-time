@@ -46,16 +46,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
-            RANGE="HEAD^..HEAD"
-          else
-            BEFORE="${{ github.event.before }}"
-            AFTER="${{ github.sha }}"
-            if [[ "$BEFORE" =~ ^0+$ ]]; then
-              RANGE="$AFTER^..$AFTER"
-            else
-              RANGE="$BEFORE..$AFTER"
-            fi
+          git fetch origin main --quiet
+          RANGE="origin/main..HEAD"
+          if [[ -z "$(git rev-list "$RANGE")" ]]; then
+            echo "No unreleased dev commits found relative to main." >&2
+            exit 1
           fi
 
           MESSAGES="$(git log --format='%B%n---END---' "$RANGE")"
@@ -220,6 +215,14 @@ jobs:
             exit 1
           fi
           echo "sha=$MERGE_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Fast-forward dev to release merge
+        env:
+          MERGE_SHA: ${{ steps.merge.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git push origin "$MERGE_SHA":dev
 
       - name: Tag and publish GitHub Release
         env:
