@@ -277,6 +277,9 @@ fn main() {
     println!("targeted_csv={}", targeted_path.display());
     println!("phase_bins_csv={}", phase_bins_path.display());
     println!("summary_csv={}", summary_path.display());
+    print_worst_bin("synodic", &synodic_bins);
+    print_worst_bin("anomalistic", &anomalistic_bins);
+    print_worst_bin("draconic", &draconic_bins);
 
     assert_eq!(monthly_count, ((END_YEAR - START_YEAR + 1) * 12) as usize);
     assert!(targeted_count > 10_000);
@@ -294,6 +297,23 @@ fn empty_bins() -> Vec<Stats> {
 fn add_to_bin(bins: &mut [Stats], phase: f64, value: f64) {
     let index = ((phase.rem_euclid(1.0) * bins.len() as f64).floor() as usize).min(bins.len() - 1);
     bins[index].push(value);
+}
+
+fn print_worst_bin(dimension: &str, bins: &[Stats]) {
+    let (index, stats) = bins
+        .iter()
+        .enumerate()
+        .max_by(|(_, a), (_, b)| a.max().total_cmp(&b.max()))
+        .expect("phase bins");
+    let start = index as f64 / bins.len() as f64;
+    let end = (index + 1) as f64 / bins.len() as f64;
+    println!("{dimension}_worst_bin_index={index}");
+    println!("{dimension}_worst_bin_phase_start={start:.12}");
+    println!("{dimension}_worst_bin_phase_end={end:.12}");
+    println!("{dimension}_worst_bin_count={}", stats.count());
+    println!("{dimension}_worst_bin_mean_deg={:.9}", stats.mean());
+    println!("{dimension}_worst_bin_p95_deg={:.9}", stats.percentile(0.95));
+    println!("{dimension}_worst_bin_max_deg={:.9}", stats.max());
 }
 
 fn write_bins(writer: &mut impl Write, dimension: &str, bins: &[Stats]) {
