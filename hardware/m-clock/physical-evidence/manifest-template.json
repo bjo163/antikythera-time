@@ -1,0 +1,21 @@
+{
+  "schema": "mtime-mclock-physical-evidence-1",
+  "status": "TEMPLATE_NOT_MEASUREMENT",
+  "device_id": "",
+  "controller": {"model":"","serial_or_build_id":""},
+  "gnss_pps": {"model":"","serial":"","antenna":""},
+  "oscillator": {"model":"","type":"","serial":""},
+  "rtc": {"model":"","serial":""},
+  "firmware_sha256": "",
+  "firmware_git_sha": "",
+  "reference_time_source": "",
+  "build_date": "",
+  "evidence": {
+    "wiring_or_schematic": "",
+    "boot_self_test_log": "",
+    "pps_lock_log": "",
+    "offline_holdover_log": "",
+    "display_capture": "",
+    "metrology_csv": ""
+  }
+}
