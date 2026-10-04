@@ -174,3 +174,72 @@ mod integrity_binding_tests {
         assert_eq!(bound.source_artifact.sha256_hex.len(), 64);
     }
 }
+
+
+use mtime_integrity::TrustedSourceArtifact;
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct SourceBackedObservation {
+    pub report: ObservationReport,
+    pub source: TrustedSourceArtifact,
+}
+
+impl SourceBackedObservation {
+    #[must_use]
+    pub fn source_signature_verified(&self) -> bool {
+        self.source.signature_verified()
+    }
+
+    #[must_use]
+    pub fn source_hash(&self) -> &str {
+        &self.source.sha256_hex
+    }
+}
+
+#[must_use]
+pub fn bind_trusted_observation_source(
+    report: ObservationReport,
+    source: TrustedSourceArtifact,
+) -> SourceBackedObservation {
+    SourceBackedObservation { report, source }
+}
+
+#[cfg(test)]
+mod trusted_source_binding_tests {
+    use super::*;
+    use mtime_integrity::{SourceTrust, TrustedSourceArtifact};
+
+    #[test]
+    fn observation_preserves_real_source_identity_and_hash() {
+        let report = ObservationReport {
+            id: "obs-source-backed".into(),
+            site_id: "site-1".into(),
+            organization: "TEST-INSTITUTION".into(),
+            longitude_deg: None,
+            latitude_deg: None,
+            time_start_utc: None,
+            time_end_utc: None,
+            instrument: None,
+            weather: None,
+            horizon_condition: None,
+            sighting: SightingStatus::Negative,
+            verification: VerificationStatus::Reviewed,
+            attachment_hashes: vec![],
+            evidence: EvidenceState::Observed,
+            quality: QualityClass::Reference,
+            provenance: Provenance::new("source-backed fixture"),
+        };
+        let source = TrustedSourceArtifact {
+            source_id: "official-source".into(),
+            institution_id: "TEST-INSTITUTION".into(),
+            canonical_url: "https://example.invalid/source".into(),
+            media_type: "application/json".into(),
+            sha256_hex: "ab".repeat(32),
+            retrieved_at_unix_seconds: 1_800_000_000,
+            trust: SourceTrust::HashRecordedUnsigned,
+        };
+        let bound = bind_trusted_observation_source(report, source);
+        assert_eq!(bound.source_hash(), "ab".repeat(32));
+        assert!(!bound.source_signature_verified());
+    }
+}

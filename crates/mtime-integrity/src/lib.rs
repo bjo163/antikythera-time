@@ -348,3 +348,290 @@ mod trusted_registry_tests {
         );
     }
 }
+
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SourceSignaturePolicy {
+    AllowUnsigned,
+    RequireTrustedEd25519,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SourceArtifactSpec {
+    pub source_id: String,
+    pub institution_id: String,
+    pub canonical_url: String,
+    pub media_type: String,
+    pub expected_sha256_hex: Option<String>,
+    pub signature_policy: SourceSignaturePolicy,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DetachedEd25519Signature {
+    pub key_id: String,
+    pub signature_hex: String,
+    pub signed_at_unix_seconds: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SourceTrust {
+    HashRecordedUnsigned,
+    TrustedEd25519 {
+        key_id: String,
+        institution_id: String,
+        signed_at_unix_seconds: i64,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TrustedSourceArtifact {
+    pub source_id: String,
+    pub institution_id: String,
+    pub canonical_url: String,
+    pub media_type: String,
+    pub sha256_hex: String,
+    pub retrieved_at_unix_seconds: i64,
+    pub trust: SourceTrust,
+}
+
+impl TrustedSourceArtifact {
+    #[must_use]
+    pub fn signature_verified(&self) -> bool {
+        matches!(self.trust, SourceTrust::TrustedEd25519 { .. })
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SourceIngestionError {
+    InvalidSourceMetadata,
+    HashMismatch { expected: String, actual: String },
+    SignatureRequired,
+    SignerInstitutionMismatch {
+        expected_institution_id: String,
+        signer_institution_id: String,
+    },
+    Registry(RegistryError),
+}
+
+pub fn ingest_source_artifact(
+    spec: &SourceArtifactSpec,
+    payload: &[u8],
+    retrieved_at_unix_seconds: i64,
+    detached_signature: Option<&DetachedEd25519Signature>,
+    registry: &TrustedKeyRegistry,
+) -> Result<TrustedSourceArtifact, SourceIngestionError> {
+    if spec.source_id.trim().is_empty()
+        || spec.institution_id.trim().is_empty()
+        || spec.media_type.trim().is_empty()
+        || !(spec.canonical_url.starts_with("https://") || spec.canonical_url.starts_with("http://"))
+    {
+        return Err(SourceIngestionError::InvalidSourceMetadata);
+    }
+
+    let actual_hash = sha256_hex(payload);
+    if let Some(expected) = &spec.expected_sha256_hex {
+        if !expected.eq_ignore_ascii_case(&actual_hash) {
+            return Err(SourceIngestionError::HashMismatch {
+                expected: expected.clone(),
+                actual: actual_hash,
+            });
+        }
+    }
+
+    let trust = match detached_signature {
+        Some(signature) => {
+            let key = registry
+                .key(&signature.key_id)
+                .ok_or(SourceIngestionError::Registry(RegistryError::UnknownKey))?;
+            if key.institution_id != spec.institution_id {
+                return Err(SourceIngestionError::SignerInstitutionMismatch {
+                    expected_institution_id: spec.institution_id.clone(),
+                    signer_institution_id: key.institution_id.clone(),
+                });
+            }
+            registry
+                .verify_ed25519(
+                    spec.source_id.clone(),
+                    spec.media_type.clone(),
+                    payload,
+                    &signature.key_id,
+                    &signature.signature_hex,
+                    signature.signed_at_unix_seconds,
+                )
+                .map_err(SourceIngestionError::Registry)?;
+            SourceTrust::TrustedEd25519 {
+                key_id: signature.key_id.clone(),
+                institution_id: key.institution_id.clone(),
+                signed_at_unix_seconds: signature.signed_at_unix_seconds,
+            }
+        }
+        None => {
+            if spec.signature_policy == SourceSignaturePolicy::RequireTrustedEd25519 {
+                return Err(SourceIngestionError::SignatureRequired);
+            }
+            SourceTrust::HashRecordedUnsigned
+        }
+    };
+
+    Ok(TrustedSourceArtifact {
+        source_id: spec.source_id.clone(),
+        institution_id: spec.institution_id.clone(),
+        canonical_url: spec.canonical_url.clone(),
+        media_type: spec.media_type.clone(),
+        sha256_hex: actual_hash,
+        retrieved_at_unix_seconds,
+        trust,
+    })
+}
+
+#[cfg(test)]
+mod source_ingestion_tests {
+    use super::*;
+
+    fn spec(policy: SourceSignaturePolicy) -> SourceArtifactSpec {
+        SourceArtifactSpec {
+            source_id: "official-fixture".into(),
+            institution_id: "TEST-INSTITUTION".into(),
+            canonical_url: "https://example.invalid/source".into(),
+            media_type: "application/octet-stream".into(),
+            expected_sha256_hex: None,
+            signature_policy: policy,
+        }
+    }
+
+    fn trusted_key(institution_id: &str, status: KeyStatus) -> TrustedEd25519Key {
+        TrustedEd25519Key {
+            key_id: "test-key".into(),
+            institution_id: institution_id.into(),
+            public_key_hex:
+                "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a".into(),
+            valid_from_unix_seconds: 1_700_000_000,
+            valid_through_unix_seconds: Some(1_900_000_000),
+            status,
+            provenance: "RFC8032 fixture only".into(),
+        }
+    }
+
+    fn detached_signature() -> DetachedEd25519Signature {
+        DetachedEd25519Signature {
+            key_id: "test-key".into(),
+            signature_hex: concat!(
+                "e5564300c360ac729086e2cc806e828a",
+                "84877f1eb8e5d974d873e06522490155",
+                "5fb8821590a33bacc61e39701cf9b46b",
+                "d25bf5f0595bbe24655141438e7a100b"
+            )
+            .into(),
+            signed_at_unix_seconds: 1_800_000_000,
+        }
+    }
+
+    #[test]
+    fn real_source_contract_records_unsigned_hash_when_allowed() {
+        let registry = TrustedKeyRegistry::new();
+        let artifact = ingest_source_artifact(
+            &spec(SourceSignaturePolicy::AllowUnsigned),
+            b"official bytes",
+            1_800_000_100,
+            None,
+            &registry,
+        )
+        .unwrap();
+        assert_eq!(artifact.sha256_hex, sha256_hex(b"official bytes"));
+        assert!(!artifact.signature_verified());
+    }
+
+    #[test]
+    fn signature_required_is_fail_closed() {
+        let registry = TrustedKeyRegistry::new();
+        assert_eq!(
+            ingest_source_artifact(
+                &spec(SourceSignaturePolicy::RequireTrustedEd25519),
+                b"",
+                1_800_000_100,
+                None,
+                &registry,
+            ),
+            Err(SourceIngestionError::SignatureRequired)
+        );
+    }
+
+    #[test]
+    fn expected_hash_mismatch_is_rejected() {
+        let mut s = spec(SourceSignaturePolicy::AllowUnsigned);
+        s.expected_sha256_hex = Some("00".repeat(32));
+        assert!(matches!(
+            ingest_source_artifact(
+                &s,
+                b"changed",
+                1_800_000_100,
+                None,
+                &TrustedKeyRegistry::new(),
+            ),
+            Err(SourceIngestionError::HashMismatch { .. })
+        ));
+    }
+
+    #[test]
+    fn trusted_signature_requires_matching_institution() {
+        let mut registry = TrustedKeyRegistry::new();
+        registry
+            .add(trusted_key("OTHER-INSTITUTION", KeyStatus::Active))
+            .unwrap();
+        assert!(matches!(
+            ingest_source_artifact(
+                &spec(SourceSignaturePolicy::RequireTrustedEd25519),
+                b"",
+                1_800_000_100,
+                Some(&detached_signature()),
+                &registry,
+            ),
+            Err(SourceIngestionError::SignerInstitutionMismatch { .. })
+        ));
+    }
+
+    #[test]
+    fn trusted_signature_produces_trusted_source_record() {
+        let mut registry = TrustedKeyRegistry::new();
+        registry
+            .add(trusted_key("TEST-INSTITUTION", KeyStatus::Active))
+            .unwrap();
+        let artifact = ingest_source_artifact(
+            &spec(SourceSignaturePolicy::RequireTrustedEd25519),
+            b"",
+            1_800_000_100,
+            Some(&detached_signature()),
+            &registry,
+        )
+        .unwrap();
+        assert!(artifact.signature_verified());
+        assert!(matches!(
+            artifact.trust,
+            SourceTrust::TrustedEd25519 {
+                ref key_id,
+                ref institution_id,
+                ..
+            } if key_id == "test-key" && institution_id == "TEST-INSTITUTION"
+        ));
+    }
+
+    #[test]
+    fn revoked_key_remains_rejected_in_source_pipeline() {
+        let mut registry = TrustedKeyRegistry::new();
+        registry
+            .add(trusted_key("TEST-INSTITUTION", KeyStatus::Revoked))
+            .unwrap();
+        assert_eq!(
+            ingest_source_artifact(
+                &spec(SourceSignaturePolicy::RequireTrustedEd25519),
+                b"",
+                1_800_000_100,
+                Some(&detached_signature()),
+                &registry,
+            ),
+            Err(SourceIngestionError::Registry(
+                RegistryError::KeyNotValidAtInstant
+            ))
+        );
+    }
+}

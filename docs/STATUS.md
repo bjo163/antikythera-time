@@ -1,17 +1,17 @@
 # M-Time Implementation Status
 
 Date: 2026-10-04  
-Version: **v0.5.0 Global + Multi-Year Oracle Research Prototype**  
-Internal status: **GLOBAL + MULTI-YEAR HORIZONS ORACLE + PROVIDER-WIRED POLICY/INTEGRITY HARDENING COMPLETE**
+Version: **v0.6.0 Auditable Source Ingestion Research Prototype**  
+Internal status: **AUDITABLE REAL-SOURCE INGESTION + GLOBAL/MULTI-YEAR ORACLE HARDENING COMPLETE**
 
 M-Time is a Rust-first temporal interoperability framework. This status does **not** claim international standard adoption, religious/fiqh authority, or replacement of BIPM/IAU/IERS/JPL infrastructure.
 
-## Final v0.5.0 internal gates
+## Final v0.6.0 internal gates
 
 | Gate | Result | Reference |
 |---|---|---|
 | Rust workspace CI | **PASS** | Actions run 37054820440 |
-| Rust tests | **80 passed / 0 failed** | provider-wiring CI |
+| Rust tests | **88 passed / 0 failed** | source-ingestion CI |
 | Rust↔Python compatibility | **PASS** | Actions run 37054820611 |
 | Offline JPL DE440/SPK provider | PASS | prior SPK reference gates |
 | Fixed Jakarta topocentric reference | PASS | prior topocentric reference gate |
@@ -27,6 +27,11 @@ M-Time is a Rust-first temporal interoperability framework. This status does **n
 | Provider-derived Americas/Wellington policy context | **PASS** | provider-wiring CI |
 | SHA-256 / Ed25519 verification | PASS | core CI |
 | Validity/revocation-aware trusted key registry | PASS | core CI |
+| Real IERS source ingestion | **PASS** | Actions run 37193413659 |
+| Real DE440 source ingestion | **PASS** | Actions run 37193413659 |
+| Fail-closed signed-source contract | **6/6 PASS** | Actions run 37193413659 |
+| Source-backed observation binding | PASS | core CI |
+| Source-backed authority binding | PASS | core CI |
 | Surveyed local-horizon interpolation | PASS | core CI |
 | Observer-height geometric horizon dip | PASS | core CI |
 | Indonesia 1447 H replay | PASS | core CI |
@@ -115,6 +120,37 @@ As of v0.3.0, the complete represented rule can also be evaluated through typed 
 
 A valid signature authenticates content relative to a trusted key registry. It does not establish astronomical, legal, theological, or observational truth.
 
+## Auditable real-source ingestion
+
+v0.6.0 adds an explicit ingestion contract containing:
+
+- source ID and institution ID;
+- canonical URL and media type;
+- retrieval instant;
+- computed SHA-256;
+- optional expected SHA-256 pin;
+- signature policy: allow unsigned or require trusted Ed25519;
+- detached signature metadata;
+- signer institution matching;
+- trusted-key validity/revocation enforcement;
+- source-backed observation and authority records.
+
+The CI path now downloads and ingests two real official scientific artifacts:
+
+```text
+IERS_FINALS_ALL_IAU2000
+sha256 = 9fbc14ae5e71de96cc1e6b43b54a547acc80c7a6ce910c0209ad6230ff3d30cd
+
+NAIF_DE440_SHORT
+sha256 = c1c7feeab882263fc493a9d5a5b2ddd71b54826cdf65d8d17a76126b260a49f2
+```
+
+Both were retrieved from their canonical official URLs during Actions run 37193413659.
+
+Those live upstream artifacts are explicitly recorded as `signature_verified=false` because the current ingestion run did not receive an institutional detached Ed25519 signature plus trusted institutional key. M-Time does not convert TLS retrieval or source reputation into a cryptographic signature claim.
+
+The signed-source path itself is fail-closed: missing required signatures, hash mismatch, signer/institution mismatch, unknown keys, expired keys and revoked keys are rejected.
+
 ## Local-horizon hardening
 
 `mtime-astro` now provides:
@@ -159,7 +195,7 @@ These remain deliberately **OPEN**:
 2. Field validation of atmospheric refraction and surveyed local-horizon profiles.
 3. Production-grade geospatial determination of “American mainland” backed by an authoritative/versioned polygon or visibility-map dataset.
 4. Production Wellington imsak/fajr provider backed by an explicitly versioned authoritative worship-time method; v0.3.0 wires the provider interface but does not hard-code a universal fajr angle.
-5. Live institutional public-key registries and signed production ingestion.
+5. Live institutional detached-signature feeds and public-key registries for upstream authority/observation sources; v0.6.0 implements the fail-closed ingestion machinery and live hash-recorded source acquisition.
 6. Larger multi-country, multi-decade historical replay corpus.
 7. Unaffiliated implementation and expert review.
 8. Formal standardization/adoption.
@@ -171,8 +207,8 @@ Do not redesign the ontology.
 
 Priority order:
 
-1. signed real-source ingestion;
-2. historical falsification across jurisdictions;
+1. historical falsification across jurisdictions;
+2. institutional signed authority/observation source feeds;
 3. broaden the now-global/multi-year validation matrix further;
 4. production geospatial and worship-time providers;
 5. independent implementation and peer review;

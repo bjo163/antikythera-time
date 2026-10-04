@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.6.0 - 2026-10-04
+
+- docs(m-time): finalize v0.6.0 auditable source ingestion release (`c17d096`)
+- feat(m-time): add fail-closed real-source ingestion trust boundary [skip version] (`da57355`)
+
 ## v0.5.0 - 2026-10-04
 
 - docs(m-time): finalize v0.5.0 global multiyear oracle release (`1f2eb75`)
