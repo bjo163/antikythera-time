@@ -4,8 +4,8 @@ These packets are handoff documents for the five external evidence lanes require
 
 Frozen target:
 
-- candidate: `m20-review-candidate-2`
-- Git SHA: `799e70d87bd3b4a918986a3f8877b9ca44a13696`
+- candidate: `m20-review-candidate-3`
+- Git SHA: `f5a14d8d00367117a6ae9f98ce6cac25f2f262e9`
 
 The packets do not ask reviewers to endorse the project mission. They ask reviewers to test specific claims, boundaries, failure behavior, provenance, and reproducibility.
 
