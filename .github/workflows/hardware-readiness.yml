@@ -31,6 +31,7 @@ jobs:
           d=json.load(open("/tmp/mtime-metrology-suite.json"))
           assert d["schema"]=="mtime-mclock-metrology-suite-1"
           assert d["identity"]["device_id"]=="SYNTHETIC_DEVICE"
+          assert len(d["analysis_tool"]["git_sha"])==40
           assert len(d["datasets"])==5
           assert [x["label"] for x in d["datasets"]] == [
               "pps_latency_jitter",
