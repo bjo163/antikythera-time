@@ -1,17 +1,17 @@
 # M-Time Implementation Status
 
-Date: 2026-10-03  
-Version: **v0.2.2 Hardening Research Prototype**  
-Internal status: **HIGH-PRECISION FLAGSHIP PATH + POLICY/INTEGRITY HARDENING COMPLETE**
+Date: 2026-10-04  
+Version: **v0.3.0 Provider-Wired Policy Research Prototype**  
+Internal status: **HIGH-PRECISION FLAGSHIP PATH + PROVIDER-WIRED POLICY/INTEGRITY HARDENING COMPLETE**
 
 M-Time is a Rust-first temporal interoperability framework. This status does **not** claim international standard adoption, religious/fiqh authority, or replacement of BIPM/IAU/IERS/JPL infrastructure.
 
-## Final v0.2.2 internal gates
+## Final v0.3.0 internal gates
 
 | Gate | Result | Reference |
 |---|---|---|
 | Rust workspace CI | **PASS** | Actions run 37054820440 |
-| Rust tests | **74 passed / 0 failed** | same run |
+| Rust tests | **80 passed / 0 failed** | provider-wiring CI |
 | Rust↔Python compatibility | **PASS** | Actions run 37054820611 |
 | Offline JPL DE440/SPK provider | PASS | prior SPK reference gates |
 | Fixed Jakarta topocentric reference | PASS | prior topocentric reference gate |
@@ -19,6 +19,7 @@ M-Time is a Rust-first temporal interoperability framework. This status does **n
 | Matrix physical pointing threshold | **0.001°** | same run |
 | Matrix maximum direction residual | **~0.000257° (~0.93 arcsec)** | same run |
 | Executable Diyanet additional calendar conditions | PASS | core CI |
+| Provider-derived Americas/Wellington policy context | **PASS** | provider-wiring CI |
 | SHA-256 / Ed25519 verification | PASS | core CI |
 | Validity/revocation-aware trusted key registry | PASS | core CI |
 | Surveyed local-horizon interpolation | PASS | core CI |
@@ -72,6 +73,8 @@ complete represented policy result
 ```
 
 Missing policy context produces UNKNOWN rather than a false complete decision.
+
+As of v0.3.0, the complete represented rule can also be evaluated through typed providers instead of manually entered booleans. Threshold-passing site IDs feed an `AmericasMainlandProvider`, while a `WellingtonFajrProvider` supplies a computed imsak/fajr event. The conjunction-vs-fajr comparison is explicit on UT1 Julian dates. Unknown provider evidence remains UNKNOWN.
 
 ## Integrity hardening
 
@@ -129,8 +132,8 @@ These remain deliberately **OPEN**:
 
 1. Much broader multi-year and global astronomy oracle matrix.
 2. Field validation of atmospheric refraction and surveyed local-horizon profiles.
-3. Automatic geospatial determination of “American mainland” from visibility maps rather than caller-supplied policy context.
-4. Automatic Wellington fajr computation wired directly into the Diyanet policy evaluator with a versioned worship profile.
+3. Production-grade geospatial determination of “American mainland” backed by an authoritative/versioned polygon or visibility-map dataset.
+4. Production Wellington imsak/fajr provider backed by an explicitly versioned authoritative worship-time method; v0.3.0 wires the provider interface but does not hard-code a universal fajr angle.
 5. Live institutional public-key registries and signed production ingestion.
 6. Larger multi-country, multi-decade historical replay corpus.
 7. Unaffiliated implementation and expert review.
