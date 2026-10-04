@@ -1,0 +1,43 @@
+{
+  "schema": "mtime-external-review-1",
+  "status": "TEMPLATE_NOT_REVIEW",
+  "review_id": "",
+  "category": "",
+  "target": {
+    "release": "",
+    "git_sha": ""
+  },
+  "reviewer": {
+    "name": "",
+    "public_identity": "",
+    "organization": "",
+    "relationship_to_project": "UNKNOWN",
+    "conflict_of_interest_declaration": ""
+  },
+  "review": {
+    "reviewed_at": "",
+    "verdict": "INCONCLUSIVE",
+    "summary": "",
+    "covered_topics": [],
+    "methodology": {
+      "scope": "",
+      "method": "",
+      "environment": "",
+      "reproduction_steps": ""
+    }
+  },
+  "evidence": {
+    "report": {
+      "path": "",
+      "sha256": ""
+    },
+    "supporting_artifacts": []
+  },
+  "reproduction": null,
+  "admission": {
+    "result": "NOT_REVIEWED",
+    "admitted_by": "",
+    "admitted_at": "",
+    "notes": ""
+  }
+}

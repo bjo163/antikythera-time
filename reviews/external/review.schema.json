@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bjo163.github.io/antikythera-time/schemas/external-review-v1.schema.json",
+  "title": "M-Time External Review Evidence v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "status",
+    "review_id",
+    "category",
+    "target",
+    "reviewer",
+    "review",
+    "evidence",
+    "reproduction",
+    "admission"
+  ],
+  "properties": {
+    "schema": { "const": "mtime-external-review-1" },
+    "status": {
+      "enum": [
+        "TEMPLATE_NOT_REVIEW",
+        "SUBMITTED_UNREVIEWED",
+        "ADMITTED",
+        "REJECTED"
+      ]
+    },
+    "review_id": { "type": "string" },
+    "category": {
+      "enum": [
+        "",
+        "independent_reproduction",
+        "security",
+        "scientific",
+        "historical_reconstruction",
+        "revelation_textual_boundary"
+      ]
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["release", "git_sha"],
+      "properties": {
+        "release": { "type": "string" },
+        "git_sha": { "type": "string" }
+      }
+    },
+    "reviewer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "public_identity",
+        "organization",
+        "relationship_to_project",
+        "conflict_of_interest_declaration"
+      ],
+      "properties": {
+        "name": { "type": "string" },
+        "public_identity": { "type": "string" },
+        "organization": { "type": "string" },
+        "relationship_to_project": {
+          "enum": [
+            "UNAFFILIATED",
+            "EXTERNAL_DISCLOSED_RELATIONSHIP",
+            "PROJECT_TEAM",
+            "UNKNOWN"
+          ]
+        },
+        "conflict_of_interest_declaration": { "type": "string" }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reviewed_at",
+        "verdict",
+        "summary",
+        "covered_topics",
+        "methodology"
+      ],
+      "properties": {
+        "reviewed_at": { "type": "string" },
+        "verdict": {
+          "enum": ["PASS", "PASS_WITH_FINDINGS", "FAIL", "INCONCLUSIVE"]
+        },
+        "summary": { "type": "string" },
+        "covered_topics": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "methodology": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "scope",
+            "method",
+            "environment",
+            "reproduction_steps"
+          ],
+          "properties": {
+            "scope": { "type": "string" },
+            "method": { "type": "string" },
+            "environment": { "type": "string" },
+            "reproduction_steps": { "type": "string" }
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["report", "supporting_artifacts"],
+      "properties": {
+        "report": { "$ref": "#/$defs/artifact" },
+        "supporting_artifacts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/artifact" }
+        }
+      }
+    },
+    "reproduction": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "implementation_repository",
+            "implementation_language",
+            "shared_project_code",
+            "conformance_command",
+            "conformance_result"
+          ],
+          "properties": {
+            "implementation_repository": { "type": "string" },
+            "implementation_language": { "type": "string" },
+            "shared_project_code": { "type": "boolean" },
+            "conformance_command": { "type": "string" },
+            "conformance_result": {
+              "enum": ["PASS", "FAIL", "NOT_RUN"]
+            }
+          }
+        }
+      ]
+    },
+    "admission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["result", "admitted_by", "admitted_at", "notes"],
+      "properties": {
+        "result": {
+          "enum": ["NOT_REVIEWED", "ADMITTED", "REJECTED"]
+        },
+        "admitted_by": { "type": "string" },
+        "admitted_at": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "type": "string" },
+        "sha256": { "type": "string" }
+      }
+    }
+  }
+}
