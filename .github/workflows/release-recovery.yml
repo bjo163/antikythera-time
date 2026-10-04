@@ -1,0 +1,123 @@
+name: m-time-release-recovery
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [dev]
+    paths:
+      - ".github/workflows/release-recovery.yml"
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Determine main release identity
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(python3 - <<'PY'
+          import pathlib
+          import re
+          text = pathlib.Path("Cargo.toml").read_text()
+          m = re.search(r'\[workspace\.package\][\s\S]*?\nversion = "(\d+\.\d+\.\d+)"', text)
+          if not m:
+              raise SystemExit("workspace.package version not found")
+          print(m.group(1))
+          PY
+          )"
+          SHA="$(git rev-parse HEAD)"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          echo "Recovering release metadata for v$VERSION at $SHA"
+
+      - name: Verify main gates before recovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/v1_readiness.py
+          python scripts/external_review_readiness.py
+          python scripts/hardware_readiness.py
+          cargo test --workspace --all-targets
+
+      - name: Create missing tag and GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.release.outputs.version }}
+          SHA: ${{ steps.release.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="v$VERSION"
+
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag -a "$TAG" "$SHA" -m "M-Time $TAG"
+            git push origin "$TAG"
+            echo "Created $TAG at $SHA."
+          fi
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "GitHub Release $TAG already exists."
+          else
+            gh release create "$TAG" --target "$SHA" --generate-notes --title "M-Time $TAG"
+            echo "Created GitHub Release $TAG."
+          fi
+
+      - name: Trigger post-release validations
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          workflows=(
+            main-history-guard.yml
+            compatibility.yml
+            antikythera-calibration.yml
+            mclock.yml
+            wasm.yml
+            iers-eop.yml
+            jpl-reference.yml
+            spk-reference.yml
+            topocentric-reference.yml
+            topocentric-matrix.yml
+            topocentric-multiyear.yml
+            source-ingestion.yml
+            historical-falsification.yml
+            geospatial-mainland.yml
+            wellington-fajr.yml
+            wellington-seasonal-oracle.yml
+            prestandard.yml
+            hardware-readiness.yml
+            pages-mtime.yml
+          )
+          for workflow in "${workflows[@]}"; do
+            gh workflow run "$workflow" --ref main || echo "::warning::Could not dispatch $workflow"
+          done
+
+      - name: Recovery summary
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+          SHA: ${{ steps.release.outputs.sha }}
+        shell: bash
+        run: |
+          {
+            echo "## M-Time release recovery"
+            echo
+            echo "- Release: v$VERSION"
+            echo "- Main SHA: $SHA"
+            echo "- Action: ensure tag + GitHub Release + post-release validation dispatch"
+            echo "- No semantic version bump performed"
+          } >> "$GITHUB_STEP_SUMMARY"
