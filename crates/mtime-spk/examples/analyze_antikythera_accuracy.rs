@@ -7,7 +7,7 @@ use std::{
 
 use mtime_antikythera::{
     shortest_angle_deg, wrap_deg, AntikytheraMachine, AntikytheraState,
-    ANOMALISTIC_MONTH, DRACONIC_MONTH, J2000_JD_TT, MEAN_SYNODIC_MONTH,
+    ANOMALISTIC_MONTH, J2000_JD_TT, MEAN_SYNODIC_MONTH,
 };
 use mtime_astro::{icrf_vector_to_mean_ecliptic_of_date, Body};
 use mtime_core::{CoordinateTime, Tt};

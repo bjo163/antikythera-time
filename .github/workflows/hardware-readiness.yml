@@ -1,0 +1,24 @@
+name: m-time-hardware-readiness
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "crates/mtime-device/**"
+      - "crates/mtime-metrology/**"
+      - "hardware/m-clock/**"
+      - "scripts/hardware_readiness.py"
+      - ".github/workflows/hardware-readiness.yml"
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Device state tests
+        run: cargo test -p mtime-device --all-targets
+      - name: Metrology analysis tests
+        run: cargo test -p mtime-metrology --all-targets
+      - name: Physical evidence readiness
+        run: python scripts/hardware_readiness.py

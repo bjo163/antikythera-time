@@ -1,0 +1,30 @@
+name: m-time-prestandard
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "data/v1-gates.json"
+      - "scripts/v1_readiness.py"
+      - "spec/RFC-0001-MTIME-1.0.md"
+      - "GOVERNANCE.md"
+      - ".github/workflows/prestandard.yml"
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Evaluate v1 evidence gates
+        run: python scripts/v1_readiness.py
+      - name: Confirm research project is not falsely marked ready
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open("data/v1-gates.json"))
+          assert d["ready"] is False, "v1 must not be marked ready while external/physical gates remain"
+          print("v1 false-readiness guard: PASS")
+          PY

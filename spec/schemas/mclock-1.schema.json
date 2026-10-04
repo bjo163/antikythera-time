@@ -1,0 +1,17 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"M-Clock MCLOCK-1",
+  "type":"object",
+  "required":["packet_version","status","mtime_state_version","profile_id","linear_si_nanoseconds_from_j2000_tt","tt_jd","tdb_jd"],
+  "properties":{
+    "packet_version":{"const":"MCLOCK-1"},
+    "status":{"type":"string"},
+    "mtime_state_version":{"type":"string"},
+    "profile_id":{"type":"string"},
+    "linear_si_nanoseconds_from_j2000_tt":{"type":"string","pattern":"^-?[0-9]+$"},
+    "tt_jd":{"type":"number"},
+    "tdb_jd":{"type":"number"},
+    "uncertainty_status":{"type":"string"}
+  },
+  "additionalProperties":true
+}

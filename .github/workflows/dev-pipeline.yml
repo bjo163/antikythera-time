@@ -268,6 +268,8 @@ jobs:
             geospatial-mainland.yml
             wellington-fajr.yml
             wellington-seasonal-oracle.yml
+            prestandard.yml
+            hardware-readiness.yml
             pages-mtime.yml
           )
           for workflow in "${workflows[@]}"; do

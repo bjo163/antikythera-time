@@ -1,0 +1,17 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"M-Time Observation Packet MOBS-1",
+  "type":"object",
+  "required":["packet_version","report_id","site_id","institution","attachment_hashes"],
+  "properties":{
+    "packet_version":{"const":"MOBS-1"},
+    "report_id":{"type":"string"},
+    "site_id":{"type":"string"},
+    "institution":{"type":"string"},
+    "instrument_calibration_id":{"type":["string","null"]},
+    "local_horizon_profile_id":{"type":["string","null"]},
+    "attachment_hashes":{"type":"array","items":{"type":"string"}},
+    "source_sha256":{"type":["string","null"]},
+    "source_signature_verified":{"type":["boolean","null"]}
+  }
+}

@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.14.0 - 2026-10-04
+
+- docs(m-time): finalize v0.14.0 systems integration release (`0c211d8`)
+- feat(m-time): add physical M-Clock evidence readiness gate [skip version] (`d11e706`)
+- feat(m-time): finalize correction registry and threshold uncertainty semantics [skip version] (`be09dfd`)
+- fix(conformance): preserve full f64 epoch precision across languages [skip version] (`7377f6f`)
+- test(m-time): add native calendar and worship end-to-end demos [skip version] (`ee9b097`)
+- fix(test): correct Python SDK conformance harness [skip version] (`05c603a`)
+- test(m-time): harden M15 differential and M19 SDK conformance [skip version] (`e995638`)
+- fix(m-time): repair revelation equality derive and M8 warnings [skip version] (`d404e86`)
+- fix(build): isolate FFI symbol export and clean workspace warnings [skip version] (`fd448eb`)
+- feat(m-time): add machine-readable M20 pre-standard readiness gate [skip version] (`d921542`)
+- fix(m-time): compare experimental V2 against independent Python implementation [skip version] (`c020aa6`)
+- feat(m-time): enforce M16 validated interval and publish V2 formula [skip version] (`1be1d6d`)
+- feat(m-time): make M-Clock bench and metrology software-ready [skip version] (`316c4fb`)
+- feat(m-time): publish SDK schemas bundle and interoperability contracts [skip version] (`0cb85de`)
+- feat(m-time): add pointer-free C ABI for public M-Time state [skip version] (`40d0b78`)
+- fix(ci): execute independent M15 Python conformance [skip version] (`bab5924`)
+- feat(m-time): formalize revelation ontology and isolate cosmology sandbox [skip version] (`e6e144e`)
+- feat(m-time): add 1850-2149 Antikythera long-span falsification [skip version] (`8ba6648`)
+- feat(m-time): add independent Python MTS-2 and Antikythera conformance [skip version] (`caa07a3`)
+- feat(m-time): bind calendar worship observation and authority to native audit layers [skip version] (`174dab4`)
+- fix(m-time): label M8 candidate as two-draconic harmonic [skip version] (`f9d5c65`)
+- feat(m-time): add separately versioned M8 experimental lunar profile [skip version] (`887c00d`)
+- feat(m-time): add MTS-2 wire spec and explicit uncertainty budgets [skip version] (`1a88c58`)
+- feat(m-time): add correction ablation and out-of-sample M8 fitting [skip version] (`f6058c9`)
+- feat(m-time): add auditable historical registry and ablatable lunar terms [skip version] (`9ed0962`)
+
 ## v0.13.0 - 2026-10-04
 
 - docs(m-time): finalize v0.13.0 Antikythera accuracy release (`10c5734`)

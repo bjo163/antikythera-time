@@ -1,13 +1,20 @@
 # M-Time — Mīqāt Temporal Protocol
 
-**Status:** Rust-first **v0.13.0 Antikythera Accuracy Program I Research Prototype**.
+**Status:** Rust-first **v0.14.0 Antikythera Systems Integration Research Prototype**.
 
 M-Time is a temporal interoperability framework. It does **not** invent a new physical second, replace UTC, choose a fiqh position, or claim an absolute cosmic clock. Its flagship use-case is explainable Hijri/worship-calendar resolution.
 
 Core rule: physical time, astronomy, calendar criteria, observation/rukyat, jurisdiction, authority decisions, cosmic inference, historical reconstruction, and revelation-text concepts are separate semantic layers.
 
-## v0.13.0 highlights
+## v0.14.0 highlights
 
+- **M7–M10 and M13–M19 internal software milestones complete**; M11/M12 physical bench/metrology and M20 external v1 gates remain deliberately open.
+- M8 V2 Experimental improves full-span 1850–2149 lunar P95 from **0.302376434° → 0.253539543°** and max from **0.427321722° → 0.314474632°**, while default remains V1.
+- MTS-2 independent Python conformance covers **135 V1 + 135 V2** differential vectors plus malformed packets.
+- Public Python SDK, C ABI/header, JSON schemas, signed-bundle spec, compatibility policy, threat review, RFC and governance are present.
+- Native M-Time calendar/worship demos preserve geometry/profile/observation/authority separation.
+- M-Clock device/metrology software and hardware evidence templates are ready, but **no physical build is claimed**.
+- v1 readiness remains **BLOCKED** on physical and external evidence.
 - **1900–2100 M6 calibration:** 2,412 monthly epochs plus 15,676 targeted lunar/solar phase-anomaly samples.
 - M6 calibration now uses an explicit **IAU 2006 mean ecliptic of date** reference, preventing fixed-J2000 frame rotation from being misclassified as Antikythera dynamical error.
 - Digital Sun 1900–2100 max residual: **0.009572456° absolute / 0.010229337° dynamic**.

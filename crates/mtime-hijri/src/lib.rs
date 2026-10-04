@@ -145,3 +145,178 @@ mod indonesia_1447_pilot_tests {
         assert!(INDONESIA_1447_PILOTS[2].accepted_positive_sightings > 0);
     }
 }
+
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct NativeMTimeHijriInput {
+    pub mtime: mtime_temporal::MTimeWireV2,
+    pub astronomy: HijriAstronomicalState,
+}
+
+impl NativeMTimeHijriInput {
+    #[must_use]
+    pub fn new(state: mtime_temporal::MTimeState, astronomy: HijriAstronomicalState) -> Self {
+        Self {
+            mtime: mtime_temporal::MTimeWireV2::from_state(state),
+            astronomy,
+        }
+    }
+
+    #[must_use]
+    pub fn instant_key(&self) -> mtime_temporal::MTimeInstantKey {
+        self.mtime.instant_key()
+    }
+}
+
+impl CalendarProfile {
+    #[must_use]
+    pub fn evaluate_native(&self, input: &NativeMTimeHijriInput) -> CriterionResult {
+        self.evaluate(&input.astronomy)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct CriterionMargin {
+    pub clause_id: &'static str,
+    pub actual: Option<f64>,
+    pub threshold: f64,
+    pub signed_margin: Option<f64>,
+    pub unit: &'static str,
+}
+
+#[must_use]
+pub fn criterion_margins(
+    profile: &CalendarProfile,
+    state: &HijriAstronomicalState,
+) -> Vec<CriterionMargin> {
+    profile
+        .clauses
+        .iter()
+        .map(|clause| {
+            let actual = metric_value(clause.metric, state);
+            let signed_margin = actual.map(|value| match clause.comparator {
+                Comparator::GreaterOrEqual | Comparator::GreaterThan => value - clause.threshold,
+                Comparator::LessOrEqual | Comparator::LessThan => clause.threshold - value,
+            });
+            CriterionMargin {
+                clause_id: clause.id,
+                actual,
+                threshold: clause.threshold,
+                signed_margin,
+                unit: clause.unit,
+            }
+        })
+        .collect()
+}
+
+#[cfg(test)]
+mod native_mtime_tests {
+    use super::*;
+    use mtime_core::{CoordinateTime, Tt};
+    use mtime_temporal::MTimeEngine;
+
+    fn astronomy() -> HijriAstronomicalState {
+        HijriAstronomicalState {
+            conjunction_jd_tt: None,
+            sunset_jd_ut1: None,
+            moon_altitude_topocentric_deg: 3.1,
+            elongation_geocentric_deg: 6.5,
+            geometry_semantics: GeometrySemantics::mabims_required(),
+            moon_age_hours: None,
+            moon_lag_minutes: None,
+            site_id: "TEST".into(),
+            ephemeris_source: "fixture".into(),
+            quality: QualityClass::Reference,
+        }
+    }
+
+    #[test]
+    fn calendar_can_be_anchored_to_native_mtime_without_merging_policy() {
+        let mtime = MTimeEngine::digital()
+            .from_tt(CoordinateTime::<Tt>::new(2_451_545.0, 9_500.0, 0.0).unwrap())
+            .unwrap();
+        let input = NativeMTimeHijriInput::new(mtime, astronomy());
+        let result = CalendarProfile::mabims_indonesia_2026().evaluate_native(&input);
+        assert_eq!(result.met, Some(true));
+        assert_eq!(
+            input.mtime.profile_id,
+            "MTIME_DIGITAL_ANTIKYTHERA_V1"
+        );
+    }
+
+    #[test]
+    fn criterion_margin_is_explicit() {
+        let p = CalendarProfile::mabims_indonesia_2026();
+        let margins = criterion_margins(&p, &astronomy());
+        assert_eq!(margins.len(), 2);
+        assert!((margins[0].signed_margin.unwrap() - 0.1).abs() < 1e-12);
+    }
+}
+
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MarginConfidence {
+    RobustPass,
+    RobustFail,
+    BoundaryUncertain,
+    Unknown,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct CriterionMarginAssessment {
+    pub margin: CriterionMargin,
+    pub metric_uncertainty: Option<f64>,
+    pub confidence: MarginConfidence,
+}
+
+#[must_use]
+pub fn assess_criterion_margin(
+    margin: CriterionMargin,
+    metric_uncertainty: Option<f64>,
+) -> CriterionMarginAssessment {
+    let confidence = match (margin.signed_margin, metric_uncertainty) {
+        (None, _) => MarginConfidence::Unknown,
+        (Some(_), Some(u)) if !u.is_finite() || u < 0.0 => MarginConfidence::Unknown,
+        (Some(m), Some(u)) if m.abs() <= u => MarginConfidence::BoundaryUncertain,
+        (Some(m), Some(_)) if m > 0.0 => MarginConfidence::RobustPass,
+        (Some(_), Some(_)) => MarginConfidence::RobustFail,
+        (Some(m), None) if m > 0.0 => MarginConfidence::RobustPass,
+        (Some(_), None) => MarginConfidence::RobustFail,
+    };
+    CriterionMarginAssessment {
+        margin,
+        metric_uncertainty,
+        confidence,
+    }
+}
+
+#[cfg(test)]
+mod margin_uncertainty_tests {
+    use super::*;
+
+    #[test]
+    fn near_threshold_can_be_marked_boundary_uncertain() {
+        let m = CriterionMargin {
+            clause_id: "ALT",
+            actual: Some(3.04),
+            threshold: 3.0,
+            signed_margin: Some(0.04),
+            unit: "deg",
+        };
+        let a = assess_criterion_margin(m, Some(0.08));
+        assert_eq!(a.confidence, MarginConfidence::BoundaryUncertain);
+    }
+
+    #[test]
+    fn uncertainty_must_match_metric_and_be_supplied_explicitly() {
+        let m = CriterionMargin {
+            clause_id: "ELONG",
+            actual: Some(6.8),
+            threshold: 6.4,
+            signed_margin: Some(0.4),
+            unit: "deg",
+        };
+        let a = assess_criterion_margin(m, Some(0.1));
+        assert_eq!(a.confidence, MarginConfidence::RobustPass);
+    }
+}

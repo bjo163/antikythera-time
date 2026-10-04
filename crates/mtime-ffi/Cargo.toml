@@ -1,0 +1,15 @@
+[package]
+name = "mtime-ffi"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[lib]
+crate-type = ["rlib", "staticlib", "cdylib"]
+
+[dependencies]
+mtime-antikythera = { path = "../mtime-antikythera" }
+
+[lints.rust]
+unsafe_code = "deny"

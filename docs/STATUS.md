@@ -1,17 +1,33 @@
 # M-Time Implementation Status
 
 Date: 2026-10-04  
-Version: **v0.13.0 Antikythera Accuracy Program I Research Prototype**  
-Internal status: **M6 MULTI-CENTURY ANTYKITHERA ERROR CHARACTERIZATION COMPLETE; LUNAR DYNAMICS IDENTIFIED AS PRIMARY DIGITAL-MODEL BOTTLENECK**
+Version: **v0.14.0 Antikythera Systems Integration Research Prototype**  
+Internal status: **M7–M10 + M13–M19 SOFTWARE/RESEARCH MILESTONES COMPLETE; M11/M12 PHYSICAL EVIDENCE AND M20 EXTERNAL PRE-STANDARD GATES REMAIN OPEN**
 
 M-Time is a Rust-first temporal interoperability framework. This status does **not** claim international standard adoption, religious/fiqh authority, or replacement of BIPM/IAU/IERS/JPL infrastructure.
 
-## Final v0.13.0 internal gates
+## Final v0.14.0 internal gates
 
 | Gate | Result | Reference |
 |---|---|---|
 | Rust workspace CI | **PASS** | Actions run 37196296287 |
-| Rust tests | **115 passed / 0 failed** | Phase 5 staging CI |
+| Rust tests | **148 passed / 0 failed** | v0.14 staging CI |
+| M7 historical evidence registry | **PASS** | bibliography-backed profiles + machine-readable registry |
+| M8 correction registry / ablation | **PASS** | default V1 frozen; V2 experimental explicit |
+| M8 V2 long-span P95 / max | **0.253539543° / 0.314474632°** | 1850–2149 monthly |
+| M9 MTS-2 binary/JSON conformance | **PASS** | independent Python parser/re-encoder |
+| M10 uncertainty engine | **PASS** | model/reference/category budgets + threshold-margin semantics |
+| M13 native Hijri/worship demos | **PASS** | MTimeState → explicit geometry/profile path |
+| M14 MOBS-1 / MAUTH-1 audit packets | **PASS** | observation/authority remain separate |
+| M15 independent Python conformance | **PASS (135 V1 + 135 V2 vectors)** | public spec implementation |
+| M16 validated interval | **1850-01-01 .. 2150-01-01 TT** | fail-closed API |
+| M16 V1 full P95 / max | **0.302376434° / 0.427321722°** | 3600 monthly epochs |
+| M16 V2 full P95 / max | **0.253539543° / 0.314474632°** | 3600 monthly epochs |
+| M17 revelation numerical-non-injection | **PASS** | semantic-only ontology |
+| M18 cosmology operational isolation | **PASS** | no dependency into clock core |
+| M19 Python SDK / C ABI / schemas | **PASS** | compatibility workflow |
+| M11/M12 repository readiness | **PASS / PHYSICAL EVIDENCE MISSING** | intentionally not milestone-complete |
+| M20 v1 readiness | **BLOCKED** | physical + external review gates |
 | Software Antikythera core | **PASS** | virtual gear/train/dial + dual profiles |
 | M6 1900–2100 monthly calibration | **2412/2412 epochs** | Actions run 37202646134 |
 | M6 targeted phase/anomaly sampling | **15,676 epochs** | same run |
@@ -75,6 +91,36 @@ M-Time is a Rust-first temporal interoperability framework. This status does **n
 | Indonesia–Türkiye Shawwal 1447 corpus | COMPLETE | source-linked corpus |
 | Revelation no-numerical-prior invariant | PASS | core CI |
 | Planck-like cosmology inference | PASS | core CI |
+
+## v0.14.0 — integrated milestone state
+
+Internally completed research/software milestones:
+
+```text
+M6, M7, M8, M9, M10,
+M13, M14, M15, M16, M17, M18, M19
+```
+
+Intentionally still open:
+
+```text
+M11 physical M-Clock bench device
+M12 measured PPS / oscillator / holdover metrology
+M20 v1.0 external/pre-standard exit gates
+```
+
+The experimental two-draconic lunar profile remains separate from default V1. Across the M16 1850–2149 monthly program:
+
+```text
+V1 P95 / max = 0.302376434° / 0.427321722°
+V2 P95 / max = 0.253539543° / 0.314474632°
+```
+
+M15 differential conformance passes 135 V1 and 135 V2 vectors plus malformed-packet checks.
+
+M11/M12 now have device/metrology software, physical-evidence templates and an automated readiness workflow. Those are preparation, not evidence that a device has been built.
+
+M20's machine-readable readiness checker correctly remains BLOCKED while physical realization and external review/reproduction are absent.
 
 ## M6 — Antikythera Accuracy Program I
 

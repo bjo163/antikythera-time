@@ -243,3 +243,116 @@ mod trusted_source_binding_tests {
         assert!(!bound.source_signature_verified());
     }
 }
+
+
+pub const OBSERVATION_PACKET_VERSION: &str = "MOBS-1";
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ObservationPacketV1 {
+    pub packet_version: &'static str,
+    pub report_id: String,
+    pub site_id: String,
+    pub institution: String,
+    pub instrument_calibration_id: Option<String>,
+    pub local_horizon_profile_id: Option<String>,
+    pub weather_summary: Option<String>,
+    pub attachment_hashes: Vec<String>,
+    pub source_sha256: Option<String>,
+    pub source_signature_verified: Option<bool>,
+}
+
+impl ObservationPacketV1 {
+    #[must_use]
+    pub fn from_report(report: &ObservationReport) -> Self {
+        Self {
+            packet_version: OBSERVATION_PACKET_VERSION,
+            report_id: report.id.clone(),
+            site_id: report.site_id.clone(),
+            institution: report.organization.clone(),
+            instrument_calibration_id: None,
+            local_horizon_profile_id: None,
+            weather_summary: report.weather.clone(),
+            attachment_hashes: report.attachment_hashes.clone(),
+            source_sha256: None,
+            source_signature_verified: None,
+        }
+    }
+
+    #[must_use]
+    pub fn from_source_backed(source: &SourceBackedObservation) -> Self {
+        let mut packet = Self::from_report(&source.report);
+        packet.source_sha256 = Some(source.source.sha256_hex.clone());
+        packet.source_signature_verified = Some(source.source_signature_verified());
+        packet
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ObservationConflict {
+    pub report_id: String,
+    pub reason: String,
+}
+
+#[must_use]
+pub fn detect_observation_conflicts(reports: &[ObservationReport]) -> Vec<ObservationConflict> {
+    let mut conflicts = Vec::new();
+    for (i, a) in reports.iter().enumerate() {
+        for b in reports.iter().skip(i + 1) {
+            if a.id == b.id
+                && (a.site_id != b.site_id
+                    || a.sighting != b.sighting
+                    || a.verification != b.verification
+                    || a.attachment_hashes != b.attachment_hashes)
+            {
+                conflicts.push(ObservationConflict {
+                    report_id: a.id.clone(),
+                    reason: "duplicate report ID carries conflicting site/status/evidence".into(),
+                });
+            }
+        }
+    }
+    conflicts
+}
+
+#[cfg(test)]
+mod observation_packet_tests {
+    use super::*;
+
+    fn report(id: &str, sighting: SightingStatus) -> ObservationReport {
+        ObservationReport {
+            id: id.into(),
+            site_id: "SITE".into(),
+            organization: "ORG".into(),
+            longitude_deg: Some(1.0),
+            latitude_deg: Some(2.0),
+            time_start_utc: None,
+            time_end_utc: None,
+            instrument: Some("scope".into()),
+            weather: Some("clear".into()),
+            horizon_condition: None,
+            sighting,
+            verification: VerificationStatus::Reviewed,
+            attachment_hashes: vec!["aa".repeat(32)],
+            evidence: EvidenceState::Observed,
+            quality: QualityClass::Reference,
+            provenance: Provenance::new("fixture"),
+        }
+    }
+
+    #[test]
+    fn conflicting_duplicate_ids_are_reported() {
+        let conflicts = detect_observation_conflicts(&[
+            report("same", SightingStatus::Positive),
+            report("same", SightingStatus::Negative),
+        ]);
+        assert_eq!(conflicts.len(), 1);
+    }
+
+    #[test]
+    fn packet_does_not_invent_calibration_metadata() {
+        let p = ObservationPacketV1::from_report(&report("x", SightingStatus::Positive));
+        assert_eq!(p.packet_version, "MOBS-1");
+        assert_eq!(p.instrument_calibration_id, None);
+        assert_eq!(p.source_signature_verified, None);
+    }
+}
