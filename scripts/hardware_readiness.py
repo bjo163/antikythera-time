@@ -89,7 +89,15 @@ def validate_artifact(ref: dict, field: str) -> Path:
     return path
 
 
-def validate_metrology_csv(path: Path, minimum_elapsed_seconds: float, field: str) -> None:
+def validate_metrology_csv(
+    path: Path,
+    minimum_elapsed_seconds: float,
+    field: str,
+    *,
+    expected_device_id: str,
+    expected_reference_id: str,
+    expected_firmware_sha: str,
+) -> None:
     with path.open("r", encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle)
         assert reader.fieldnames == CSV_COLUMNS, (
@@ -97,7 +105,7 @@ def validate_metrology_csv(path: Path, minimum_elapsed_seconds: float, field: st
         )
         rows = list(reader)
 
-    assert rows, f"{field} must contain at least one measurement row"
+    assert len(rows) >= 2, f"{field} must contain at least two measurement rows"
     elapsed = []
     for index, row in enumerate(rows, start=2):
         try:
@@ -108,10 +116,21 @@ def validate_metrology_csv(path: Path, minimum_elapsed_seconds: float, field: st
         except (TypeError, ValueError) as exc:
             raise AssertionError(f"{field} has invalid numeric value at line {index}") from exc
         assert t >= 0.0, f"{field} elapsed_seconds must be >= 0 at line {index}"
-        require_nonempty(row["reference_id"], f"{field}.reference_id line {index}")
-        require_nonempty(row["device_id"], f"{field}.device_id line {index}")
-        require_nonempty(row["firmware_sha"], f"{field}.firmware_sha line {index}")
+        reference_id = require_nonempty(row["reference_id"], f"{field}.reference_id line {index}")
+        device_id = require_nonempty(row["device_id"], f"{field}.device_id line {index}")
+        firmware_sha = require_nonempty(row["firmware_sha"], f"{field}.firmware_sha line {index}").lower()
+        assert reference_id == expected_reference_id, (
+            f"{field} reference_id mismatch at line {index}: {reference_id}"
+        )
+        assert device_id == expected_device_id, (
+            f"{field} device_id mismatch at line {index}: {device_id}"
+        )
+        assert firmware_sha == expected_firmware_sha, (
+            f"{field} firmware_sha mismatch at line {index}: {firmware_sha}"
+        )
         elapsed.append(t)
+
+    assert elapsed == sorted(elapsed), f"{field} elapsed_seconds must be non-decreasing"
 
     if minimum_elapsed_seconds > 0.0:
         observed = max(elapsed)
@@ -139,7 +158,7 @@ def validate_candidate(data: dict) -> str:
         "physical-evidence/manifest.json cannot use TEMPLATE_NOT_MEASUREMENT"
     )
 
-    require_nonempty(data.get("device_id"), "device_id")
+    device_id = require_nonempty(data.get("device_id"), "device_id")
     for name in ("controller", "gnss_pps", "oscillator", "rtc"):
         component = data.get(name)
         assert isinstance(component, dict), f"{name} must be an object"
@@ -155,10 +174,12 @@ def validate_candidate(data: dict) -> str:
 
     reference = data.get("reference_time_source")
     assert isinstance(reference, dict), "reference_time_source must be an object"
-    for field in ("id", "description", "traceability", "calibration_record"):
+    reference_id = require_nonempty(reference.get("id"), "reference_time_source.id")
+    for field in ("description", "traceability", "calibration_record"):
         require_nonempty(reference.get(field), f"reference_time_source.{field}")
 
-    require_nonempty(data.get("build_date"), "build_date")
+    build_date = require_nonempty(data.get("build_date"), "build_date")
+    assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", build_date), "build_date must be YYYY-MM-DD"
 
     evidence = data.get("evidence")
     assert isinstance(evidence, dict), "evidence must be an object"
@@ -177,7 +198,14 @@ def validate_candidate(data: dict) -> str:
             f"datasets.{name}.minimum_elapsed_seconds must be {required_duration}"
         )
         path = validate_artifact(entry, f"datasets.{name}")
-        validate_metrology_csv(path, required_duration, f"datasets.{name}")
+        validate_metrology_csv(
+            path,
+            required_duration,
+            f"datasets.{name}",
+            expected_device_id=device_id,
+            expected_reference_id=reference_id,
+            expected_firmware_sha=git_sha,
+        )
 
     review = data.get("review")
     assert isinstance(review, dict), "review must be an object"
