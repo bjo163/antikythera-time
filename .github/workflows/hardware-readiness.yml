@@ -8,6 +8,7 @@ on:
       - "crates/mtime-metrology/**"
       - "hardware/m-clock/**"
       - "scripts/hardware_readiness.py"
+      - "scripts/mclock_qualification_readiness.py"
       - ".github/workflows/hardware-readiness.yml"
 
 jobs:
@@ -19,6 +20,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Hardware qualification intake gate
+        run: python scripts/mclock_qualification_readiness.py
       - name: Device state tests
         run: cargo test -p mtime-device --all-targets
       - name: Metrology analysis tests
