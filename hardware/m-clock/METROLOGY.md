@@ -51,6 +51,7 @@ Generate the metrology suite report with:
 
 ```bash
 cargo run --release -p mtime-metrology -- suite \
+  "$(git rev-parse HEAD)" \
   path/to/pps.csv \
   path/to/holdover-1h.csv \
   path/to/holdover-6h.csv \
@@ -66,6 +67,8 @@ The report schema is:
 Report identity:
 
 `mtime-mclock-metrology-suite-1`
+
+The first CLI argument is the exact Git SHA of the analysis code. The report records both the crate version and this commit so a later reviewer can identify the analyzer precisely.
 
 ## Reported statistics
 
