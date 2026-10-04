@@ -1,6 +1,8 @@
 use std::f64::consts::PI;
 
 pub const J2000_JD_TT: f64 = 2_451_545.0;
+pub const DIGITAL_VALIDATED_START_JD_TT: f64 = 2_396_758.5; // 1850-01-01
+pub const DIGITAL_VALIDATED_END_EXCLUSIVE_JD_TT: f64 = 2_506_331.5; // 2150-01-01
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EvidenceLabel {
@@ -415,6 +417,8 @@ pub struct AntikytheraState {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MachineError {
     NonFiniteInstant,
+    OutsideValidatedRange,
+    NoValidatedInterval,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -445,6 +449,26 @@ impl AntikytheraMachine {
     #[must_use]
     pub const fn digital_v2_experimental() -> Self {
         Self::new(J2000_JD_TT, MachineProfile::MTimeDigitalV2Experimental)
+    }
+
+    #[must_use]
+    pub const fn validated_interval(&self) -> Option<(f64, f64)> {
+        match self.profile {
+            MachineProfile::MTimeDigitalV1 | MachineProfile::MTimeDigitalV2Experimental => {
+                Some((DIGITAL_VALIDATED_START_JD_TT, DIGITAL_VALIDATED_END_EXCLUSIVE_JD_TT))
+            }
+            MachineProfile::HistoricalReconstructionV1 => None,
+        }
+    }
+
+    pub fn state_at_tt_validated(&self, jd_tt: f64) -> Result<AntikytheraState, MachineError> {
+        let Some((start, end)) = self.validated_interval() else {
+            return Err(MachineError::NoValidatedInterval);
+        };
+        if !(start..end).contains(&jd_tt) {
+            return Err(MachineError::OutsideValidatedRange);
+        }
+        self.state_at_tt(jd_tt)
     }
 
     pub fn state_at_tt(&self, jd_tt: f64) -> Result<AntikytheraState, MachineError> {
@@ -874,6 +898,22 @@ mod tests {
         let v2 = AntikytheraMachine::digital_v2_experimental().state_at_tt(jd).unwrap();
         assert_eq!(v1.solar_longitude, v2.solar_longitude);
         assert!(shortest_angle_deg(v1.lunar_longitude.angle_deg, v2.lunar_longitude.angle_deg) > 0.001);
+    }
+
+
+    #[test]
+    fn validated_digital_api_fails_closed_outside_m16_interval() {
+        let m = AntikytheraMachine::digital();
+        assert!(m.state_at_tt_validated(DIGITAL_VALIDATED_START_JD_TT).is_ok());
+        assert!(m.state_at_tt_validated(DIGITAL_VALIDATED_END_EXCLUSIVE_JD_TT - 1.0).is_ok());
+        assert_eq!(
+            m.state_at_tt_validated(DIGITAL_VALIDATED_START_JD_TT - 1.0),
+            Err(MachineError::OutsideValidatedRange)
+        );
+        assert_eq!(
+            AntikytheraMachine::historical().state_at_tt_validated(J2000_JD_TT),
+            Err(MachineError::NoValidatedInterval)
+        );
     }
 
 }

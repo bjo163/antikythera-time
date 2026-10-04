@@ -72,3 +72,26 @@ node regression 6798.383
 Synodic/sidereal/anomalistic/draconic phases use their listed epoch angles in the conformance implementation. Metonic/Saros/Exeligmos use elapsed-day modulo period.
 
 This specification intentionally contains no JPL ephemeris lookup table.
+
+
+## Digital V2 Experimental
+
+Profile ID:
+
+`MTIME_DIGITAL_ANTIKYTHERA_V2_EXPERIMENTAL`
+
+V2 preserves the V1 solar path and adds one explicit lunar term derived by M8 train/validation ablation:
+
+```text
+F_phase = normalize(93.272095 + d * 360 / 27.212220817) / 360
+delta_lambda = -0.113859414732° * sin(4 pi F_phase)
+lambda_moon_v2 = lambda_moon_v1 + delta_lambda
+```
+
+Training interval: 1900–1999 monthly.
+
+Initial validation: 2000–2100 monthly.
+
+M16 long-span falsification: 1850–2149 monthly.
+
+V2 remains experimental and does not replace V1 by default.

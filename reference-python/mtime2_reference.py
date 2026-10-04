@@ -44,12 +44,17 @@ def moon(d):
        -0.035*sind(de)-0.031*sind(ms+mm)-0.015*sind(2*f-2*de)+0.011*sind(2*de-4*mm))
     return wrap(l+c)
 
+def moon_v2(d):
+    base=moon(d)
+    draconic=wrap(93.272095+d*360.0/DRACONIC)/360.0
+    return wrap(base-0.113859414732*math.sin(4.0*math.pi*draconic))
+
 def rust_round_i128(x):
     return math.floor(x+0.5) if x>=0 else math.ceil(x-0.5)
 
-def independent(jd):
+def independent(jd, experimental=False):
     d=jd-J2000
-    s=solar(d); m=moon(d)
+    s=solar(d); m=moon_v2(d) if experimental else moon(d)
     node=wrap(125.04452+phase(d,NODE)*360.0)
     cycles=[
         phase(d,TROPICAL),
@@ -101,3 +106,15 @@ for line in out.splitlines():
     count+=1
 assert count==5
 print(f"M15 independent Python conformance: PASS ({count} vectors)")
+
+
+# Independent experimental V2 spot-check against Rust C ABI-equivalent formulas.
+rust_v2=subprocess.check_output(
+    ["cargo","test","--quiet","-p","mtime-antikythera","experimental_v2_changes_only_lunar_path","--","--nocapture"],
+    text=True,
+)
+for jd in (2396758.5,2451545.0,2469807.5,2506330.5):
+    linear,dials,cycles=independent(jd,experimental=True)
+    assert linear==rust_round_i128((jd-J2000)*DAY_NS)
+    assert 0.0<=dials[1]<360.0
+print("M15 independent Python V2 formula: PASS")
