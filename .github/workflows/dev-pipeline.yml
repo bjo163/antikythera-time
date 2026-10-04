@@ -220,7 +220,12 @@ jobs:
             git push origin HEAD:main
           fi
 
-          git push origin "$MERGE_SHA":dev
+          if gh api --method PATCH "repos/$GITHUB_REPOSITORY/git/refs/heads/dev" \
+            -f sha="$MERGE_SHA" -F force=false >/dev/null 2>&1; then
+            echo "Synced dev to release merge $MERGE_SHA."
+          else
+            echo "::warning::Main promotion succeeded but dev ref sync failed; release remains valid and dev can be fast-forwarded separately."
+          fi
           echo "sha=$MERGE_SHA" >> "$GITHUB_OUTPUT"
           echo "pr=$PR" >> "$GITHUB_OUTPUT"
 
@@ -253,6 +258,7 @@ jobs:
         run: |
           set -euo pipefail
           workflows=(
+            main-history-guard.yml
             compatibility.yml
             antikythera-calibration.yml
             mclock.yml
