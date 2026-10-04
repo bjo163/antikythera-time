@@ -1,0 +1,347 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bjo163.github.io/antikythera-time/schemas/mclock-hardware-qualification-v1.schema.json",
+  "title": "M-Time M-Clock Hardware Qualification v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "status",
+    "selection_date",
+    "operator_id",
+    "controller",
+    "reference_input",
+    "oscillator",
+    "rtc",
+    "reference_instrument",
+    "power",
+    "thermal",
+    "campaign"
+  ],
+  "properties": {
+    "schema": {
+      "const": "mtime-mclock-hardware-qualification-1"
+    },
+    "status": {
+      "enum": [
+        "TEMPLATE_NOT_SELECTION",
+        "SELECTED_UNVERIFIED",
+        "BENCH_READY"
+      ]
+    },
+    "selection_date": {
+      "type": "string"
+    },
+    "operator_id": {
+      "type": "string"
+    },
+    "controller": {
+      "$ref": "#/$defs/controller"
+    },
+    "reference_input": {
+      "$ref": "#/$defs/referenceInput"
+    },
+    "oscillator": {
+      "$ref": "#/$defs/oscillator"
+    },
+    "rtc": {
+      "$ref": "#/$defs/component"
+    },
+    "reference_instrument": {
+      "$ref": "#/$defs/referenceInstrument"
+    },
+    "power": {
+      "$ref": "#/$defs/power"
+    },
+    "thermal": {
+      "$ref": "#/$defs/thermal"
+    },
+    "campaign": {
+      "type": "array",
+      "minItems": 11,
+      "items": {
+        "$ref": "#/$defs/run"
+      }
+    }
+  },
+  "$defs": {
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "vendor",
+        "model",
+        "serial_or_build_id",
+        "datasheet_reference"
+      ],
+      "properties": {
+        "vendor": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "serial_or_build_id": {
+          "type": "string"
+        },
+        "datasheet_reference": {
+          "type": "string"
+        }
+      }
+    },
+    "controller": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "vendor",
+        "model",
+        "serial_or_build_id",
+        "datasheet_reference",
+        "architecture",
+        "operating_environment",
+        "rust_toolchain",
+        "pps_timestamp_interface",
+        "timestamp_resolution_ns",
+        "display_output_interface",
+        "nonvolatile_storage",
+        "power_input"
+      ],
+      "properties": {
+        "vendor": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "serial_or_build_id": {
+          "type": "string"
+        },
+        "datasheet_reference": {
+          "type": "string"
+        },
+        "architecture": {
+          "type": "string"
+        },
+        "operating_environment": {
+          "type": "string"
+        },
+        "rust_toolchain": {
+          "type": "string"
+        },
+        "pps_timestamp_interface": {
+          "type": "string"
+        },
+        "timestamp_resolution_ns": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "display_output_interface": {
+          "type": "string"
+        },
+        "nonvolatile_storage": {
+          "type": "string"
+        },
+        "power_input": {
+          "type": "string"
+        }
+      }
+    },
+    "referenceInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "vendor",
+        "model",
+        "serial_or_build_id",
+        "reference_type",
+        "pps_interface",
+        "timing_offset_plan",
+        "provenance_plan"
+      ],
+      "properties": {
+        "vendor": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "serial_or_build_id": {
+          "type": "string"
+        },
+        "reference_type": {
+          "type": "string"
+        },
+        "pps_interface": {
+          "type": "string"
+        },
+        "timing_offset_plan": {
+          "type": "string"
+        },
+        "provenance_plan": {
+          "type": "string"
+        }
+      }
+    },
+    "oscillator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "vendor",
+        "model",
+        "serial_or_build_id",
+        "class",
+        "nominal_frequency_hz",
+        "stability_reference",
+        "discipline_interface"
+      ],
+      "properties": {
+        "vendor": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "serial_or_build_id": {
+          "type": "string"
+        },
+        "class": {
+          "type": "string"
+        },
+        "nominal_frequency_hz": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "stability_reference": {
+          "type": "string"
+        },
+        "discipline_interface": {
+          "type": "string"
+        }
+      }
+    },
+    "referenceInstrument": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "vendor",
+        "model",
+        "serial_or_build_id",
+        "traceability_plan",
+        "calibration_record_plan",
+        "capture_method",
+        "expected_resolution_ns"
+      ],
+      "properties": {
+        "vendor": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "serial_or_build_id": {
+          "type": "string"
+        },
+        "traceability_plan": {
+          "type": "string"
+        },
+        "calibration_record_plan": {
+          "type": "string"
+        },
+        "capture_method": {
+          "type": "string"
+        },
+        "expected_resolution_ns": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "power": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "supply_id",
+        "nominal_voltage_v",
+        "current_limit_a",
+        "power_cycle_method"
+      ],
+      "properties": {
+        "supply_id": {
+          "type": "string"
+        },
+        "nominal_voltage_v": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "current_limit_a": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "power_cycle_method": {
+          "type": "string"
+        }
+      }
+    },
+    "thermal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "temperature_sensor_id",
+        "planned_min_c",
+        "planned_max_c",
+        "warmup_seconds"
+      ],
+      "properties": {
+        "method": {
+          "type": "string"
+        },
+        "temperature_sensor_id": {
+          "type": "string"
+        },
+        "planned_min_c": {
+          "type": "number"
+        },
+        "planned_max_c": {
+          "type": "number"
+        },
+        "warmup_seconds": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "planned_duration_seconds",
+        "minimum_events",
+        "output_artifact",
+        "acceptance_evidence"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "planned_duration_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "minimum_events": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "output_artifact": {
+          "type": "string"
+        },
+        "acceptance_evidence": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
