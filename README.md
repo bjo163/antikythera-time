@@ -13,7 +13,7 @@ Core rule: physical time, astronomy, calendar criteria, observation/rukyat, juri
 - MTS-2 independent Python conformance covers **135 V1 + 135 V2** differential vectors plus malformed packets.
 - Public Python SDK, C ABI/header, JSON schemas, signed-bundle spec, compatibility policy, threat review, RFC and governance are present.
 - Native M-Time calendar/worship demos preserve geometry/profile/observation/authority separation.
-- MCLOCK-1 is retained strictly as a software clock-state serialization/view; physical clock hardware is outside project scope.
+- MCLOCK-1 is retained strictly as a software clock-state serialization/view.
 - v1 readiness remains **BLOCKED** on unaffiliated reproduction and external review evidence.
 - **1900–2100 M6 calibration:** 2,412 monthly epochs plus 15,676 targeted lunar/solar phase-anomaly samples.
 - M6 calibration now uses an explicit **IAU 2006 mean ecliptic of date** reference, preventing fixed-J2000 frame rotation from being misclassified as Antikythera dynamical error.
@@ -84,7 +84,7 @@ See `CHARTER.md`, `spec/MTIME-0.2.md`, `docs/BLUEPRINT.md`, and `docs/STATUS.md`
 
 ## Software-only scope
 
-M-Time is intentionally software-only. Physical M-Clock hardware, embedded controllers, GNSS/PPS receivers, oscillators, RTCs, bench prototypes and hardware metrology are not project requirements and are not v1 gates.
+M-Time is intentionally software-only. Project completion and v1 readiness depend only on software quality, reproducibility, provenance and external review.
 
 The active chain is:
 
