@@ -2,8 +2,8 @@
 
 Category: `scientific`  
 Issue: #41  
-Candidate: `m20-review-candidate-1`  
-Candidate Git SHA: `39c2705fa18d7d487803f8a37b8fe79df639daaa`
+Candidate: `m20-review-candidate-2`  
+Candidate Git SHA: `799e70d87bd3b4a918986a3f8877b9ca44a13696`
 
 ## Required topics
 
