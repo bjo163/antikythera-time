@@ -16,7 +16,7 @@ Every non-bot push to `dev` runs `.github/workflows/dev-pipeline.yml`:
 2. Update `[workspace.package].version` in the root `Cargo.toml`.
 3. Prepend an entry to `CHANGELOG.md`.
 4. Commit the version bump back to `dev`.
-5. Run rustfmt, workspace tests, clippy, the layering invariant, the Python reference, and a WASM release build.
+5. Run a rustfmt parse/format pass, workspace tests, clippy, the layering invariant, the Python reference, and a WASM release build.
 6. Create or update a `dev -> main` release pull request.
 7. Merge the PR automatically when those gates pass.
 8. Create tag `vX.Y.Z` on the merge commit.
