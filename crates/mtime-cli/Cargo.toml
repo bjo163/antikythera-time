@@ -13,7 +13,8 @@ mtime-hijri = { path = "../mtime-hijri" }
 mtime-explain = { path = "../mtime-explain" }
 mtime-cosmology = { path = "../mtime-cosmology" }
 
+mtime-clock = { path = "../mtime-clock" }
+
 [lints]
 workspace = true
 
-mtime-clock = { path = "../mtime-clock" }
