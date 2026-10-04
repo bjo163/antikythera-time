@@ -1,13 +1,20 @@
 # M-Time — Mīqāt Temporal Protocol
 
-**Status:** Rust-first **v0.12.0 Antikythera Genesis / Phase 1–5 Research Prototype**.
+**Status:** Rust-first **v0.13.0 Antikythera Accuracy Program I Research Prototype**.
 
 M-Time is a temporal interoperability framework. It does **not** invent a new physical second, replace UTC, choose a fiqh position, or claim an absolute cosmic clock. Its flagship use-case is explainable Hijri/worship-calendar resolution.
 
 Core rule: physical time, astronomy, calendar criteria, observation/rukyat, jurisdiction, authority decisions, cosmic inference, historical reconstruction, and revelation-text concepts are separate semantic layers.
 
-## v0.12.0 highlights
+## v0.13.0 highlights
 
+- **1900–2100 M6 calibration:** 2,412 monthly epochs plus 15,676 targeted lunar/solar phase-anomaly samples.
+- M6 calibration now uses an explicit **IAU 2006 mean ecliptic of date** reference, preventing fixed-J2000 frame rotation from being misclassified as Antikythera dynamical error.
+- Digital Sun 1900–2100 max residual: **0.009572456° absolute / 0.010229337° dynamic**.
+- Digital Moon 1900–2100: **0.305809037° P95 / 0.427321722° max absolute; 0.528604874° max dynamic**.
+- Moon-Sun phase: **0.304293570° P95 / 0.424730056° max**.
+- Worst lunar phase-bin mean currently occurs in **draconic phase 0.5833–0.6250** at **0.232686478°**, making node/draconic structure a candidate for M8 ablation testing—not yet an accepted correction.
+- Machine-readable M6 CSV artifacts are published by the calibration workflow.
 - **Software Antikythera is now a first-class core:** virtual cycles, gear relations/trains, dials and synchronized machine state.
 - Separate `ANTIKYTHERA_HISTORICAL_RECONSTRUCTION_V1` and `MTIME_DIGITAL_ANTIKYTHERA_V1` profiles.
 - 12-epoch 2026 DE440 calibration: digital max residuals **0.014132662° Sun**, **0.504873428° Moon**, **0.277593562° Moon-Sun phase**.
