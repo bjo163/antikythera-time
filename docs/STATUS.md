@@ -1,17 +1,17 @@
 # M-Time Implementation Status
 
 Date: 2026-10-04  
-Version: **v0.10.0 Seasonal Solar Oracle + Live Lab Research Prototype**  
-Internal status: **SEASONAL APPARENT-SUN ORACLE + LIVE GITHUB PAGES LAB + GEOSPATIAL/HISTORICAL/SOURCE HARDENING COMPLETE**
+Version: **v0.11.0 Multi-Country Historical Falsification Research Prototype**  
+Internal status: **3-COUNTRY / 3-YEAR SOURCE-BACKED HISTORICAL FALSIFICATION + SOLAR/LUNAR/INTEGRITY HARDENING COMPLETE**
 
 M-Time is a Rust-first temporal interoperability framework. This status does **not** claim international standard adoption, religious/fiqh authority, or replacement of BIPM/IAU/IERS/JPL infrastructure.
 
-## Final v0.10.0 internal gates
+## Final v0.11.0 internal gates
 
 | Gate | Result | Reference |
 |---|---|---|
 | Rust workspace CI | **PASS** | Actions run 37196296287 |
-| Rust tests | **100 passed / 0 failed** | v0.10 staging CI |
+| Rust tests | **103 passed / 0 failed** | v0.11 staging CI |
 | Rust↔Python compatibility | **PASS** | v0.10 staging compatibility |
 | Offline JPL DE440/SPK provider | PASS | prior SPK reference gates |
 | Fixed Jakarta topocentric reference | PASS | prior topocentric reference gate |
@@ -45,7 +45,13 @@ M-Time is a Rust-first temporal interoperability framework. This status does **n
 | Surveyed local-horizon interpolation | PASS | core CI |
 | Observer-height geometric horizon dip | PASS | core CI |
 | Indonesia 1447 H replay | PASS | core CI |
-| Historical falsification engine | **7/7 PASS** | Actions run 37193741501 |
+| Historical falsification engine | **7/7 PASS** | legacy v0.7 gate |
+| Multi-country source-backed corpus | **21 real cases** | ID / SG / MY, 2024–2026 |
+| Multi-country verdict agreement | **24/24 PASS** | 21 real + 3 controls |
+| Source-backed real REPRODUCED | **12** | sufficient represented criterion evidence |
+| Source-backed real INCOMPLETE | **9** | missing exact criterion evidence stays incomplete |
+| Negative controls FALSIFIED | **2/2** | contradictory criterion/authority controls |
+| 2025 cross-jurisdiction divergences | **2 preserved** | Ramadan + Dhulhijjah ID vs SG |
 | Existing Indonesia replay regression | **4/4 PASS** | Actions run 37193741501 |
 | Indonesia–Türkiye Shawwal 1447 divergence replay | **REPRODUCED** | explicit layer differences |
 | Indonesia–Türkiye Shawwal 1447 corpus | COMPLETE | source-linked corpus |
@@ -303,6 +309,54 @@ The GeoJSON is also passed through M-Time's auditable source-ingestion layer.
 
 This is a versioned policy-classification provider, not a meter-level coastline survey. Natural Earth 110m is intentionally coarse and should not be used to make sub-kilometer coastal-boundary claims.
 
+## Multi-country historical falsification — v0.11.0
+
+The active source-backed corpus now covers:
+
+```text
+Indonesia (ID)
+Singapore (SG)
+Malaysia (MY)
+
+1445 H / 2024
+1446 H / 2025
+1447 H / 2026
+```
+
+There are **21 real source-backed cases** plus three controls.
+
+Verdict distribution across the complete machine corpus:
+
+```text
+REPRODUCED = 12
+FALSIFIED = 2   # negative controls only
+INCOMPLETE = 10 # 9 real evidence-limited cases + 1 control
+```
+
+The important invariant is that a published official date alone is not enough to produce REPRODUCED. If the official source does not expose enough criterion evidence for the represented replay, the result remains INCOMPLETE.
+
+The corpus preserves two concrete 1446 H / 2025 divergences:
+
+```text
+Ramadan:
+ID -> 2025-03-01
+SG -> 2025-03-02
+
+Dhulhijjah:
+ID -> 2025-05-28
+SG -> 2025-05-29
+```
+
+These differences are stored with jurisdiction and evidence context instead of being normalized into a single universal date.
+
+Machine corpus:
+
+```text
+data/hijri/historical-falsification-v0.11.json
+```
+
+Live Lab reads the same JSON at runtime.
+
 ## Historical falsification
 
 v0.7.0 adds executable replay verdicts:
@@ -378,7 +432,7 @@ These remain deliberately **OPEN**:
 3. Higher-resolution geospatial refinement beyond the current pinned Natural Earth 110m mainland provider for near-coast/border edge cases.
 4. Broader official Wellington/Diyanet published-schedule replay; v0.10.0 now independently validates the -18° solar geometry across four seasons, but does not yet replay a large archive of official timetable entries.
 5. Live institutional detached-signature feeds and public-key registries for upstream authority/observation sources; v0.6.0 implements the fail-closed ingestion machinery and live hash-recorded source acquisition.
-6. Larger multi-country, multi-decade historical replay corpus; v0.7.0 establishes the falsification engine and first cross-jurisdiction executable corpus.
+6. Expansion from the current 3-country / 3-year source-backed corpus into a genuinely multi-decade corpus, with more jurisdictions and archived source snapshots.
 7. Unaffiliated implementation and expert review.
 8. Formal standardization/adoption.
 9. Migration from `bjo163/antikythera-time` to a dedicated M-Time repository.
@@ -389,7 +443,7 @@ Do not redesign the ontology.
 
 Priority order:
 
-1. expand historical falsification to more countries and decades;
+1. extend the now 3-country / 3-year historical falsification corpus backward across decades and add independent source snapshots;
 2. institutional signed authority/observation source feeds;
 3. broaden the now-global/multi-year validation matrix further;
 4. higher-resolution geospatial edge-case validation and broader worship-time replay;

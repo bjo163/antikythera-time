@@ -1,12 +1,12 @@
 # M-Time — Mīqāt Temporal Protocol
 
-**Status:** Rust-first **v0.10.0 Seasonal Solar Oracle + Live Lab Research Prototype**.
+**Status:** Rust-first **v0.11.0 Multi-Country Historical Falsification Research Prototype**.
 
 M-Time is a temporal interoperability framework. It does **not** invent a new physical second, replace UTC, choose a fiqh position, or claim an absolute cosmic clock. Its flagship use-case is explainable Hijri/worship-calendar resolution.
 
 Core rule: physical time, astronomy, calendar criteria, observation/rukyat, jurisdiction, authority decisions, cosmic inference, historical reconstruction, and revelation-text concepts are separate semantic layers.
 
-## v0.10.0 highlights
+## v0.11.0 highlights
 
 - Pure-Rust offline JPL DE440/SPK provider.
 - Integrated `mtime-hilal` engine: `UTC + observer + IERS + DE440 → HijriAstronomicalState`.
@@ -25,6 +25,9 @@ Core rule: physical time, astronomy, calendar criteria, observation/rukyat, juri
 - CI ingests live official IERS finals.all and NAIF DE440 artifacts and preserves their exact SHA-256 records; both remain explicitly unsigned unless an institutional detached signature and trusted key are provided.
 - Observation and authority records can now bind directly to auditable source-ingestion records.
 - Historical replay engine emits explicit `REPRODUCED`, `FALSIFIED`, or `INCOMPLETE` verdicts instead of treating every historical fit as success.
+- New source-backed corpus covers **21 real cases** across Indonesia, Singapore and Malaysia over **2024–2026 / 1445–1447 H**.
+- Corpus gate reports **12 reproduced real cases**, **9 evidence-limited real cases kept incomplete**, and **2/2 contradiction controls falsified**.
+- 2025 Indonesia–Singapore Ramadan and Dhulhijjah one-day divergences are preserved explicitly instead of normalized away.
 - Indonesia Ramadan/Shawwal/Dhulhijjah 1447 H replays reproduce the represented profile/authority outcomes.
 - Indonesia–Türkiye/Diyanet Shawwal 1447 H divergence is reproduced with explicit criterion/observation/jurisdiction/authority differences.
 - Negative controls prove counterfactual authority flips and unexplained date flips are falsified.
@@ -41,7 +44,7 @@ Core rule: physical time, astronomy, calendar criteria, observation/rukyat, juri
 - Typed provider wiring derives Diyanet policy context from threshold-passing sites plus geospatial/Wellington-fajr providers; missing evidence stays UNKNOWN.
 - GitHub Pages **M-Time Live Lab** replaces the stale v0.2 demo and shows live release/Actions health, oracle metrics, trust/falsification status, and the Rust/WASM profile evaluator.
 - Rust/WASM profile comparison surface.
-- 100 Rust tests / 0 failures on the v0.10.0 seasonal-solar regression gate.
+- 103 Rust tests / 0 failures on the v0.11.0 multi-country historical regression gate.
 - Indonesia 1447 H Ramadan/Syawal/Zulhijjah replay corpus.
 - ExplainDifference preserves astronomy vs criterion vs rukyat vs authority.
 

@@ -70,3 +70,42 @@ data/hijri/historical-falsification-v0.7.json
 ## Next falsification expansion
 
 The engine is now ready for broader cases. Production-grade historical validation still requires more jurisdictions, more years/decades, source snapshots, and independent review.
+
+
+## v0.11 source-backed expansion
+
+The v0.11 corpus adds a second historical replay layer for official web sources across Indonesia, Singapore and Malaysia.
+
+This layer is intentionally conservative:
+
+- `MET + begin next day` -> REPRODUCED;
+- `NOT_MET + complete to 30` -> REPRODUCED;
+- explicit contradiction -> FALSIFIED;
+- insufficient published criterion detail -> INCOMPLETE.
+
+It does not infer exact 3° / 6.4° geometry merely from an official date or a qualitative horizon-duration statement.
+
+Coverage:
+
+```text
+21 real cases
+3 jurisdictions
+3 civil years
+3 Hijri years
+3 negative/incomplete controls
+```
+
+Machine gate:
+
+```text
+real_cases=21
+jurisdictions=3
+civil_years=3
+reproduced=12
+falsified_controls=2
+incomplete=10
+```
+
+Real incomplete cases are not failures; they document missing evidence required for a safe replay.
+
+See `docs/HISTORICAL_MULTICOUNTRY.md` and `data/hijri/historical-falsification-v0.11.json`.
