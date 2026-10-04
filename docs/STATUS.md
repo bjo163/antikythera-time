@@ -650,6 +650,6 @@ Priority order:
 
 ## Software-only scope reset
 
-Physical-device work is retired from the active project scope. There is no M11/M12 hardware completion requirement and no physical-metrology v1 gate.
+The active project scope is software-only. There are no device-build or metrology completion gates.
 
 MCLOCK-1 remains a software packet/view. The remaining v1 blockers are unaffiliated reproduction and the external security, scientific, historical-reconstruction and revelation/textual-boundary reviews.
