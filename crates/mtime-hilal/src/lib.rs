@@ -209,7 +209,7 @@ impl<'a> HilalEngine<'a> {
         let p = tdb.jd_parts();
         let sun = self
             .ephemeris
-            .geocentric_vector_km(Body::Sun, (p.d1, p.d2))?;
+            .apparent_geocentric_sun_vector_km((p.d1, p.d2))?;
         Ok(topocentric_horizon_iau2006(
             sun,
             observer,

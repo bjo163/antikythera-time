@@ -1,18 +1,18 @@
 # M-Time Implementation Status
 
 Date: 2026-10-04  
-Version: **v0.9.0 Computed Wellington Worship-Time Research Prototype**  
-Internal status: **COMPUTED WELLINGTON DIYANET FAJR + VERSIONED GEOSPATIAL/HISTORICAL/SOURCE/ORACLE HARDENING COMPLETE**
+Version: **v0.10.0 Seasonal Solar Oracle + Live Lab Research Prototype**  
+Internal status: **SEASONAL APPARENT-SUN ORACLE + LIVE GITHUB PAGES LAB + GEOSPATIAL/HISTORICAL/SOURCE HARDENING COMPLETE**
 
 M-Time is a Rust-first temporal interoperability framework. This status does **not** claim international standard adoption, religious/fiqh authority, or replacement of BIPM/IAU/IERS/JPL infrastructure.
 
-## Final v0.9.0 internal gates
+## Final v0.10.0 internal gates
 
 | Gate | Result | Reference |
 |---|---|---|
-| Rust workspace CI | **PASS** | Actions run 37054820440 |
-| Rust tests | **98 passed / 0 failed** | geospatial-provider CI |
-| Rust↔Python compatibility | **PASS** | Actions run 37054820611 |
+| Rust workspace CI | **PASS** | Actions run 37196296287 |
+| Rust tests | **100 passed / 0 failed** | v0.10 staging CI |
+| Rust↔Python compatibility | **PASS** | v0.10 staging compatibility |
 | Offline JPL DE440/SPK provider | PASS | prior SPK reference gates |
 | Fixed Jakarta topocentric reference | PASS | prior topocentric reference gate |
 | 21-case Horizons topocentric oracle matrix | **21/21 PASS** | Actions run 37192295790 |
@@ -22,7 +22,10 @@ M-Time is a Rust-first temporal interoperability framework. This status does **n
 | 21-case multi-year Horizons oracle | **21/21 PASS** | Actions run 37192584075 |
 | Multi-year maximum residual | **0.000336345642° (~1.21 arcsec)** | same run |
 | Multi-year worst case | **2026-03-01 12:00 UTC × Ankara** | same run |
-| Combined external Horizons coverage | **42 cases** | 21 boundary + 21 multi-year |
+| 4-case Wellington seasonal Sun oracle | **4/4 PASS** | Actions run 37196296276 |
+| Seasonal Sun maximum direction residual | **0.000173324462° (~0.624 arcsec)** | same run |
+| Seasonal Sun maximum -18° target residual | **0.000060°** | same run |
+| Combined external Horizons coverage | **46 cases** | 42 Moon + 4 Sun |
 | Executable Diyanet additional calendar conditions | PASS | core CI |
 | Provider-derived Americas/Wellington policy context | **PASS** | provider-wiring CI |
 | Natural Earth Americas-mainland provider | **PASS** | Actions run 37194423011 |
@@ -87,7 +90,59 @@ threshold_deg = 0.001000000000
 
 Worst case: 2026-03-01 12:00 UTC × Ankara (~1.21 arcsec).
 
-Combined with the 21-case 1447 H boundary matrix, M-Time now has 42 external JPL Horizons topocentric direction comparisons in the active regression suite.
+Combined with the 21-case 1447 H boundary matrix, M-Time has 42 external Moon comparisons; v0.10.0 adds four seasonal Wellington Sun comparisons for a total of 46 active JPL Horizons checks.
+
+## Seasonal Wellington Sun oracle
+
+v0.10.0 adds an independent JPL Horizons oracle specifically for the worship-time solar path.
+
+Four 2026 Wellington seasons are checked:
+
+```text
+15 January  — austral summer
+20 March    — autumn/equinox season
+21 June     — austral winter
+22 September — spring/equinox season
+```
+
+For each case M-Time:
+
+```text
+DE440 + IERS
+→ apparent solar direction
+→ solve rising Sun altitude = -18°
+→ query JPL Horizons at the solved instant
+→ compare airless topocentric Sun direction
+```
+
+Result:
+
+```text
+4 / 4 PASS
+max_direction_error_deg = 0.000173324462
+max_horizons_target_residual_deg = 0.000060000000
+direction_gate_deg = 0.001
+```
+
+The first version of this oracle deliberately failed at ~0.0059° (~21 arcsec). Investigation identified the missing annual-aberration/apparent-Sun treatment. M-Time now keeps geometric Sun vectors for center-to-center elongation while using a separate light-time + first-order annual-aberration solar vector for observer-style worship-time calculations.
+
+The same work also hardened the official IERS `finals.all` parser for fixed-width negative UT1 fields such as `I-0.0106308` and compact date tokens. Thresholds were not weakened.
+
+## M-Time Live Lab / GitHub Pages
+
+The previous v0.2 demo page has been replaced by a current Live Lab deployed from `main`.
+
+The static site exposes:
+
+- deployed release/version/commit;
+- live public GitHub Actions state;
+- current astronomy/oracle metrics;
+- WASM MABIMS vs Diyanet site-component evaluator;
+- source-integrity and historical-falsification status;
+- geospatial/Wellington policy-provider results;
+- links to machine-readable corpus and current validation docs.
+
+GitHub Pages is sufficient for the current architecture because the application is static HTML/JS + Rust/WASM and reads only public GitHub API data. A server platform such as Vercel is not required until M-Time needs server-side APIs, authentication, databases, protected secrets, or scheduled backend computation.
 
 ## Diyanet current-policy execution
 
@@ -318,10 +373,10 @@ For research-prototype purposes, M-Time can now:
 
 These remain deliberately **OPEN**:
 
-1. Further temporal expansion beyond the current 2024-2026 / 42-case active Horizons suite, including more years and more intra-year epochs.
+1. Further temporal expansion beyond the current 46-case active Horizons suite, including more years, more sites, and additional solar/lunar intra-year epochs.
 2. Field validation of atmospheric refraction and surveyed local-horizon profiles.
 3. Higher-resolution geospatial refinement beyond the current pinned Natural Earth 110m mainland provider for near-coast/border edge cases.
-4. Broader official Wellington/Diyanet prayer-time replay across more dates and edge seasons; v0.9.0 computes the -18° method directly for the Shawwal 1447 policy case.
+4. Broader official Wellington/Diyanet published-schedule replay; v0.10.0 now independently validates the -18° solar geometry across four seasons, but does not yet replay a large archive of official timetable entries.
 5. Live institutional detached-signature feeds and public-key registries for upstream authority/observation sources; v0.6.0 implements the fail-closed ingestion machinery and live hash-recorded source acquisition.
 6. Larger multi-country, multi-decade historical replay corpus; v0.7.0 establishes the falsification engine and first cross-jurisdiction executable corpus.
 7. Unaffiliated implementation and expert review.

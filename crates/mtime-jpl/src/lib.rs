@@ -90,6 +90,14 @@ pub fn parse_single_topocentric_moon_4(
     parse_topocentric_moon_quantity_4(rows[0])
 }
 
+/// Quantity #4 has the same azimuth/elevation layout for any observer target.
+/// This generic alias is used by Sun-specific worship-time oracle checks.
+pub fn parse_single_topocentric_quantity_4(
+    text: &str,
+) -> Result<HorizonsTopocentricMoonSample, HorizonsParseError> {
+    parse_single_topocentric_moon_4(text)
+}
+
 pub fn parse_single_geocentric_elongation_23(
     text: &str,
 ) -> Result<HorizonsGeocentricElongationSample, HorizonsParseError> {

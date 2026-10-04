@@ -1,0 +1,72 @@
+name: m-time-wellington-seasonal-oracle
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "crates/mtime-worship/**"
+      - "crates/mtime-hilal/**"
+      - "crates/mtime-spk/**"
+      - "crates/mtime-jpl/**"
+      - "crates/mtime-eop/**"
+      - ".github/workflows/wellington-seasonal-oracle.yml"
+
+jobs:
+  seasonal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Download official DE440 and IERS EOP
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/mtime-wellington-seasonal
+          curl --fail --retry 5 --retry-delay 3             "https://naif.jpl.nasa.gov/pub/naif/JUNO/kernels/spk/de440s.bsp"             -o /tmp/mtime-wellington-seasonal/de440s.bsp
+          curl --fail --retry 5 --retry-delay 3             "https://datacenter.iers.org/data/latestVersion/finals.all.iau2000.txt"             -o /tmp/mtime-wellington-seasonal/finals.all
+          sha256sum /tmp/mtime-wellington-seasonal/de440s.bsp             /tmp/mtime-wellington-seasonal/finals.all             | tee /tmp/mtime-wellington-seasonal/source-sha256.txt
+
+      - name: Validate four seasonal -18 degree crossings against Horizons
+        shell: bash
+        run: |
+          set -euo pipefail
+          cases=(
+            "SUMMER_JAN15|2461055.0000000000|2461055.3750000000"
+            "AUTUMN_MAR20|2461119.0000000000|2461119.3750000000"
+            "WINTER_JUN21|2461212.0000000000|2461212.3750000000"
+            "SPRING_SEP22|2461305.0000000000|2461305.3750000000"
+          )
+
+          : > /tmp/mtime-wellington-seasonal/report.txt
+          for row in "${cases[@]}"; do
+            IFS='|' read -r label start_jd end_jd <<< "$row"
+            crossing="$(cargo run --quiet -p mtime-hilal --example compute_solar_crossing --               /tmp/mtime-wellington-seasonal/de440s.bsp               /tmp/mtime-wellington-seasonal/finals.all               174.7772 -41.2889 0               "$start_jd" "$end_jd" -18 "$label")"
+            printf '%s\n' "$crossing" | tee -a /tmp/mtime-wellington-seasonal/report.txt
+            jd="$(awk -F= '/^jd_utc=/{print $2}' <<< "$crossing")"
+            test -n "$jd"
+
+            horizons="/tmp/mtime-wellington-seasonal/${label}-horizons.txt"
+            curl --fail --retry 5 --retry-delay 3 --get               "https://ssd.jpl.nasa.gov/api/horizons.api"               --data-urlencode "format=text"               --data-urlencode "COMMAND='10'"               --data-urlencode "OBJ_DATA='NO'"               --data-urlencode "MAKE_EPHEM='YES'"               --data-urlencode "EPHEM_TYPE='OBSERVER'"               --data-urlencode "CENTER='coord@399'"               --data-urlencode "COORD_TYPE='GEODETIC'"               --data-urlencode "SITE_COORD='174.7772,-41.2889,0.000'"               --data-urlencode "TLIST='$jd'"               --data-urlencode "TLIST_TYPE='JD'"               --data-urlencode "TIME_TYPE='UT'"               --data-urlencode "QUANTITIES='4'"               --data-urlencode "ANG_FORMAT='DEG'"               --data-urlencode "CSV_FORMAT='YES'"               --data-urlencode "APPARENT='AIRLESS'"               -o "$horizons"
+
+            cargo run --quiet -p mtime-spk --example validate_solar_topocentric_case --               /tmp/mtime-wellington-seasonal/de440s.bsp               "$horizons"               /tmp/mtime-wellington-seasonal/finals.all               174.7772 -41.2889 0 "$jd" "$label" -18               | tee -a /tmp/mtime-wellington-seasonal/report.txt
+          done
+
+          count="$(grep -c '^case=' /tmp/mtime-wellington-seasonal/report.txt)"
+          test "$count" -eq 8
+
+          max_direction="$(awk -F= '/direction_error_deg=/{v=$2+0;if(v>m)m=v}END{printf "%.12f",m}'             /tmp/mtime-wellington-seasonal/report.txt)"
+          max_target="$(awk -F= '/horizons_target_residual_deg=/{v=$2+0;if(v>m)m=v}END{printf "%.12f",m}'             /tmp/mtime-wellington-seasonal/report.txt)"
+          {
+            echo "===== SEASONAL SUMMARY ====="
+            echo "seasonal_cases=4"
+            echo "max_direction_error_deg=$max_direction"
+            echo "max_horizons_target_residual_deg=$max_target"
+            echo "direction_gate_deg=0.001000000000"
+            echo "target_gate_deg=0.001500000000"
+          } | tee -a /tmp/mtime-wellington-seasonal/report.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mtime-wellington-seasonal-oracle
+          path: /tmp/mtime-wellington-seasonal/
