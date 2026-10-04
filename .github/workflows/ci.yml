@@ -1,8 +1,19 @@
 name: m-time-ci
+
 on:
   push:
+    branches: [dev, main]
   pull_request:
+    branches: [main]
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: m-time-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   rust:
     runs-on: ubuntu-latest
@@ -11,11 +22,13 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
-      - name: Rustfmt parse/format pass
-        run: cargo fmt --all
+      - name: Rustfmt check
+        run: cargo fmt --all -- --check
       - name: Unit tests
         run: cargo test --workspace --all-targets
       - name: Clippy report
         run: cargo clippy --workspace --all-targets
+      - name: Layering invariant
+        run: python3 scripts/check_layering.py
       - name: Demo
         run: cargo run -p mtime-cli

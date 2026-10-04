@@ -1,0 +1,280 @@
+name: m-time-dev-pipeline
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Semantic version bump
+        required: true
+        default: auto
+        type: choice
+        options:
+          - auto
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: m-time-dev-pipeline
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.actor != 'github-actions[bot]' && (github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, '[skip version]'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 0
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+          targets: wasm32-unknown-unknown
+
+      - name: Determine semantic bump
+        id: bump
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            RANGE="HEAD^..HEAD"
+          else
+            BEFORE="${{ github.event.before }}"
+            AFTER="${{ github.sha }}"
+            if [[ "$BEFORE" =~ ^0+$ ]]; then
+              RANGE="$AFTER^..$AFTER"
+            else
+              RANGE="$BEFORE..$AFTER"
+            fi
+          fi
+
+          MESSAGES="$(git log --format='%B%n---END---' "$RANGE")"
+          FORCED="${{ inputs.bump }}"
+          BUMP="patch"
+
+          if [[ "$FORCED" == "major" || "$FORCED" == "minor" || "$FORCED" == "patch" ]]; then
+            BUMP="$FORCED"
+          elif grep -qiE '\[release:major\]|BREAKING CHANGE:|^[a-zA-Z]+(\([^)]+\))?!:' <<< "$MESSAGES"; then
+            BUMP="major"
+          elif grep -qiE '\[release:minor\]|^feat(\([^)]+\))?:' <<< "$MESSAGES"; then
+            BUMP="minor"
+          elif grep -qiE '\[release:patch\]' <<< "$MESSAGES"; then
+            BUMP="patch"
+          fi
+
+          echo "range=$RANGE" >> "$GITHUB_OUTPUT"
+          echo "bump=$BUMP" >> "$GITHUB_OUTPUT"
+
+      - name: Bump workspace version and changelog
+        id: version
+        env:
+          BUMP: ${{ steps.bump.outputs.bump }}
+          RANGE: ${{ steps.bump.outputs.range }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          NEW_VERSION="$(python3 - <<'PY'
+          import datetime
+          import os
+          import pathlib
+          import re
+          import subprocess
+
+          cargo = pathlib.Path('Cargo.toml')
+          text = cargo.read_text()
+          match = re.search(r'\[workspace\.package\][\s\S]*?\nversion = "(\d+)\.(\d+)\.(\d+)"', text)
+          if not match:
+              raise SystemExit('workspace.package version not found')
+
+          major, minor, patch = map(int, match.groups())
+          bump = os.environ['BUMP']
+          if bump == 'major':
+              major, minor, patch = major + 1, 0, 0
+          elif bump == 'minor':
+              minor, patch = minor + 1, 0
+          else:
+              patch += 1
+
+          new = f'{major}.{minor}.{patch}'
+          replaced, count = re.subn(
+              r'(\[workspace\.package\][\s\S]*?\nversion = ")[^"]+(" )'.replace('" )', '")'),
+              lambda m: m.group(1) + new + m.group(2),
+              text,
+              count=1,
+          )
+          if count != 1:
+              raise SystemExit('failed to update workspace version')
+          cargo.write_text(replaced)
+
+          range_ = os.environ['RANGE']
+          subjects = subprocess.check_output(
+              ['git', 'log', '--format=- %s (`%h`)', range_],
+              text=True,
+          ).strip()
+          changelog = pathlib.Path('CHANGELOG.md')
+          old = changelog.read_text() if changelog.exists() else '# Changelog\n'
+          body = old
+          if body.startswith('# Changelog'):
+              body = body[len('# Changelog'):].lstrip('\n')
+          date = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+          entry = f'## v{new} - {date}\n\n{subjects or "- Automated release"}\n\n'
+          changelog.write_text('# Changelog\n\n' + entry + body)
+          print(new)
+          PY
+          )"
+
+          cargo metadata --no-deps --format-version 1 >/dev/null
+          echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Commit version bump to dev
+        id: release_commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Cargo.toml CHANGELOG.md
+          git commit -m "chore(release): bump version to v${{ steps.version.outputs.version }} [skip version]"
+          git push origin HEAD:dev
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Rustfmt gate
+        run: cargo fmt --all -- --check
+
+      - name: Rust tests
+        run: cargo test --workspace --all-targets
+
+      - name: Clippy gate
+        run: cargo clippy --workspace --all-targets
+
+      - name: Layering invariant
+        run: python3 scripts/check_layering.py
+
+      - name: Python reference
+        run: python3 reference-python/mtime_reference.py
+
+      - name: WASM release build
+        run: cargo build -p mtime-wasm --target wasm32-unknown-unknown --release
+
+      - name: Create or update dev to main release PR
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          PR="$(gh pr list --base main --head dev --state open --json number --jq '.[0].number // empty')"
+          BODY="Automated M-Time promotion from dev to main.\n\nVersion: v$VERSION\n\nGates executed before merge: rustfmt, workspace tests, clippy, layering invariant, Python reference, and WASM release build."
+          if [[ -z "$PR" ]]; then
+            gh pr create --base main --head dev --title "release: M-Time v$VERSION" --body "$BODY"
+            PR="$(gh pr list --base main --head dev --state open --json number --jq '.[0].number')"
+          else
+            gh pr edit "$PR" --title "release: M-Time v$VERSION" --body "$BODY"
+          fi
+          echo "number=$PR" >> "$GITHUB_OUTPUT"
+
+      - name: Merge release PR
+        id: merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ steps.pr.outputs.number }}
+          VERSION: ${{ steps.version.outputs.version }}
+          RELEASE_SHA: ${{ steps.release_commit.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          MERGE_SHA=""
+          for attempt in 1 2 3 4 5 6 7 8 9 10 11 12; do
+            set +e
+            RESPONSE="$(gh api --method PUT "repos/$GITHUB_REPOSITORY/pulls/$PR/merge" \
+              -f merge_method=merge \
+              -f sha="$RELEASE_SHA" \
+              -f commit_title="release: M-Time v$VERSION" \
+              -f commit_message="Automated dev to main promotion after M-Time release gates." 2>/tmp/merge-error)"
+            STATUS=$?
+            set -e
+            if [[ $STATUS -eq 0 ]]; then
+              MERGED="$(jq -r '.merged // false' <<< "$RESPONSE")"
+              if [[ "$MERGED" == "true" ]]; then
+                MERGE_SHA="$(jq -r '.sha' <<< "$RESPONSE")"
+                break
+              fi
+            fi
+            sleep 5
+          done
+
+          if [[ -z "$MERGE_SHA" ]]; then
+            cat /tmp/merge-error || true
+            echo "Release PR could not be merged." >&2
+            exit 1
+          fi
+          echo "sha=$MERGE_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Tag and publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          MERGE_SHA: ${{ steps.merge.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="v$VERSION"
+          git fetch origin main --tags
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists; skipping tag creation."
+          else
+            git tag -a "$TAG" "$MERGE_SHA" -m "M-Time $TAG"
+            git push origin "$TAG"
+          fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "GitHub Release $TAG already exists."
+          else
+            gh release create "$TAG" --target "$MERGE_SHA" --generate-notes --title "M-Time $TAG"
+          fi
+
+      - name: Trigger post-release validation and deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          workflows=(
+            compatibility.yml
+            wasm.yml
+            iers-eop.yml
+            jpl-reference.yml
+            spk-reference.yml
+            topocentric-reference.yml
+            topocentric-matrix.yml
+            pages-mtime.yml
+          )
+          for workflow in "${workflows[@]}"; do
+            gh workflow run "$workflow" --ref main || echo "::warning::Could not dispatch $workflow"
+          done
+
+      - name: Release summary
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          PR: ${{ steps.pr.outputs.number }}
+          MERGE_SHA: ${{ steps.merge.outputs.sha }}
+        shell: bash
+        run: |
+          {
+            echo "## M-Time automated release"
+            echo
+            echo "- Version: v$VERSION"
+            echo "- PR: #$PR"
+            echo "- Merge SHA: $MERGE_SHA"
+            echo "- Flow: dev -> CI gates -> main -> tag -> GitHub Release -> post-release validations"
+          } >> "$GITHUB_STEP_SUMMARY"
