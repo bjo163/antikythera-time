@@ -537,6 +537,7 @@ pub enum LunarArgument {
     SunPlusMoonAnomaly,
     TwoLatitudeMinusTwoElongation,
     TwoElongationMinusFourMoonAnomaly,
+    TwoDraconicPhase,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -554,7 +555,7 @@ pub const M8_SIN_2_DRACONIC_COEFFICIENT_DEG: f64 = -0.113_859_414_732;
 pub const M8_EXPERIMENTAL_CORRECTION: CorrectionTerm = CorrectionTerm {
     id: "M8_SIN_2_DRACONIC",
     coefficient_deg: M8_SIN_2_DRACONIC_COEFFICIENT_DEG,
-    argument: LunarArgument::TwoLatitudeMinusTwoElongation,
+    argument: LunarArgument::TwoDraconicPhase,
     evidence: EvidenceLabel::ModernDigitalCorrection,
     enabled_by_default: false,
     provenance: "fit 1900-1999 monthly DE440; validated 2000-2100; M8 run 37204075486",
@@ -629,6 +630,7 @@ pub fn digital_lunar_longitude_with_selection(
         LunarArgument::SunPlusMoonAnomaly => m_sun + m_moon,
         LunarArgument::TwoLatitudeMinusTwoElongation => 2.0 * f - 2.0 * elongation,
         LunarArgument::TwoElongationMinusFourMoonAnomaly => 2.0 * elongation - 4.0 * m_moon,
+        LunarArgument::TwoDraconicPhase => 2.0 * f,
     };
 
     let correction = DIGITAL_LUNAR_CORRECTIONS_V1
