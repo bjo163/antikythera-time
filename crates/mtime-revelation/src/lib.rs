@@ -41,7 +41,7 @@ pub enum ReviewStatus {
     NeedsExternalScholarReview,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct TemporalOntologyEntryV2 {
     pub id: &'static str,
     pub corpus: TextCorpus,
