@@ -262,6 +262,7 @@ jobs:
             topocentric-matrix.yml
             topocentric-multiyear.yml
             source-ingestion.yml
+            historical-falsification.yml
             pages-mtime.yml
           )
           for workflow in "${workflows[@]}"; do

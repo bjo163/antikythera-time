@@ -1,0 +1,23 @@
+name: m-time-historical-falsification
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "crates/mtime-explain/**"
+      - "crates/mtime-hijri/**"
+      - "crates/mtime-observation/**"
+      - "crates/mtime-authority/**"
+      - "data/hijri/historical-falsification-v0.7.json"
+      - ".github/workflows/historical-falsification.yml"
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Historical falsification replay
+        run: cargo test -p mtime-explain --test historical_falsification -- --nocapture
+      - name: Existing Indonesia 1447 replay
+        run: cargo test -p mtime-explain --test indonesia_1447 -- --nocapture

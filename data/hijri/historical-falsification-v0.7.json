@@ -1,0 +1,64 @@
+{
+  "corpus_version": "0.7",
+  "purpose": "historical falsification of represented temporal/calendar layers",
+  "verdicts": ["REPRODUCED", "FALSIFIED", "INCOMPLETE"],
+  "cases": [
+    {
+      "id": "ID-RAMADAN-1447",
+      "jurisdiction": "ID",
+      "event": "RAMADAN_1447",
+      "expected_replay_verdict": "REPRODUCED",
+      "profile": "MABIMS_ID_2026",
+      "authority_decision": "COMPLETE_CURRENT_MONTH_TO_30_DAYS"
+    },
+    {
+      "id": "ID-SHAWWAL-1447",
+      "jurisdiction": "ID",
+      "event": "SHAWWAL_1447",
+      "expected_replay_verdict": "REPRODUCED",
+      "profile": "MABIMS_ID_2026",
+      "authority_decision": "COMPLETE_CURRENT_MONTH_TO_30_DAYS"
+    },
+    {
+      "id": "ID-DHULHIJJAH-1447",
+      "jurisdiction": "ID",
+      "event": "DHULHIJJAH_1447",
+      "expected_replay_verdict": "REPRODUCED",
+      "profile": "MABIMS_ID_2026",
+      "authority_decision": "BEGIN_NEW_MONTH"
+    },
+    {
+      "id": "ID-TR-SHAWWAL-1447",
+      "jurisdictions": ["ID", "TR"],
+      "event": "SHAWWAL_1447",
+      "expected_replay_verdict": "REPRODUCED",
+      "expected_outcome_differs": true,
+      "required_explanatory_layers": [
+        "criterion",
+        "observation",
+        "jurisdiction",
+        "authority"
+      ]
+    },
+    {
+      "id": "NEGATIVE-CONTROL-AUTHORITY-FLIP",
+      "expected_replay_verdict": "FALSIFIED",
+      "note": "counterfactual control proving the engine rejects a represented computed/authority conflict"
+    },
+    {
+      "id": "NEGATIVE-CONTROL-UNEXPLAINED-DATE-FLIP",
+      "expected_replay_verdict": "FALSIFIED",
+      "note": "counterfactual control proving an unexplained output change is not accepted"
+    },
+    {
+      "id": "NEGATIVE-CONTROL-UNKNOWN-COMPUTATION",
+      "expected_replay_verdict": "INCOMPLETE",
+      "note": "unknown computation must remain incomplete rather than forced to pass/fail"
+    }
+  ],
+  "source_companions": [
+    "docs/validation/indonesia-1447h.md",
+    "docs/validation/indonesia-turkiye-shawwal-1447h.md",
+    "data/hijri/shawwal-1447-id-tr.json"
+  ]
+}
