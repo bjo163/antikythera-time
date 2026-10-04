@@ -215,6 +215,14 @@ def validate_candidate(data: dict) -> str:
     assert report.get("schema") == "mtime-mclock-metrology-suite-1", (
         "metrology report schema mismatch"
     )
+    analysis_tool = report.get("analysis_tool")
+    assert isinstance(analysis_tool, dict), "metrology report analysis_tool missing"
+    assert analysis_tool.get("crate") == "mtime-metrology", "metrology report analyzer mismatch"
+    analysis_git_sha = str(analysis_tool.get("git_sha", "")).lower()
+    assert GIT_SHA_RE.fullmatch(analysis_git_sha), (
+        "metrology report analysis_tool.git_sha must be a 40-character Git SHA"
+    )
+
     report_identity = report.get("identity")
     assert isinstance(report_identity, dict), "metrology report identity missing"
     assert report_identity.get("device_id") == device_id, "metrology report device mismatch"
