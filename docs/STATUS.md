@@ -1,8 +1,8 @@
 # M-Time Implementation Status
 
 Date: 2026-10-04  
-Version: **v0.14.0 Antikythera Systems Integration Research Prototype**  
-Internal status: **M7–M10 + M13–M19 SOFTWARE/RESEARCH MILESTONES COMPLETE; M11/M12 PHYSICAL EVIDENCE AND M20 EXTERNAL PRE-STANDARD GATES REMAIN OPEN**
+Version: **software-only Antikythera Systems Integration Research Prototype**  
+Internal status: **M7–M10 + M13–M19 SOFTWARE/RESEARCH MILESTONES COMPLETE; M20 EXTERNAL SOFTWARE REVIEW / REPRODUCTION GATES REMAIN OPEN**
 
 M-Time is a Rust-first temporal interoperability framework. This status does **not** claim international standard adoption, religious/fiqh authority, or replacement of BIPM/IAU/IERS/JPL infrastructure.
 
@@ -26,8 +26,7 @@ M-Time is a Rust-first temporal interoperability framework. This status does **n
 | M17 revelation numerical-non-injection | **PASS** | semantic-only ontology |
 | M18 cosmology operational isolation | **PASS** | no dependency into clock core |
 | M19 Python SDK / C ABI / schemas | **PASS** | compatibility workflow |
-| M11/M12 repository readiness | **PASS / PHYSICAL EVIDENCE MISSING** | intentionally not milestone-complete |
-| M20 v1 readiness | **BLOCKED** | physical + external review gates |
+| M20 v1 readiness | **BLOCKED** | external reproduction/review gates |
 | Software Antikythera core | **PASS** | virtual gear/train/dial + dual profiles |
 | M6 1900–2100 monthly calibration | **2412/2412 epochs** | Actions run 37202646134 |
 | M6 targeted phase/anomaly sampling | **15,676 epochs** | same run |
@@ -45,7 +44,6 @@ M-Time is a Rust-first temporal interoperability framework. This status does **n
 | Native M-Time linear + cyclic state | **PASS** | mtime-temporal |
 | M-Clock MCLOCK-1 packet | **PASS** | m-time-mclock |
 | WASM M-Clock / Antikythera API | **PASS** | wasm32 release build |
-| Hardware reference architecture | **DOCUMENTED** | hardware/m-clock |
 | Rust↔Python compatibility | **PASS** | v0.10 staging compatibility |
 | Offline JPL DE440/SPK provider | PASS | prior SPK reference gates |
 | Fixed Jakarta topocentric reference | PASS | prior topocentric reference gate |
@@ -104,8 +102,6 @@ M13, M14, M15, M16, M17, M18, M19
 Intentionally still open:
 
 ```text
-M11 physical M-Clock bench device
-M12 measured PPS / oscillator / holdover metrology
 M20 v1.0 external/pre-standard exit gates
 ```
 
@@ -118,9 +114,7 @@ V2 P95 / max = 0.253539543° / 0.314474632°
 
 M15 differential conformance passes 135 V1 and 135 V2 vectors plus malformed-packet checks.
 
-M11/M12 now have device/metrology software, physical-evidence templates and an automated readiness workflow. Those are preparation, not evidence that a device has been built.
-
-M20's machine-readable readiness checker correctly remains BLOCKED while physical realization and external review/reproduction are absent.
+M20's machine-readable readiness checker correctly remains BLOCKED while unaffiliated reproduction and external review evidence are absent.
 
 ## M6 — Antikythera Accuracy Program I
 
@@ -199,14 +193,14 @@ See `docs/M6_ACCURACY_PROGRAM.md` and `docs/M6_REFERENCE_FRAMES.md`.
 
 ## Antikythera-centered architecture — v0.12.0
 
-The project has been re-centered on its original goal:
+The project has been re-centered on its original software goal:
 
 ```text
 Software Antikythera
         ↓
 native M-Time temporal state
         ↓
-M-Clock
+software protocols / SDK / Live Lab
 ```
 
 Modern references remain outside the Antikythera core:
@@ -250,9 +244,7 @@ These are current baseline residuals, not final accuracy claims.
 
 ### Phase 5 — M-Clock
 
-`mtime-clock` defines `MCLOCK-1`, CLI/WASM rendering, Live Lab display, a conformance workflow and a hardware reference architecture.
-
-No physical clock is claimed to have been manufactured or certified yet.
+`mtime-clock` defines `MCLOCK-1`, CLI/WASM rendering, Live Lab display and a conformance workflow as a software-only clock-state surface.
 
 See:
 
@@ -654,3 +646,10 @@ Priority order:
 4. higher-resolution geospatial edge-case validation and broader worship-time replay;
 5. independent implementation and peer review;
 6. external standardization discussion.
+
+
+## Software-only scope reset
+
+Physical-device work is retired from the active project scope. There is no M11/M12 hardware completion requirement and no physical-metrology v1 gate.
+
+MCLOCK-1 remains a software packet/view. The remaining v1 blockers are unaffiliated reproduction and the external security, scientific, historical-reconstruction and revelation/textual-boundary reviews.
