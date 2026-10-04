@@ -16,9 +16,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - name: Device state tests
         run: cargo test -p mtime-device --all-targets
       - name: Metrology analysis tests
         run: cargo test -p mtime-metrology --all-targets
-      - name: Physical evidence readiness
+      - name: Physical evidence admission gate
         run: python scripts/hardware_readiness.py
