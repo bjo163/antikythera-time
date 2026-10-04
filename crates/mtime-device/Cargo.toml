@@ -1,0 +1,12 @@
+[package]
+name = "mtime-device"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+mtime-clock = { path = "../mtime-clock" }
+
+[lints]
+workspace = true
