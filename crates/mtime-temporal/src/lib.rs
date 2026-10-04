@@ -153,3 +153,177 @@ mod tests {
             .all(|phase| (0.0..1.0).contains(phase)));
     }
 }
+
+
+pub const MTIME_WIRE_VERSION: &str = "MTS-2";
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct MTimeWireV2 {
+    pub profile_id: String,
+    pub linear_si_nanoseconds_from_j2000_tt: i128,
+    pub tt_jd: f64,
+    pub tdb_jd: f64,
+    pub reference_uncertainty_seconds: f64,
+    pub dial_deg: [f64; 4],
+    pub cycle_phase: [f64; 8],
+}
+
+impl MTimeWireV2 {
+    #[must_use]
+    pub fn from_state(state: MTimeState) -> Self {
+        Self {
+            profile_id: state.profile.id().to_string(),
+            linear_si_nanoseconds_from_j2000_tt: state.linear_si_nanoseconds_from_j2000_tt,
+            tt_jd: state.reference.tt_jd,
+            tdb_jd: state.reference.tdb_jd,
+            reference_uncertainty_seconds: state.reference.uncertainty_seconds,
+            dial_deg: [
+                state.cycles.solar_longitude.angle_deg,
+                state.cycles.lunar_longitude.angle_deg,
+                state.cycles.lunar_phase.angle_deg,
+                state.cycles.lunar_node.angle_deg,
+            ],
+            cycle_phase: state.cycle_vector(),
+        }
+    }
+
+    #[must_use]
+    pub fn instant_key(&self) -> MTimeInstantKey {
+        MTimeInstantKey(self.linear_si_nanoseconds_from_j2000_tt)
+    }
+
+    #[must_use]
+    pub fn to_canonical_json(&self) -> String {
+        let cycles = self.cycle_phase.iter().map(|v| format!("{v:.15}")).collect::<Vec<_>>().join(",");
+        let dials = self.dial_deg.iter().map(|v| format!("{v:.15}")).collect::<Vec<_>>().join(",");
+        format!(
+            "{{\"schema\":\"MTS-2\",\"profile_id\":\"{}\",\"linear_si_nanoseconds_from_j2000_tt\":\"{}\",\"tt_jd\":{:.15},\"tdb_jd\":{:.15},\"reference_uncertainty_seconds\":{:.15},\"dial_deg\":[{}],\"cycle_phase\":[{}]}}",
+            self.profile_id,
+            self.linear_si_nanoseconds_from_j2000_tt,
+            self.tt_jd,
+            self.tdb_jd,
+            self.reference_uncertainty_seconds,
+            dials,
+            cycles
+        )
+    }
+
+    #[must_use]
+    pub fn encode_binary(&self) -> Vec<u8> {
+        let profile = self.profile_id.as_bytes();
+        assert!(profile.len() <= u16::MAX as usize);
+        let mut out = Vec::with_capacity(4 + 2 + profile.len() + 16 + 8 * 15);
+        out.extend_from_slice(b"MTS2");
+        out.extend_from_slice(&(profile.len() as u16).to_be_bytes());
+        out.extend_from_slice(profile);
+        out.extend_from_slice(&self.linear_si_nanoseconds_from_j2000_tt.to_be_bytes());
+        for value in [
+            self.tt_jd,
+            self.tdb_jd,
+            self.reference_uncertainty_seconds,
+        ] {
+            out.extend_from_slice(&value.to_bits().to_be_bytes());
+        }
+        for value in self.dial_deg {
+            out.extend_from_slice(&value.to_bits().to_be_bytes());
+        }
+        for value in self.cycle_phase {
+            out.extend_from_slice(&value.to_bits().to_be_bytes());
+        }
+        out
+    }
+
+    pub fn decode_binary(bytes: &[u8]) -> Result<Self, TemporalError> {
+        if bytes.len() < 6 || &bytes[..4] != b"MTS2" {
+            return Err(TemporalError::InvalidInput("MTS-2 magic"));
+        }
+        let profile_len = u16::from_be_bytes([bytes[4], bytes[5]]) as usize;
+        let expected = 4 + 2 + profile_len + 16 + (3 + 4 + 8) * 8;
+        if bytes.len() != expected {
+            return Err(TemporalError::InvalidInput("MTS-2 length"));
+        }
+        let mut cursor = 6;
+        let profile_id = core::str::from_utf8(&bytes[cursor..cursor + profile_len])
+            .map_err(|_| TemporalError::InvalidInput("MTS-2 profile UTF-8"))?
+            .to_string();
+        cursor += profile_len;
+
+        let mut i128_bytes = [0u8; 16];
+        i128_bytes.copy_from_slice(&bytes[cursor..cursor + 16]);
+        let linear = i128::from_be_bytes(i128_bytes);
+        cursor += 16;
+
+        fn take_f64(bytes: &[u8], cursor: &mut usize) -> f64 {
+            let mut raw = [0u8; 8];
+            raw.copy_from_slice(&bytes[*cursor..*cursor + 8]);
+            *cursor += 8;
+            f64::from_bits(u64::from_be_bytes(raw))
+        }
+
+        let tt_jd = take_f64(bytes, &mut cursor);
+        let tdb_jd = take_f64(bytes, &mut cursor);
+        let reference_uncertainty_seconds = take_f64(bytes, &mut cursor);
+        let mut dial_deg = [0.0; 4];
+        for value in &mut dial_deg {
+            *value = take_f64(bytes, &mut cursor);
+        }
+        let mut cycle_phase = [0.0; 8];
+        for value in &mut cycle_phase {
+            *value = take_f64(bytes, &mut cursor);
+        }
+        if !tt_jd.is_finite()
+            || !tdb_jd.is_finite()
+            || !reference_uncertainty_seconds.is_finite()
+            || !dial_deg.iter().all(|v| v.is_finite())
+            || !cycle_phase.iter().all(|v| v.is_finite() && (0.0..1.0).contains(v))
+        {
+            return Err(TemporalError::InvalidInput("MTS-2 non-finite/phase"));
+        }
+        Ok(Self {
+            profile_id,
+            linear_si_nanoseconds_from_j2000_tt: linear,
+            tt_jd,
+            tdb_jd,
+            reference_uncertainty_seconds,
+            dial_deg,
+            cycle_phase,
+        })
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct MTimeInstantKey(pub i128);
+
+#[cfg(test)]
+mod mts2_tests {
+    use super::*;
+
+    #[test]
+    fn mts2_binary_round_trip_is_lossless() {
+        let state = MTimeEngine::digital()
+            .from_tt(CoordinateTime::<Tt>::new(J2000_JD_TT, 12_345.678, 0.0).unwrap())
+            .unwrap();
+        let wire = MTimeWireV2::from_state(state);
+        let decoded = MTimeWireV2::decode_binary(&wire.encode_binary()).unwrap();
+        assert_eq!(wire, decoded);
+        assert_eq!(wire.instant_key(), decoded.instant_key());
+    }
+
+    #[test]
+    fn mts2_json_keeps_i128_as_decimal_string() {
+        let state = MTimeEngine::digital()
+            .from_tt(CoordinateTime::<Tt>::new(J2000_JD_TT, 1.0, 0.0).unwrap())
+            .unwrap();
+        let json = MTimeWireV2::from_state(state).to_canonical_json();
+        assert!(json.contains("\"schema\":\"MTS-2\""));
+        assert!(json.contains("\"linear_si_nanoseconds_from_j2000_tt\":\"86400000000000\""));
+    }
+
+    #[test]
+    fn instant_order_is_linear_coordinate_order() {
+        let a = MTimeInstantKey(-1);
+        let b = MTimeInstantKey(0);
+        let c = MTimeInstantKey(1);
+        assert!(a < b && b < c);
+    }
+}

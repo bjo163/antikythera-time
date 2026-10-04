@@ -17,6 +17,10 @@ pub struct MClockPacket {
     pub tdb_jd: f64,
     pub tdb_minus_tt_seconds: f64,
     pub uncertainty_seconds: f64,
+    pub uncertainty_status: String,
+    pub model_sun_p95_deg: f64,
+    pub model_moon_p95_deg: f64,
+    pub model_phase_p95_deg: f64,
     pub solar_longitude_deg: f64,
     pub lunar_longitude_deg: f64,
     pub lunar_phase_deg: f64,
@@ -34,6 +38,7 @@ pub struct MClockPacket {
 impl MClockPacket {
     #[must_use]
     pub fn from_state(state: MTimeState) -> Self {
+        let angular_budget = mtime_uncertainty::m6_digital_angular_budget();
         Self {
             packet_version: MCLOCK_PACKET_VERSION.into(),
             status: MCLOCK_STATUS.into(),
@@ -44,6 +49,10 @@ impl MClockPacket {
             tdb_jd: state.reference.tdb_jd,
             tdb_minus_tt_seconds: state.reference.tdb_minus_tt_seconds,
             uncertainty_seconds: state.reference.uncertainty_seconds,
+            uncertainty_status: angular_budget.status().into(),
+            model_sun_p95_deg: mtime_uncertainty::M6_SUN_ABSOLUTE_P95_DEG,
+            model_moon_p95_deg: mtime_uncertainty::M6_MOON_ABSOLUTE_P95_DEG,
+            model_phase_p95_deg: mtime_uncertainty::M6_MOON_PHASE_P95_DEG,
             solar_longitude_deg: state.cycles.solar_longitude.angle_deg,
             lunar_longitude_deg: state.cycles.lunar_longitude.angle_deg,
             lunar_phase_deg: state.cycles.lunar_phase.angle_deg,
@@ -116,4 +125,12 @@ mod tests {
         assert_eq!(h.linear_si_nanoseconds_from_j2000_tt,d.linear_si_nanoseconds_from_j2000_tt);
         assert_ne!(h.lunar_longitude_deg,d.lunar_longitude_deg);
     }
+
+    #[test]
+    fn packet_exposes_model_uncertainty_status() {
+        let p = digital_packet_from_utc(j2000()).unwrap();
+        assert_eq!(p.uncertainty_status, "BOUNDED_BY_DECLARED_COMPONENTS");
+        assert!(p.model_moon_p95_deg > p.model_sun_p95_deg);
+    }
+
 }
