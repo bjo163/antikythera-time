@@ -13,6 +13,7 @@ mtime-astro = { path = "../mtime-astro" }
 mtime-spk = { path = "../mtime-spk" }
 mtime-hijri = { path = "../mtime-hijri" }
 mtime-jpl = { path = "../mtime-jpl" }
+mtime-worship = { path = "../mtime-worship" }
 
 [lints]
 workspace = true

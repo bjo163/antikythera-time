@@ -264,6 +264,7 @@ jobs:
             source-ingestion.yml
             historical-falsification.yml
             geospatial-mainland.yml
+            wellington-fajr.yml
             pages-mtime.yml
           )
           for workflow in "${workflows[@]}"; do

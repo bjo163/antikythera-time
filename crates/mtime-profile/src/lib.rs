@@ -327,6 +327,16 @@ pub trait WellingtonFajrProvider {
     fn fajr_event(&self) -> Option<SolarEvent>;
 }
 
+impl WellingtonFajrProvider for SolarEvent {
+    fn fajr_event(&self) -> Option<SolarEvent> {
+        if self.kind == mtime_worship::SolarEventKind::FajrThreshold {
+            Some(*self)
+        } else {
+            None
+        }
+    }
+}
+
 pub fn derive_additional_calendar_context<G, W>(
     threshold_met: Option<bool>,
     passing_site_ids: &[String],
