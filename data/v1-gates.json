@@ -1,24 +1,82 @@
 {
-  "schema":"mtime-v1-readiness-1",
-  "target":"v1.0.0",
-  "ready":false,
-  "gates":[
-    {"id":"software-antikythera-spec","status":"PASS","evidence":"spec/ANTIKYTHERA-DIGITAL-V1.md"},
-    {"id":"historical-evidence-registry","status":"PASS","evidence":"data/antikythera/historical-evidence-v1.json"},
-    {"id":"digital-correction-architecture","status":"PASS","evidence":"docs/M8_CORRECTION_ARCHITECTURE.md"},
-    {"id":"long-horizon-domain","status":"PASS","evidence":"M16 1850-2149 workflow"},
-    {"id":"uncertainty-engine","status":"PASS","evidence":"crates/mtime-uncertainty"},
-    {"id":"native-mtime-spec","status":"PASS","evidence":"spec/MTIME-2.0.md"},
-    {"id":"mclock-protocol","status":"PASS","evidence":"docs/MCLOCK.md"},
-    {"id":"second-language-conformance","status":"PASS_INTERNAL","evidence":"reference-python/mtime2_reference.py"},
-    {"id":"physical-mclock-built","status":"BLOCKED_EXTERNAL","evidence":null},
-    {"id":"physical-metrology","status":"BLOCKED_EXTERNAL","evidence":null},
-    {"id":"external-independent-reproduction","status":"BLOCKED_EXTERNAL","evidence":null},
-    {"id":"external-security-review","status":"BLOCKED_EXTERNAL","evidence":null},
-    {"id":"external-scientific-review","status":"BLOCKED_EXTERNAL","evidence":null},
-    {"id":"external-historical-reconstruction-review","status":"BLOCKED_EXTERNAL","evidence":null},
-    {"id":"revelation-boundary-review","status":"PASS_INTERNAL_NEEDS_EXTERNAL_REVIEW","evidence":"docs/M17_REVELATION_ONTOLOGY.md"},
-    {"id":"public-rfc","status":"PASS","evidence":"spec/RFC-0001-MTIME-1.0.md"},
-    {"id":"governance","status":"PASS","evidence":"GOVERNANCE.md"}
+  "schema": "mtime-v1-readiness-1",
+  "target": "v1.0.0",
+  "ready": false,
+  "gates": [
+    {
+      "id": "software-antikythera-spec",
+      "status": "PASS",
+      "evidence": "spec/ANTIKYTHERA-DIGITAL-V1.md"
+    },
+    {
+      "id": "historical-evidence-registry",
+      "status": "PASS",
+      "evidence": "data/antikythera/historical-evidence-v1.json"
+    },
+    {
+      "id": "digital-correction-architecture",
+      "status": "PASS",
+      "evidence": "docs/M8_CORRECTION_ARCHITECTURE.md"
+    },
+    {
+      "id": "long-horizon-domain",
+      "status": "PASS",
+      "evidence": "M16 1850-2149 workflow"
+    },
+    {
+      "id": "uncertainty-engine",
+      "status": "PASS",
+      "evidence": "crates/mtime-uncertainty"
+    },
+    {
+      "id": "native-mtime-spec",
+      "status": "PASS",
+      "evidence": "spec/MTIME-2.0.md"
+    },
+    {
+      "id": "mclock-protocol",
+      "status": "PASS",
+      "evidence": "docs/MCLOCK.md"
+    },
+    {
+      "id": "second-language-conformance",
+      "status": "PASS_INTERNAL",
+      "evidence": "reference-python/mtime2_reference.py"
+    },
+    {
+      "id": "external-independent-reproduction",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": null
+    },
+    {
+      "id": "external-security-review",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": null
+    },
+    {
+      "id": "external-scientific-review",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": null
+    },
+    {
+      "id": "external-historical-reconstruction-review",
+      "status": "BLOCKED_EXTERNAL",
+      "evidence": null
+    },
+    {
+      "id": "revelation-boundary-review",
+      "status": "PASS_INTERNAL_NEEDS_EXTERNAL_REVIEW",
+      "evidence": "docs/M17_REVELATION_ONTOLOGY.md"
+    },
+    {
+      "id": "public-rfc",
+      "status": "PASS",
+      "evidence": "spec/RFC-0001-MTIME-1.0.md"
+    },
+    {
+      "id": "governance",
+      "status": "PASS",
+      "evidence": "GOVERNANCE.md"
+    }
   ]
 }

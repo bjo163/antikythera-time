@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.16.0 - 2026-10-04
+
+- feat(scope): remove hardware and make M-Time software-only (#56) [release:minor] (`8c67547`)
+
 ## v0.15.0 - 2026-10-04
 
 - feat(m12): add provenance-bound metrology suite reporting (#49) (`1bb93c0`)

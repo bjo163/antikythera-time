@@ -15,4 +15,4 @@ Threats considered:
 
 Current mitigations include decimal-string i128, MTS binary magic/length checks, explicit profile IDs, source integrity registry, duplicate-conflict detection, and dependency-layer CI.
 
-Open before v1.0: external security review, decoder/FFI fuzzing, hardware secure-update design, and operational key-rotation review.
+Open before v1.0: external security review, decoder/FFI fuzzing, and operational key-rotation review.

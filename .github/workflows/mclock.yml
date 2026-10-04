@@ -7,7 +7,6 @@ on:
       - "crates/mtime-antikythera/**"
       - "crates/mtime-temporal/**"
       - "crates/mtime-clock/**"
-      - "hardware/m-clock/**"
       - ".github/workflows/mclock.yml"
 
 jobs:

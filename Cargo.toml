@@ -11,8 +11,6 @@ members = [
   "crates/mtime-clock",
   "crates/mtime-uncertainty",
   "crates/mtime-ffi",
-  "crates/mtime-device",
-  "crates/mtime-metrology",
   "crates/mtime-astro",
   "crates/mtime-hijri",
   "crates/mtime-hilal",
@@ -30,7 +28,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.15.0"
+version = "0.16.0"
 edition = "2021"
 license = "MIT"
 rust-version = "1.75"

@@ -1,6 +1,6 @@
 # M-Time Governance
 
-M-Time is currently a research project, not an international standard or religious authority.
+M-Time is currently a software research project, not an international standard or religious authority. Physical clock hardware is outside the project scope.
 
 ## Change classes
 
@@ -31,7 +31,7 @@ Published protocol/profile IDs are immutable. Breaking meaning requires a new ma
 
 ## v1.0 authority
 
-The repository may not tag v1.0 solely by maintainer preference. All machine-readable v1 gates must be satisfied, including physical metrology and external review/reproduction evidence.
+The repository may not tag v1.0 solely by maintainer preference. All machine-readable v1 gates must be satisfied, including unaffiliated reproduction and external scientific, security, historical-reconstruction and textual-boundary review.
 
 ## Disagreement policy
 
