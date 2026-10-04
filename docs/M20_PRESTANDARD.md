@@ -20,7 +20,7 @@ The reason is external software/review evidence, not missing hardware.
 
 ## Software-only scope
 
-M-Time does not require a physical M-Clock, embedded controller, GNSS/PPS receiver, oscillator, RTC, bench prototype or hardware metrology program.
+M-Time's v1 exit program is software-only.
 
 `MCLOCK-1` remains only as a software clock-state serialization/view.
 
