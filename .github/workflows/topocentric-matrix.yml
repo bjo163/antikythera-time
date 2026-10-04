@@ -14,7 +14,7 @@ on:
 jobs:
   oracle-matrix:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -26,7 +26,7 @@ jobs:
           mkdir -p /tmp/mtime-matrix
           sha256sum /tmp/de440s.bsp /tmp/finals.all | tee /tmp/mtime-matrix/source-sha256.txt
 
-      - name: Validate 3 locations x 3 Hijri-boundary epochs against Horizons
+      - name: Validate 7 locations x 3 Hijri-boundary epochs against Horizons
         shell: bash
         run: |
           set -euo pipefail
@@ -34,12 +34,24 @@ jobs:
             "RAMADAN_JAKARTA|106.8272|-6.1754|0.000|2461089.9166666665"
             "RAMADAN_ANKARA|32.8597|39.9334|0.000|2461089.9166666665"
             "RAMADAN_MAKKAH|39.8262|21.4225|0.000|2461089.9166666665"
+            "RAMADAN_WELLINGTON|174.7772|-41.2889|0.000|2461089.9166666665"
+            "RAMADAN_NEW_YORK|-74.0060|40.7128|0.000|2461089.9166666665"
+            "RAMADAN_SANTIAGO|-70.6693|-33.4489|0.000|2461089.9166666665"
+            "RAMADAN_CAPE_TOWN|18.4241|-33.9249|0.000|2461089.9166666665"
             "SHAWWAL_JAKARTA|106.8272|-6.1754|0.000|2461118.9166666665"
             "SHAWWAL_ANKARA|32.8597|39.9334|0.000|2461118.9166666665"
             "SHAWWAL_MAKKAH|39.8262|21.4225|0.000|2461118.9166666665"
+            "SHAWWAL_WELLINGTON|174.7772|-41.2889|0.000|2461118.9166666665"
+            "SHAWWAL_NEW_YORK|-74.0060|40.7128|0.000|2461118.9166666665"
+            "SHAWWAL_SANTIAGO|-70.6693|-33.4489|0.000|2461118.9166666665"
+            "SHAWWAL_CAPE_TOWN|18.4241|-33.9249|0.000|2461118.9166666665"
             "DHULHIJJAH_JAKARTA|106.8272|-6.1754|0.000|2461177.9166666665"
             "DHULHIJJAH_ANKARA|32.8597|39.9334|0.000|2461177.9166666665"
             "DHULHIJJAH_MAKKAH|39.8262|21.4225|0.000|2461177.9166666665"
+            "DHULHIJJAH_WELLINGTON|174.7772|-41.2889|0.000|2461177.9166666665"
+            "DHULHIJJAH_NEW_YORK|-74.0060|40.7128|0.000|2461177.9166666665"
+            "DHULHIJJAH_SANTIAGO|-70.6693|-33.4489|0.000|2461177.9166666665"
+            "DHULHIJJAH_CAPE_TOWN|18.4241|-33.9249|0.000|2461177.9166666665"
           )
 
           : > /tmp/mtime-matrix/report.txt
@@ -54,6 +66,19 @@ jobs:
             echo "===== $label =====" | tee -a /tmp/mtime-matrix/report.txt
             cargo run --quiet -p mtime-spk --example validate_topocentric_case --               /tmp/de440s.bsp "$out" /tmp/finals.all               "$lon" "$lat" "0" "$jd" "$label"               | tee -a /tmp/mtime-matrix/report.txt
           done
+
+          case_count="$(grep -c '^case=' /tmp/mtime-matrix/report.txt)"
+          max_direction_error_deg="$(awk -F= '/direction_error_deg=/{v=$2+0; if (v>max) max=v} END {printf "%.12f", max}' /tmp/mtime-matrix/report.txt)"
+          {
+            echo
+            echo "===== MATRIX SUMMARY ====="
+            echo "case_count=$case_count"
+            echo "max_direction_error_deg=$max_direction_error_deg"
+            echo "threshold_deg=0.001000000000"
+          } | tee -a /tmp/mtime-matrix/report.txt
+
+          test "$case_count" -eq 21
+          awk -v max="$max_direction_error_deg" 'BEGIN { exit !(max <= 0.001) }'
 
       - uses: actions/upload-artifact@v4
         with:
