@@ -8,6 +8,7 @@ on:
       - "crates/mtime-hilal/**"
       - "crates/mtime-spk/**"
       - "crates/mtime-jpl/**"
+      - "crates/mtime-eop/**"
       - ".github/workflows/wellington-seasonal-oracle.yml"
 
 jobs:
