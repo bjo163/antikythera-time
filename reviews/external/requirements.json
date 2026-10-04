@@ -1,8 +1,8 @@
 {
   "schema": "mtime-external-review-requirements-1",
   "candidate": {
-    "release": "m20-review-candidate-1",
-    "git_sha": "39c2705fa18d7d487803f8a37b8fe79df639daaa"
+    "release": "m20-review-candidate-2",
+    "git_sha": "799e70d87bd3b4a918986a3f8877b9ca44a13696"
   },
   "requirements": [
     {
