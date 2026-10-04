@@ -1,6 +1,6 @@
 use std::{env, fs};
 
-use mtime_astro::{topocentric_horizon_iau2006, Body};
+use mtime_astro::topocentric_horizon_iau2006;
 use mtime_core::EarthObserver;
 use mtime_eop::{interpolate, parse_finals2000a, utc_jd_to_ut1_jd};
 use mtime_jpl::parse_single_topocentric_quantity_4;
@@ -41,7 +41,7 @@ fn main() {
     let bytes = fs::read(spk_path).expect("SPK");
     let eph = SpkEphemeris::from_bytes(&bytes).expect("parse SPK");
     let sun = eph
-        .geocentric_vector_km(Body::Sun, (p.d1, p.d2))
+        .apparent_geocentric_sun_vector_km((p.d1, p.d2))
         .expect("Sun vector");
 
     let observer = EarthObserver::new(lon, lat, height_m).expect("observer");
