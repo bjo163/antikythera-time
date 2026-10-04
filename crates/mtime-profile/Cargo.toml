@@ -11,6 +11,7 @@ toml = "0.8"
 mtime-core = { path = "../mtime-core" }
 mtime-hijri = { path = "../mtime-hijri" }
 mtime-worship = { path = "../mtime-worship" }
+mtime-geospatial = { path = "../mtime-geospatial" }
 
 [lints]
 workspace = true

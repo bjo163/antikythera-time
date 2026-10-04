@@ -11,6 +11,7 @@ members = [
   "crates/mtime-hijri",
   "crates/mtime-hilal",
   "crates/mtime-profile",
+  "crates/mtime-geospatial",
   "crates/mtime-worship",
   "crates/mtime-observation",
   "crates/mtime-integrity",

@@ -263,6 +263,7 @@ jobs:
             topocentric-multiyear.yml
             source-ingestion.yml
             historical-falsification.yml
+            geospatial-mainland.yml
             pages-mtime.yml
           )
           for workflow in "${workflows[@]}"; do

@@ -315,6 +315,12 @@ pub trait AmericasMainlandProvider {
     fn is_americas_mainland(&self, site_id: &str) -> Option<bool>;
 }
 
+impl AmericasMainlandProvider for mtime_geospatial::AmericasMainlandGeoProvider {
+    fn is_americas_mainland(&self, site_id: &str) -> Option<bool> {
+        self.classify_site_id(site_id)
+    }
+}
+
 pub trait WellingtonFajrProvider {
     /// Return the computed Wellington imsak/fajr event using an explicitly
     /// versioned worship-time method. None means the event is unavailable.
