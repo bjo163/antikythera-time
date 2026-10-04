@@ -36,3 +36,12 @@ The repository may not tag v1.0 solely by maintainer preference. All machine-rea
 ## Disagreement policy
 
 Conflicting observations, scholarly reconstructions, authority decisions or external reviews are retained as explicit competing records rather than normalized into false consensus.
+
+
+## Repository promotion topology
+
+Development changes land on `dev` first. Promotion to `main` must use a pull request from `dev` and a real merge commit.
+
+Direct feature-branch squash/rebase promotion to `main` is not an accepted release topology because it removes the parent relationship audited by `.github/workflows/main-history-guard.yml`.
+
+If `main` receives an emergency direct commit, `dev` must first be fast-forwarded to that exact history, then a subsequent `dev -> main` merge-commit promotion must restore the audited topology. History must not be rewritten merely to make the guard green.
