@@ -293,3 +293,74 @@ pub fn audit_cross_jurisdiction_replay(
         )],
     }
 }
+
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PublishedCriterionStatus {
+    Met,
+    NotMet,
+    Unknown,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PublishedAuthorityAction {
+    BeginNewMonthNextDay,
+    CompleteCurrentMonthTo30Days,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SourceBackedHistoricalCase<'a> {
+    pub id: &'a str,
+    pub jurisdiction: &'a str,
+    pub event: &'a str,
+    pub source_url: &'a str,
+    pub criterion_status: PublishedCriterionStatus,
+    pub authority_action: PublishedAuthorityAction,
+}
+
+#[must_use]
+pub fn audit_source_backed_historical_case(
+    case: &SourceBackedHistoricalCase<'_>,
+) -> HistoricalReplayAudit {
+    if case.id.trim().is_empty()
+        || case.jurisdiction.trim().is_empty()
+        || case.event.trim().is_empty()
+        || !(case.source_url.starts_with("https://") || case.source_url.starts_with("http://"))
+    {
+        return HistoricalReplayAudit {
+            verdict: ReplayVerdict::Incomplete,
+            reasons: vec!["source-backed historical case is missing required identity/provenance".into()],
+        };
+    }
+
+    match (case.criterion_status, case.authority_action) {
+        (PublishedCriterionStatus::Unknown, _) => HistoricalReplayAudit {
+            verdict: ReplayVerdict::Incomplete,
+            reasons: vec![
+                "official source records an authority outcome but does not expose enough criterion evidence for a safe represented replay"
+                    .into(),
+            ],
+        },
+        (
+            PublishedCriterionStatus::Met,
+            PublishedAuthorityAction::BeginNewMonthNextDay,
+        )
+        | (
+            PublishedCriterionStatus::NotMet,
+            PublishedAuthorityAction::CompleteCurrentMonthTo30Days,
+        ) => HistoricalReplayAudit {
+            verdict: ReplayVerdict::Reproduced,
+            reasons: vec![
+                "source-asserted criterion state is consistent with the published authority action"
+                    .into(),
+            ],
+        },
+        _ => HistoricalReplayAudit {
+            verdict: ReplayVerdict::Falsified,
+            reasons: vec![
+                "source-asserted criterion state conflicts with the published authority action"
+                    .into(),
+            ],
+        },
+    }
+}

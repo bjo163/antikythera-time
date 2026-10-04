@@ -13,3 +13,6 @@ mtime-authority = { path = "../mtime-authority" }
 
 [lints]
 workspace = true
+
+[dev-dependencies]
+serde_json = "1"
