@@ -38,6 +38,15 @@ jobs:
           test -s /tmp/mtime-antikythera/m6/phase-bins.csv
           test -s /tmp/mtime-antikythera/m6/summary.csv
 
+      - name: Run correction ablation and out-of-sample candidate fit
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/mtime-antikythera/m8
+          cargo run --release --quiet -p mtime-spk --example ablate_antikythera_corrections --             /tmp/mtime-antikythera/de440s.bsp             /tmp/mtime-antikythera/m8             | tee /tmp/mtime-antikythera/m8/report.txt
+          test -s /tmp/mtime-antikythera/m8/ablation.csv
+          test -s /tmp/mtime-antikythera/m8/candidate-fit.csv
+          grep -q "default_profile_changed=false" /tmp/mtime-antikythera/m8/report.txt
+
       - uses: actions/upload-artifact@v4
         with:
           name: mtime-antikythera-de440-calibration
