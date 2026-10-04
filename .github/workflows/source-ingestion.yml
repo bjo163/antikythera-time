@@ -22,12 +22,14 @@ jobs:
 
       - name: Download official IERS EOP source
         run: |
+          set -euo pipefail
           curl --fail --retry 5 --retry-delay 3             "https://datacenter.iers.org/data/latestVersion/finals.all.iau2000.txt"             -o /tmp/mtime-source-ingestion/finals.all.iau2000.txt
           RETRIEVED_AT="$(date +%s)"
           cargo run --quiet -p mtime-integrity --example ingest_source --             /tmp/mtime-source-ingestion/finals.all.iau2000.txt             IERS_FINALS_ALL_IAU2000             IERS             https://datacenter.iers.org/data/latestVersion/finals.all.iau2000.txt             text/plain             "$RETRIEVED_AT"             | tee /tmp/mtime-source-ingestion/iers-ingestion-record.txt
 
       - name: Download official NAIF DE440 source
         run: |
+          set -euo pipefail
           curl --fail --retry 5 --retry-delay 3             "https://naif.jpl.nasa.gov/pub/naif/JUNO/kernels/spk/de440s.bsp"             -o /tmp/mtime-source-ingestion/de440s.bsp
           RETRIEVED_AT="$(date +%s)"
           cargo run --quiet -p mtime-integrity --example ingest_source --             /tmp/mtime-source-ingestion/de440s.bsp             NAIF_DE440_SHORT             NASA-JPL-NAIF             https://naif.jpl.nasa.gov/pub/naif/JUNO/kernels/spk/de440s.bsp             application/octet-stream             "$RETRIEVED_AT"             | tee /tmp/mtime-source-ingestion/de440-ingestion-record.txt

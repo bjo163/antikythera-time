@@ -37,6 +37,27 @@ impl SolarThresholdProfile {
             },
         }
     }
+    #[must_use]
+    pub fn diyanet_imsak_fajr_18_2026() -> Self {
+        Self {
+            id: "DIYANET_IMSAK_FAJR_MINUS_18",
+            version: "Diyanet-current-methodology-2026-10-04",
+            event: SolarEventKind::FajrThreshold,
+            sun_altitude_deg: -18.0,
+            evidence: EvidenceState::Modeled,
+            quality: QualityClass::Reference,
+            provenance: Provenance {
+                source: "T.C. Diyanet İşleri Başkanlığı — imsak: astronomical dawn at Sun altitude -18°"
+                    .into(),
+                source_version: Some(
+                    "https://kurul.diyanet.gov.tr/tr/video/imsak-nedir-ne-zaman-baslar/019d0027-3361-75de-b072-bc87fbe71859"
+                        .into(),
+                ),
+                retrieved_at: Some("2026-10-04".into()),
+            },
+        }
+    }
+
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -198,6 +219,10 @@ mod tests {
         let p = SolarThresholdProfile::indonesia_kemenag_fajr_20();
         assert_eq!(p.sun_altitude_deg, -20.0);
         assert_eq!(p.id, "ID_KEMENAG_FAJR_MINUS_20");
+
+        let d = SolarThresholdProfile::diyanet_imsak_fajr_18_2026();
+        assert_eq!(d.sun_altitude_deg, -18.0);
+        assert_eq!(d.id, "DIYANET_IMSAK_FAJR_MINUS_18");
     }
 
     #[test]

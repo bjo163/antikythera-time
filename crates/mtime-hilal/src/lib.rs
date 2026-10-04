@@ -222,6 +222,98 @@ impl<'a> HilalEngine<'a> {
     }
 }
 
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SolarCrossingDirection {
+    Rising,
+    Setting,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct SolarAltitudeSolution {
+    pub jd_utc: f64,
+    pub jd_ut1: f64,
+    pub target_sun_altitude_deg: f64,
+    pub residual_deg: f64,
+    pub direction: SolarCrossingDirection,
+}
+
+pub fn find_solar_altitude_crossing_utc<P: DtrProvider>(
+    engine: &HilalEngine<'_>,
+    start_utc_jd: f64,
+    end_utc_jd: f64,
+    observer: EarthObserver,
+    eop_rows: &[EopRecord],
+    dtr_provider: &P,
+    target_sun_altitude_deg: f64,
+    direction: SolarCrossingDirection,
+    tolerance_seconds: f64,
+) -> Result<SolarAltitudeSolution, HilalEngineError> {
+    if !start_utc_jd.is_finite()
+        || !end_utc_jd.is_finite()
+        || start_utc_jd >= end_utc_jd
+        || !target_sun_altitude_deg.is_finite()
+        || !tolerance_seconds.is_finite()
+        || tolerance_seconds <= 0.0
+    {
+        return Err(HilalEngineError::InvalidBracket);
+    }
+
+    let mut lo = start_utc_jd;
+    let mut hi = end_utc_jd;
+    let mut flo =
+        engine.sun_altitude_utc(lo, observer, eop_rows, dtr_provider)? - target_sun_altitude_deg;
+    let fhi =
+        engine.sun_altitude_utc(hi, observer, eop_rows, dtr_provider)? - target_sun_altitude_deg;
+
+    let valid_direction = match direction {
+        SolarCrossingDirection::Rising => flo <= 0.0 && fhi >= 0.0,
+        SolarCrossingDirection::Setting => flo >= 0.0 && fhi <= 0.0,
+    };
+    if !valid_direction || flo.signum() == fhi.signum() {
+        return Err(HilalEngineError::InvalidBracket);
+    }
+
+    for _ in 0..80 {
+        let mid = (lo + hi) / 2.0;
+        let fm =
+            engine.sun_altitude_utc(mid, observer, eop_rows, dtr_provider)?
+                - target_sun_altitude_deg;
+        if (hi - lo) * SECONDS_PER_DAY <= tolerance_seconds {
+            let eop = interpolate(eop_rows, mid - 2_400_000.5)
+                .map_err(|_| HilalEngineError::MissingEop)?;
+            return Ok(SolarAltitudeSolution {
+                jd_utc: mid,
+                jd_ut1: utc_jd_to_ut1_jd(mid, eop),
+                target_sun_altitude_deg,
+                residual_deg: fm,
+                direction,
+            });
+        }
+
+        match direction {
+            SolarCrossingDirection::Rising => {
+                if fm < 0.0 {
+                    lo = mid;
+                    flo = fm;
+                } else {
+                    hi = mid;
+                }
+            }
+            SolarCrossingDirection::Setting => {
+                if fm > 0.0 {
+                    lo = mid;
+                    flo = fm;
+                } else {
+                    hi = mid;
+                }
+            }
+        }
+    }
+    let _ = flo;
+    Err(HilalEngineError::IterationLimit)
+}
+
 #[must_use]
 pub fn utc_to_jd(utc: UtcInstant) -> f64 {
     JD_UNIX_EPOCH

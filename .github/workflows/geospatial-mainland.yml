@@ -18,21 +18,25 @@ jobs:
 
       - name: Download pinned Natural Earth v5.1.2 land GeoJSON
         run: |
+          set -euo pipefail
           mkdir -p /tmp/mtime-geospatial
           curl --fail --retry 5 --retry-delay 3             "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_110m_land.geojson"             -o /tmp/mtime-geospatial/ne_110m_land.geojson
           echo "9e0729ee253ca7d7a5c4ae9395fb1902264c5377c52e224d13dd85010e2835d9  /tmp/mtime-geospatial/ne_110m_land.geojson"             | sha256sum -c -
 
       - name: Create auditable source-ingestion record
         run: |
+          set -euo pipefail
           RETRIEVED_AT="$(date +%s)"
           cargo run --quiet -p mtime-integrity --example ingest_source --             /tmp/mtime-geospatial/ne_110m_land.geojson             NATURAL_EARTH_110M_LAND_V5_1_2             NATURAL_EARTH             https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_110m_land.geojson             application/geo+json             "$RETRIEVED_AT"             9e0729ee253ca7d7a5c4ae9395fb1902264c5377c52e224d13dd85010e2835d9             | tee /tmp/mtime-geospatial/source-ingestion-record.txt
 
       - name: Validate mainland geometry classifications
         run: |
+          set -euo pipefail
           cargo run --quiet -p mtime-geospatial --example validate_americas_mainland --             /tmp/mtime-geospatial/ne_110m_land.geojson             | tee /tmp/mtime-geospatial/classification-report.txt
 
       - name: Validate Diyanet provider integration
         run: |
+          set -euo pipefail
           cargo run --quiet -p mtime-profile --example validate_diyanet_geography --             /tmp/mtime-geospatial/ne_110m_land.geojson             | tee /tmp/mtime-geospatial/diyanet-provider-report.txt
 
       - uses: actions/upload-artifact@v4
