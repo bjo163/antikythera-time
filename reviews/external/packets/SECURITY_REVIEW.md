@@ -2,8 +2,8 @@
 
 Category: `security`  
 Issue: #40  
-Candidate: `m20-review-candidate-2`  
-Candidate Git SHA: `799e70d87bd3b4a918986a3f8877b9ca44a13696`
+Candidate: `m20-review-candidate-3`  
+Candidate Git SHA: `f5a14d8d00367117a6ae9f98ce6cac25f2f262e9`
 
 ## Required topics
 
