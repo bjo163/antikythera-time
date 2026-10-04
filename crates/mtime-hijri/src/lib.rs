@@ -252,3 +252,71 @@ mod native_mtime_tests {
         assert!((margins[0].signed_margin.unwrap() - 0.1).abs() < 1e-12);
     }
 }
+
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MarginConfidence {
+    RobustPass,
+    RobustFail,
+    BoundaryUncertain,
+    Unknown,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct CriterionMarginAssessment {
+    pub margin: CriterionMargin,
+    pub metric_uncertainty: Option<f64>,
+    pub confidence: MarginConfidence,
+}
+
+#[must_use]
+pub fn assess_criterion_margin(
+    margin: CriterionMargin,
+    metric_uncertainty: Option<f64>,
+) -> CriterionMarginAssessment {
+    let confidence = match (margin.signed_margin, metric_uncertainty) {
+        (None, _) => MarginConfidence::Unknown,
+        (Some(_), Some(u)) if !u.is_finite() || u < 0.0 => MarginConfidence::Unknown,
+        (Some(m), Some(u)) if m.abs() <= u => MarginConfidence::BoundaryUncertain,
+        (Some(m), Some(_)) if m > 0.0 => MarginConfidence::RobustPass,
+        (Some(_), Some(_)) => MarginConfidence::RobustFail,
+        (Some(m), None) if m > 0.0 => MarginConfidence::RobustPass,
+        (Some(_), None) => MarginConfidence::RobustFail,
+    };
+    CriterionMarginAssessment {
+        margin,
+        metric_uncertainty,
+        confidence,
+    }
+}
+
+#[cfg(test)]
+mod margin_uncertainty_tests {
+    use super::*;
+
+    #[test]
+    fn near_threshold_can_be_marked_boundary_uncertain() {
+        let m = CriterionMargin {
+            clause_id: "ALT",
+            actual: Some(3.04),
+            threshold: 3.0,
+            signed_margin: Some(0.04),
+            unit: "deg",
+        };
+        let a = assess_criterion_margin(m, Some(0.08));
+        assert_eq!(a.confidence, MarginConfidence::BoundaryUncertain);
+    }
+
+    #[test]
+    fn uncertainty_must_match_metric_and_be_supplied_explicitly() {
+        let m = CriterionMargin {
+            clause_id: "ELONG",
+            actual: Some(6.8),
+            threshold: 6.4,
+            signed_margin: Some(0.4),
+            unit: "deg",
+        };
+        let a = assess_criterion_margin(m, Some(0.1));
+        assert_eq!(a.confidence, MarginConfidence::RobustPass);
+    }
+}

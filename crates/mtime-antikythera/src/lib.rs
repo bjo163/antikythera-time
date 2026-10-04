@@ -603,6 +603,90 @@ pub const DIGITAL_LUNAR_CORRECTIONS_V1: &[CorrectionTerm] = &[
 ];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CorrectionFamily {
+    PeriodicHarmonic,
+    Secular,
+    EpochOffset,
+}
+
+impl LunarArgument {
+    #[must_use]
+    pub const fn id(self) -> &'static str {
+        match self {
+            Self::MoonAnomaly => "M",
+            Self::TwoElongationMinusMoonAnomaly => "2D-M",
+            Self::TwoElongation => "2D",
+            Self::TwoMoonAnomaly => "2M",
+            Self::SunAnomaly => "MSUN",
+            Self::TwoElongationMinusTwoMoonAnomaly => "2D-2M",
+            Self::TwoElongationMinusSunMinusMoonAnomaly => "2D-MSUN-M",
+            Self::TwoElongationPlusMoonAnomaly => "2D+M",
+            Self::TwoElongationMinusSun => "2D-MSUN",
+            Self::SunMinusMoonAnomaly => "MSUN-M",
+            Self::Elongation => "D",
+            Self::SunPlusMoonAnomaly => "MSUN+M",
+            Self::TwoLatitudeMinusTwoElongation => "2F-2D",
+            Self::TwoElongationMinusFourMoonAnomaly => "2D-4M",
+            Self::TwoDraconicPhase => "2DRACONIC",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct CorrectionRegistry {
+    pub id: &'static str,
+    pub family: CorrectionFamily,
+    pub terms: &'static [CorrectionTerm],
+    pub calibration_interval: &'static str,
+    pub validation_interval: &'static str,
+}
+
+impl CorrectionRegistry {
+    #[must_use]
+    pub fn canonical_manifest(self) -> String {
+        let mut rows = self
+            .terms
+            .iter()
+            .map(|term| {
+                format!(
+                    "{}|{:.12}|{}|{}|{}",
+                    term.id,
+                    term.coefficient_deg,
+                    term.argument.id(),
+                    term.enabled_by_default,
+                    term.provenance
+                )
+            })
+            .collect::<Vec<_>>();
+        rows.sort();
+        format!(
+            "registry={}\nfamily={:?}\ncalibration={}\nvalidation={}\n{}",
+            self.id,
+            self.family,
+            self.calibration_interval,
+            self.validation_interval,
+            rows.join("\n")
+        )
+    }
+}
+
+pub const DIGITAL_LUNAR_REGISTRY_V1: CorrectionRegistry = CorrectionRegistry {
+    id: "MTIME_DIGITAL_LUNAR_CORRECTIONS_V1",
+    family: CorrectionFamily::PeriodicHarmonic,
+    terms: DIGITAL_LUNAR_CORRECTIONS_V1,
+    calibration_interval: "legacy compact modern lunar-series baseline",
+    validation_interval: "M6/M16 independently characterized",
+};
+
+pub const M8_EXPERIMENTAL_REGISTRY: CorrectionRegistry = CorrectionRegistry {
+    id: "MTIME_DIGITAL_LUNAR_V2_EXPERIMENTAL_REGISTRY",
+    family: CorrectionFamily::PeriodicHarmonic,
+    terms: &[M8_EXPERIMENTAL_CORRECTION],
+    calibration_interval: "1900-1999 monthly",
+    validation_interval: "2000-2100 monthly + M16 1850-2149 partitions",
+};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct CorrectionSelection<'a> {
     pub disabled_ids: &'a [&'a str],
 }
@@ -914,6 +998,18 @@ mod tests {
             AntikytheraMachine::historical().state_at_tt_validated(J2000_JD_TT),
             Err(MachineError::NoValidatedInterval)
         );
+    }
+
+
+    #[test]
+    fn correction_registry_manifest_is_deterministic() {
+        let a = DIGITAL_LUNAR_REGISTRY_V1.canonical_manifest();
+        let b = DIGITAL_LUNAR_REGISTRY_V1.canonical_manifest();
+        assert_eq!(a, b);
+        assert!(a.contains("L1_MOON_ANOMALY"));
+        assert!(M8_EXPERIMENTAL_REGISTRY
+            .canonical_manifest()
+            .contains("M8_SIN_2_DRACONIC"));
     }
 
 }

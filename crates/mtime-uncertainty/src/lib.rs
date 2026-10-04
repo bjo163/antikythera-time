@@ -61,6 +61,23 @@ impl UncertaintyBudget {
     }
 
     #[must_use]
+    pub fn explain(&self) -> String {
+        if self.components.is_empty() {
+            return "uncertainty budget has no declared components".into();
+        }
+        self.components
+            .iter()
+            .map(|c| {
+                format!(
+                    "{}:{:?}:{:?}:{}:{}:{}",
+                    c.id, c.kind, c.unit, c.magnitude, c.coverage, c.provenance
+                )
+            })
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+
+    #[must_use]
     pub fn status(&self) -> &'static str {
         if self.components.iter().all(|c| c.is_known()) {
             "BOUNDED_BY_DECLARED_COMPONENTS"
