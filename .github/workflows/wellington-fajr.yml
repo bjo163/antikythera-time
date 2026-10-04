@@ -19,12 +19,14 @@ jobs:
 
       - name: Download official DE440 and IERS EOP
         run: |
+          set -euo pipefail
           mkdir -p /tmp/mtime-wellington
           curl --fail --retry 5 --retry-delay 3             "https://naif.jpl.nasa.gov/pub/naif/JUNO/kernels/spk/de440s.bsp"             -o /tmp/mtime-wellington/de440s.bsp
           curl --fail --retry 5 --retry-delay 3             "https://datacenter.iers.org/data/latestVersion/finals.all.iau2000.txt"             -o /tmp/mtime-wellington/finals.all
 
       - name: Compute Diyanet Wellington imsak/fajr
         run: |
+          set -euo pipefail
           cargo run --quiet -p mtime-hilal --example validate_wellington_diyanet --             /tmp/mtime-wellington/de440s.bsp             /tmp/mtime-wellington/finals.all             | tee /tmp/mtime-wellington/report.txt
 
       - uses: actions/upload-artifact@v4

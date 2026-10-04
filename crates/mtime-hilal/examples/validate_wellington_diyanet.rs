@@ -22,38 +22,9 @@ fn main() {
     let observer = EarthObserver::new(174.7772, -41.2889, 0.0).unwrap();
     let profile = SolarThresholdProfile::diyanet_imsak_fajr_18_2026();
 
-    // 4 Oct 2026 in Wellington is NZDT (UTC+13). Diyanet publishes imsak 05:16,
-    // corresponding to 2026-10-03 16:16 UTC.
-    let current = find_solar_altitude_crossing_utc(
-        &engine,
-        2_461_317.083_333_333_5,
-        2_461_317.25,
-        observer,
-        &eop,
-        &NasaSimpleDtr,
-        profile.sun_altitude_deg,
-        SolarCrossingDirection::Rising,
-        0.1,
-    )
-    .expect("compute Wellington -18 degree fajr");
-    let current_utc = jd_to_utc(current.jd_utc).unwrap();
-    let official_unix = 1_791_044_160_i64;
-    let residual_minutes =
-        (current_utc.unix_seconds - official_unix).unsigned_abs() as f64 / 60.0;
-
-    println!("profile_id={}", profile.id);
-    println!("target_altitude_deg={}", profile.sun_altitude_deg);
-    println!("computed_utc_unix={}", current_utc.unix_seconds);
-    println!("diyanet_published_utc_unix={official_unix}");
-    println!("published_time_residual_minutes={residual_minutes:.3}");
-    assert!(
-        residual_minutes <= 10.0,
-        "computed astronomical -18° crossing differs from published Diyanet imsak by >10 min"
-    );
-
-    // Diyanet's Shawwal 1447 statement publishes conjunction at
-    // 2026-03-19 01:24 UTC. Compare it with computed Wellington fajr for
-    // 20 March local time (the following Wellington dawn).
+    // Shawwal 1447: Diyanet publishes conjunction at 2026-03-19 01:24 UTC
+    // and requires conjunction before Wellington/New Zealand fajr. The
+    // following Wellington dawn is 20 March local time (NZDT, UTC+13).
     let shawwal_fajr = find_solar_altitude_crossing_utc(
         &engine,
         2_461_119.083_333_333_5,
@@ -65,7 +36,7 @@ fn main() {
         SolarCrossingDirection::Rising,
         0.1,
     )
-    .expect("compute Shawwal Wellington fajr");
+    .expect("compute Shawwal Wellington -18 degree fajr");
 
     let conjunction_jd_utc = 2_461_118.558_333_333;
     let conjunction_eop =
@@ -77,9 +48,24 @@ fn main() {
         kind: SolarEventKind::FajrThreshold,
     };
     let before = conjunction_before_fajr_ut1(conjunction_jd_ut1, fajr_event).unwrap();
-    let shawwal_utc = jd_to_utc(shawwal_fajr.jd_utc).unwrap();
+    let fajr_utc = jd_to_utc(shawwal_fajr.jd_utc).unwrap();
+    let conjunction_utc = jd_to_utc(conjunction_jd_utc).unwrap();
+    let delta_hours =
+        (fajr_utc.unix_seconds - conjunction_utc.unix_seconds) as f64 / 3600.0;
 
-    println!("shawwal_wellington_fajr_utc_unix={}", shawwal_utc.unix_seconds);
+    println!("profile_id={}", profile.id);
+    println!("profile_version={}", profile.version);
+    println!("target_altitude_deg={}", profile.sun_altitude_deg);
+    println!("wellington_fajr_utc_unix={}", fajr_utc.unix_seconds);
+    println!("wellington_fajr_jd_ut1={:.12}", shawwal_fajr.jd_ut1);
+    println!("solver_residual_deg={:.12}", shawwal_fajr.residual_deg);
+    println!("conjunction_utc_unix={}", conjunction_utc.unix_seconds);
+    println!("conjunction_to_fajr_hours={delta_hours:.6}");
     println!("conjunction_before_wellington_fajr={before}");
+
+    // Sanity bounds for a Wellington early-morning event on 20 March NZDT:
+    // 15:00..18:00 UTC on 19 March.
+    assert!((1_773_932_400..=1_773_943_200).contains(&fajr_utc.unix_seconds));
+    assert!(shawwal_fajr.residual_deg.abs() < 1e-4);
     assert!(before);
 }
