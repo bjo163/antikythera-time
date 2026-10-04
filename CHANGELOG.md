@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.15.0 - 2026-10-04
+
+- feat(m12): add provenance-bound metrology suite reporting (#49) (`1bb93c0`)
+
 ## v0.14.1 - 2026-10-04
 
 - docs(governance): codify dev to main promotion topology (`fb70ca6`)
