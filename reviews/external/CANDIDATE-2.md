@@ -1,6 +1,22 @@
-# M20 External Review Candidate 2
+# M20 External Review Candidate 2 — Superseded
 
-Status: **CURRENT / FROZEN FOR EXTERNAL REVIEW**
+Status: **SUPERSEDED BEFORE EXTERNAL REVIEW SUBMISSION**
+
+Candidate ID: `m20-review-candidate-2`  
+Frozen Git SHA: `799e70d87bd3b4a918986a3f8877b9ca44a13696`  
+Release: `v0.15.0`
+
+Candidate 2 remains immutable historical evidence.
+
+It was superseded by `m20-review-candidate-3` after the project removed the physical-device/metrology scope and released the software-only v0.16.0 baseline.
+
+No external review submission existed at supersession time.
+
+A report targeting candidate 2 must never be relabeled as candidate 3 evidence.
+
+---
+
+## Original candidate-2 record
 
 Candidate ID: `m20-review-candidate-2`
 
@@ -114,3 +130,4 @@ python scripts/v1_readiness.py
 ```
 
 A negative, inconclusive, or PASS_WITH_FINDINGS report remains evidence. It does not satisfy a v1 gate under the current fail-closed policy.
+
