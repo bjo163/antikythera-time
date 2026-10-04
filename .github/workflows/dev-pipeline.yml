@@ -265,6 +265,7 @@ jobs:
             historical-falsification.yml
             geospatial-mainland.yml
             wellington-fajr.yml
+            wellington-seasonal-oracle.yml
             pages-mtime.yml
           )
           for workflow in "${workflows[@]}"; do
