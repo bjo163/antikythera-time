@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.9.0 - 2026-10-04
+
+- docs(m-time): finalize v0.9.0 computed Wellington fajr release (`91daf50`)
+- fix(ci): make external-source validation fail closed [skip version] (`41ce1d3`)
+- feat(m-time): compute Diyanet Wellington fajr from DE440 and IERS [skip version] (`32eee2c`)
+
 ## v0.8.0 - 2026-10-04
 
 - docs(m-time): finalize v0.8.0 geospatial policy release (`5ac0595`)
