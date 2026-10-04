@@ -1,0 +1,7 @@
+metric,value_deg,source
+historical_sun_relative_max_2026,1.996415486,v0.12 12-epoch DE440 baseline
+historical_moon_relative_max_2026,3.701058086,v0.12 12-epoch DE440 baseline
+historical_phase_max_2026,3.437724488,v0.12 12-epoch DE440 baseline
+digital_sun_relative_max_2026,0.014132662,v0.12 12-epoch DE440 baseline
+digital_moon_relative_max_2026,0.504873428,v0.12 12-epoch DE440 baseline
+digital_phase_max_2026,0.277593562,v0.12 12-epoch DE440 baseline
