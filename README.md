@@ -1,12 +1,12 @@
 # M-Time — Mīqāt Temporal Protocol
 
-**Status:** Rust-first **v0.7.0 Historical Falsification Research Prototype**.
+**Status:** Rust-first **v0.8.0 Versioned Geospatial Policy Research Prototype**.
 
 M-Time is a temporal interoperability framework. It does **not** invent a new physical second, replace UTC, choose a fiqh position, or claim an absolute cosmic clock. Its flagship use-case is explainable Hijri/worship-calendar resolution.
 
 Core rule: physical time, astronomy, calendar criteria, observation/rukyat, jurisdiction, authority decisions, cosmic inference, historical reconstruction, and revelation-text concepts are separate semantic layers.
 
-## v0.7.0 highlights
+## v0.8.0 highlights
 
 - Pure-Rust offline JPL DE440/SPK provider.
 - Integrated `mtime-hilal` engine: `UTC + observer + IERS + DE440 → HijriAstronomicalState`.
@@ -27,11 +27,14 @@ Core rule: physical time, astronomy, calendar criteria, observation/rukyat, juri
 - Indonesia Ramadan/Shawwal/Dhulhijjah 1447 H replays reproduce the represented profile/authority outcomes.
 - Indonesia–Türkiye/Diyanet Shawwal 1447 H divergence is reproduced with explicit criterion/observation/jurisdiction/authority differences.
 - Negative controls prove counterfactual authority flips and unexplained date flips are falsified.
+- New `mtime-geospatial` crate provides pinned Natural Earth v5.1.2 mainland classification with SHA-256 verification.
+- Americas-mainland policy classification distinguishes continental New York/Santiago/Panama/Mexico City/Anchorage from Havana/Honolulu/Greenland and non-Americas sites.
+- Diyanet policy evaluation now accepts the real GeoJSON-backed provider directly; unknown site IDs remain UNKNOWN.
 - Indonesia MABIMS/PMA No. 1/2026 source-linked profile.
 - Türkiye Diyanet 1978/2016/2026 global profile: 5°/8° visibility plus executable Americas-mainland and conjunction-before-Wellington-Fajr conditions.
 - Typed provider wiring derives Diyanet policy context from threshold-passing sites plus geospatial/Wellington-fajr providers; missing evidence stays UNKNOWN.
 - Rust/WASM profile comparison surface.
-- 95 Rust tests / 0 failures on the v0.7.0 historical-falsification regression gate.
+- 98 Rust tests / 0 failures on the v0.8.0 geospatial-policy regression gate.
 - Indonesia 1447 H Ramadan/Syawal/Zulhijjah replay corpus.
 - ExplainDifference preserves astronomy vs criterion vs rukyat vs authority.
 
