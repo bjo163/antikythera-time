@@ -1,2 +1,13 @@
 # Changelog
 
+## v0.3.0 - 2026-10-04
+
+- docs(m-time): finalize v0.3.0 provider-wired policy release (`c8eb074`)
+- fix(m-time): scope policy provider fixtures correctly [skip version] (`2a64151`)
+- feat(m-time): wire computed Diyanet policy providers [skip version] (`a79481c`)
+- chore(release): bump version to v0.2.3 [skip version] (`e47cc3a`)
+
+## v0.2.3 - 2026-10-04
+
+- ci(m-time): bootstrap dev/main automation (`b45fd20`)
+

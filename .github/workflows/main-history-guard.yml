@@ -1,0 +1,45 @@
+name: m-time-main-history-guard
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dev-main-topology:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify main promotion topology
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            echo "Manual diagnostic run; checking current main HEAD."
+          fi
+          git fetch origin dev --quiet
+          read -ra parents <<< "$(git show -s --format=%P "$GITHUB_SHA")"
+          if (( ${#parents[@]} < 2 )); then
+            echo "::error::main HEAD is not a merge commit. Active policy requires promotion from dev via PR/merge."
+            exit 1
+          fi
+
+          promoted=false
+          for parent in "${parents[@]}"; do
+            if git merge-base --is-ancestor "$parent" origin/dev; then
+              promoted=true
+              break
+            fi
+          done
+
+          if [[ "$promoted" != "true" ]]; then
+            echo "::error::main merge does not contain a parent reachable from dev."
+            exit 1
+          fi
+
+          echo "main topology matches the dev -> main promotion model."

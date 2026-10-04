@@ -2,6 +2,7 @@ use mtime_core::Provenance;
 use mtime_hijri::{
     CalendarProfile, Comparator, Metric, RuleIfNotMet, ThresholdClause,
 };
+use mtime_worship::{conjunction_before_fajr_ut1, SolarEvent};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
@@ -42,6 +43,7 @@ pub enum ProfileLoadError {
     UnsupportedComparator(String),
     UnsupportedFallback(String),
     UnsupportedAdditionalCondition(String),
+    InvalidPolicyContext(String),
     InvalidLayerSeparation,
     EmptyClauses,
 }
@@ -306,6 +308,74 @@ pub struct AdditionalCalendarContext {
     pub conjunction_before_wellington_fajr: Option<bool>,
 }
 
+
+pub trait AmericasMainlandProvider {
+    /// Returns Some(true/false) when the provider can classify the site,
+    /// or None when the available geospatial evidence is insufficient.
+    fn is_americas_mainland(&self, site_id: &str) -> Option<bool>;
+}
+
+pub trait WellingtonFajrProvider {
+    /// Return the computed Wellington imsak/fajr event using an explicitly
+    /// versioned worship-time method. None means the event is unavailable.
+    fn fajr_event(&self) -> Option<SolarEvent>;
+}
+
+pub fn derive_additional_calendar_context<G, W>(
+    threshold_met: Option<bool>,
+    passing_site_ids: &[String],
+    conjunction_jd_ut1: Option<f64>,
+    geography: &G,
+    wellington: &W,
+) -> Result<AdditionalCalendarContext, ProfileLoadError>
+where
+    G: AmericasMainlandProvider,
+    W: WellingtonFajrProvider,
+{
+    let visibility_on_american_mainland = match threshold_met {
+        Some(false) => Some(false),
+        None => None,
+        Some(true) => {
+            let mut unknown = false;
+            let mut matched = false;
+            for site_id in passing_site_ids {
+                match geography.is_americas_mainland(site_id) {
+                    Some(true) => {
+                        matched = true;
+                        break;
+                    }
+                    Some(false) => {}
+                    None => unknown = true,
+                }
+            }
+            if matched {
+                Some(true)
+            } else if unknown {
+                None
+            } else {
+                Some(false)
+            }
+        }
+    };
+
+    let conjunction_before_wellington_fajr =
+        match (conjunction_jd_ut1, wellington.fajr_event()) {
+            (Some(conjunction), Some(fajr)) => Some(
+                conjunction_before_fajr_ut1(conjunction, fajr).map_err(|error| {
+                    ProfileLoadError::InvalidPolicyContext(format!(
+                        "invalid Wellington fajr context: {error:?}"
+                    ))
+                })?,
+            ),
+            _ => None,
+        };
+
+    Ok(AdditionalCalendarContext {
+        visibility_on_american_mainland,
+        conjunction_before_wellington_fajr,
+    })
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AdditionalConditionResult {
     pub condition: AdditionalCalendarCondition,
@@ -412,11 +482,66 @@ pub fn evaluate_compiled_profile(
     })
 }
 
+
+pub fn evaluate_compiled_profile_with_providers<G, W>(
+    profile: &CompiledProfile,
+    states: &[mtime_hijri::HijriAstronomicalState],
+    conjunction_jd_ut1: Option<f64>,
+    geography: &G,
+    wellington: &W,
+) -> Result<CompiledProfileEvaluation, ProfileLoadError>
+where
+    G: AmericasMainlandProvider,
+    W: WellingtonFajrProvider,
+{
+    let preliminary =
+        evaluate_compiled_profile(profile, states, &AdditionalCalendarContext::default())?;
+    let context = derive_additional_calendar_context(
+        preliminary.threshold_met,
+        &preliminary.passing_site_ids,
+        conjunction_jd_ut1,
+        geography,
+        wellington,
+    )?;
+    evaluate_compiled_profile(profile, states, &context)
+}
+
 #[cfg(test)]
 mod executable_policy_tests {
     use super::*;
     use mtime_core::QualityClass;
     use mtime_hijri::{GeometrySemantics, HijriAstronomicalState};
+
+    struct FixtureGeography;
+
+    impl AmericasMainlandProvider for FixtureGeography {
+        fn is_americas_mainland(&self, site_id: &str) -> Option<bool> {
+            match site_id {
+                "AMERICAS-CANDIDATE" => Some(true),
+                "FIJI-CANDIDATE" => Some(false),
+                "UNKNOWN-CANDIDATE" => None,
+                _ => Some(false),
+            }
+        }
+    }
+
+    struct FixtureWellington {
+        fajr: Option<SolarEvent>,
+    }
+
+    impl WellingtonFajrProvider for FixtureWellington {
+        fn fajr_event(&self) -> Option<SolarEvent> {
+            self.fajr
+        }
+    }
+
+    fn fajr(jd_ut1: f64) -> SolarEvent {
+        SolarEvent {
+            jd_ut1,
+            altitude_deg: -18.0,
+            kind: mtime_worship::SolarEventKind::FajrThreshold,
+        }
+    }
 
     fn state(id: &str, altitude: f64, elongation: f64) -> HijriAstronomicalState {
         HijriAstronomicalState {
@@ -473,6 +598,76 @@ mod executable_policy_tests {
             },
         ).unwrap();
         assert_eq!(r.threshold_met, Some(true));
+        assert_eq!(r.complete_rule_met, Some(false));
+    }
+
+    #[test]
+    fn provider_wiring_can_complete_diyanet_policy_without_manual_booleans() {
+        let p = bundled_diyanet_1978_global();
+        let r = evaluate_compiled_profile_with_providers(
+            &p,
+            &[state("AMERICAS-CANDIDATE", 5.5, 8.5)],
+            Some(2_460_000.20),
+            &FixtureGeography,
+            &FixtureWellington {
+                fajr: Some(fajr(2_460_000.25)),
+            },
+        )
+        .unwrap();
+        assert_eq!(r.threshold_met, Some(true));
+        assert_eq!(r.additional_conditions_met, Some(true));
+        assert_eq!(r.complete_rule_met, Some(true));
+    }
+
+    #[test]
+    fn provider_wiring_rejects_non_mainland_visibility() {
+        let p = bundled_diyanet_1978_global();
+        let r = evaluate_compiled_profile_with_providers(
+            &p,
+            &[state("FIJI-CANDIDATE", 5.5, 8.5)],
+            Some(2_460_000.20),
+            &FixtureGeography,
+            &FixtureWellington {
+                fajr: Some(fajr(2_460_000.25)),
+            },
+        )
+        .unwrap();
+        assert_eq!(r.threshold_met, Some(true));
+        assert_eq!(r.additional_conditions_met, Some(false));
+        assert_eq!(r.complete_rule_met, Some(false));
+    }
+
+    #[test]
+    fn provider_wiring_preserves_unknown_geospatial_evidence() {
+        let p = bundled_diyanet_1978_global();
+        let r = evaluate_compiled_profile_with_providers(
+            &p,
+            &[state("UNKNOWN-CANDIDATE", 5.5, 8.5)],
+            Some(2_460_000.20),
+            &FixtureGeography,
+            &FixtureWellington {
+                fajr: Some(fajr(2_460_000.25)),
+            },
+        )
+        .unwrap();
+        assert_eq!(r.additional_conditions_met, None);
+        assert_eq!(r.complete_rule_met, None);
+    }
+
+    #[test]
+    fn provider_wiring_rejects_conjunction_at_or_after_wellington_fajr() {
+        let p = bundled_diyanet_1978_global();
+        let r = evaluate_compiled_profile_with_providers(
+            &p,
+            &[state("AMERICAS-CANDIDATE", 5.5, 8.5)],
+            Some(2_460_000.30),
+            &FixtureGeography,
+            &FixtureWellington {
+                fajr: Some(fajr(2_460_000.25)),
+            },
+        )
+        .unwrap();
+        assert_eq!(r.additional_conditions_met, Some(false));
         assert_eq!(r.complete_rule_met, Some(false));
     }
 
