@@ -1,0 +1,114 @@
+name: m-time-topocentric-multiyear
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "crates/mtime-astro/**"
+      - "crates/mtime-spk/**"
+      - "crates/mtime-eop/**"
+      - "crates/mtime-timescales/**"
+      - "crates/mtime-hilal/**"
+      - ".github/workflows/topocentric-multiyear.yml"
+
+jobs:
+  oracle-multiyear:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Download official DE440 short kernel and IERS EOP
+        run: |
+          curl --fail --retry 5 --retry-delay 3 \
+            "https://naif.jpl.nasa.gov/pub/naif/JUNO/kernels/spk/de440s.bsp" \
+            -o /tmp/de440s.bsp
+          curl --fail --retry 5 --retry-delay 3 \
+            "https://datacenter.iers.org/data/latestVersion/finals.all.iau2000.txt" \
+            -o /tmp/finals.all
+          mkdir -p /tmp/mtime-multiyear
+          sha256sum /tmp/de440s.bsp /tmp/finals.all | tee /tmp/mtime-multiyear/source-sha256.txt
+
+      - name: Validate 7 locations across 2024, 2025, and 2026 against Horizons
+        shell: bash
+        run: |
+          set -euo pipefail
+          # These are fixed geometry-regression epochs, not calendar decisions.
+          # 2024-03-01 12:00 UTC = JD 2460371.0
+          # 2025-03-01 12:00 UTC = JD 2460736.0
+          # 2026-03-01 12:00 UTC = JD 2461101.0
+          cases=(
+            "Y2024_MAR01_12UTC_JAKARTA|106.8272|-6.1754|0.000|2460371.0"
+            "Y2024_MAR01_12UTC_ANKARA|32.8597|39.9334|0.000|2460371.0"
+            "Y2024_MAR01_12UTC_MAKKAH|39.8262|21.4225|0.000|2460371.0"
+            "Y2024_MAR01_12UTC_WELLINGTON|174.7772|-41.2889|0.000|2460371.0"
+            "Y2024_MAR01_12UTC_NEW_YORK|-74.0060|40.7128|0.000|2460371.0"
+            "Y2024_MAR01_12UTC_SANTIAGO|-70.6693|-33.4489|0.000|2460371.0"
+            "Y2024_MAR01_12UTC_CAPE_TOWN|18.4241|-33.9249|0.000|2460371.0"
+            "Y2025_MAR01_12UTC_JAKARTA|106.8272|-6.1754|0.000|2460736.0"
+            "Y2025_MAR01_12UTC_ANKARA|32.8597|39.9334|0.000|2460736.0"
+            "Y2025_MAR01_12UTC_MAKKAH|39.8262|21.4225|0.000|2460736.0"
+            "Y2025_MAR01_12UTC_WELLINGTON|174.7772|-41.2889|0.000|2460736.0"
+            "Y2025_MAR01_12UTC_NEW_YORK|-74.0060|40.7128|0.000|2460736.0"
+            "Y2025_MAR01_12UTC_SANTIAGO|-70.6693|-33.4489|0.000|2460736.0"
+            "Y2025_MAR01_12UTC_CAPE_TOWN|18.4241|-33.9249|0.000|2460736.0"
+            "Y2026_MAR01_12UTC_JAKARTA|106.8272|-6.1754|0.000|2461101.0"
+            "Y2026_MAR01_12UTC_ANKARA|32.8597|39.9334|0.000|2461101.0"
+            "Y2026_MAR01_12UTC_MAKKAH|39.8262|21.4225|0.000|2461101.0"
+            "Y2026_MAR01_12UTC_WELLINGTON|174.7772|-41.2889|0.000|2461101.0"
+            "Y2026_MAR01_12UTC_NEW_YORK|-74.0060|40.7128|0.000|2461101.0"
+            "Y2026_MAR01_12UTC_SANTIAGO|-70.6693|-33.4489|0.000|2461101.0"
+            "Y2026_MAR01_12UTC_CAPE_TOWN|18.4241|-33.9249|0.000|2461101.0"
+          )
+
+          : > /tmp/mtime-multiyear/report.txt
+          for row in "${cases[@]}"; do
+            IFS='|' read -r label lon lat height_km jd <<< "$row"
+            out="/tmp/mtime-multiyear/${label}.txt"
+
+            curl --fail --retry 5 --retry-delay 3 --get \
+              "https://ssd.jpl.nasa.gov/api/horizons.api" \
+              --data-urlencode "format=text" \
+              --data-urlencode "COMMAND='301'" \
+              --data-urlencode "OBJ_DATA='NO'" \
+              --data-urlencode "MAKE_EPHEM='YES'" \
+              --data-urlencode "EPHEM_TYPE='OBSERVER'" \
+              --data-urlencode "CENTER='coord@399'" \
+              --data-urlencode "COORD_TYPE='GEODETIC'" \
+              --data-urlencode "SITE_COORD='${lon},${lat},${height_km}'" \
+              --data-urlencode "TLIST='${jd}'" \
+              --data-urlencode "TLIST_TYPE='JD'" \
+              --data-urlencode "TIME_TYPE='UT'" \
+              --data-urlencode "QUANTITIES='4'" \
+              --data-urlencode "ANG_FORMAT='DEG'" \
+              --data-urlencode "CSV_FORMAT='YES'" \
+              --data-urlencode "APPARENT='AIRLESS'" \
+              -o "$out"
+
+            grep -q '\$\$SOE' "$out"
+
+            echo "===== $label =====" | tee -a /tmp/mtime-multiyear/report.txt
+            cargo run --quiet -p mtime-spk --example validate_topocentric_case -- \
+              /tmp/de440s.bsp "$out" /tmp/finals.all \
+              "$lon" "$lat" "0" "$jd" "$label" \
+              | tee -a /tmp/mtime-multiyear/report.txt
+          done
+
+          case_count="$(grep -c '^case=' /tmp/mtime-multiyear/report.txt)"
+          max_direction_error_deg="$(awk -F= '/direction_error_deg=/{v=$2+0; if (v>max) max=v} END {printf "%.12f", max}' /tmp/mtime-multiyear/report.txt)"
+          {
+            echo
+            echo "===== MULTIYEAR SUMMARY ====="
+            echo "case_count=$case_count"
+            echo "max_direction_error_deg=$max_direction_error_deg"
+            echo "threshold_deg=0.001000000000"
+          } | tee -a /tmp/mtime-multiyear/report.txt
+
+          test "$case_count" -eq 21
+          awk -v max="$max_direction_error_deg" 'BEGIN { exit !(max <= 0.001) }'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mtime-topocentric-multiyear-oracle
+          path: /tmp/mtime-multiyear/

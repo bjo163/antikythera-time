@@ -260,6 +260,7 @@ jobs:
             spk-reference.yml
             topocentric-reference.yml
             topocentric-matrix.yml
+            topocentric-multiyear.yml
             pages-mtime.yml
           )
           for workflow in "${workflows[@]}"; do
