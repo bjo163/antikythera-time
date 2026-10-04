@@ -1,9 +1,11 @@
-import init,{mabims_id_2026_pass,diyanet_1978_site_pass,mtime_version} from "./pkg/mtime_wasm.js";
+import init,{mabims_id_2026_pass,diyanet_1978_site_pass,mtime_version,mtime_clock_json,antikythera_state_json} from "./pkg/mtime_wasm.js";
 
 const REPO="bjo163/antikythera-time";
 const wanted=[
   "m-time-ci",
   "m-time-compatibility",
+  "m-time-antikythera-calibration",
+  "m-time-mclock",
   "m-time-topocentric-matrix",
   "m-time-topocentric-multiyear",
   "m-time-source-ingestion",
@@ -88,6 +90,24 @@ async function loadGithub(){
   }
 }
 
+function angleDiff(a,b){
+  return Math.abs((((a-b)+180)%360+360)%360-180);
+}
+
+function refreshMClock(){
+  const packet=JSON.parse(mtime_clock_json(Date.now()/1000));
+  const historical=JSON.parse(antikythera_state_json(packet.tt_jd,false));
+  document.getElementById("machineProfile").textContent=packet.profile_id;
+  document.getElementById("machineSun").textContent=packet.solar_longitude_deg.toFixed(6)+"°";
+  document.getElementById("machineMoon").textContent=packet.lunar_longitude_deg.toFixed(6)+"°";
+  document.getElementById("machinePhase").textContent=packet.lunar_phase_deg.toFixed(6)+"°";
+  document.getElementById("machineMetonic").textContent=(packet.metonic_phase*100).toFixed(6)+"%";
+  document.getElementById("machineSaros").textContent=(packet.saros_phase*100).toFixed(6)+"%";
+  document.getElementById("machineLinear").textContent=packet.linear_si_nanoseconds_from_j2000_tt+" ns";
+  document.getElementById("machineResidual").textContent=
+    angleDiff(packet.lunar_longitude_deg,historical.lunar_longitude_deg).toFixed(6)+"°";
+}
+
 async function boot(){
   await loadBuildInfo();
   await init();
@@ -111,7 +131,9 @@ async function boot(){
   }
 
   document.getElementById("eval").addEventListener("click",evaluate);
+  document.getElementById("refreshClock").addEventListener("click",refreshMClock);
   evaluate();
+  refreshMClock();
   loadHistoryCorpus();
   loadGithub();
 }
