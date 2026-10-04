@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bjo163.github.io/antikythera-time/schemas/mclock-physical-evidence-v2.schema.json",
+  "title": "M-Time M-Clock Physical Evidence Manifest v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "status",
+    "device_id",
+    "controller",
+    "gnss_pps",
+    "oscillator",
+    "rtc",
+    "firmware",
+    "reference_time_source",
+    "build_date",
+    "evidence",
+    "datasets",
+    "review"
+  ],
+  "properties": {
+    "schema": {
+      "const": "mtime-mclock-physical-evidence-2"
+    },
+    "status": {
+      "enum": [
+        "TEMPLATE_NOT_MEASUREMENT",
+        "MEASURED_UNREVIEWED",
+        "REVIEWED_ACCEPTED",
+        "REVIEWED_REJECTED"
+      ]
+    },
+    "device_id": {
+      "type": "string"
+    },
+    "controller": {
+      "$ref": "#/$defs/component"
+    },
+    "gnss_pps": {
+      "$ref": "#/$defs/component"
+    },
+    "oscillator": {
+      "$ref": "#/$defs/component"
+    },
+    "rtc": {
+      "$ref": "#/$defs/component"
+    },
+    "firmware": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["git_sha", "binary_sha256", "build_instructions"],
+      "properties": {
+        "git_sha": { "type": "string" },
+        "binary_sha256": { "type": "string" },
+        "build_instructions": { "type": "string" }
+      }
+    },
+    "reference_time_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description", "traceability", "calibration_record"],
+      "properties": {
+        "id": { "type": "string" },
+        "description": { "type": "string" },
+        "traceability": { "type": "string" },
+        "calibration_record": { "type": "string" }
+      }
+    },
+    "build_date": {
+      "type": "string"
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "wiring_or_schematic",
+        "boot_self_test_log",
+        "pps_lock_log",
+        "display_capture",
+        "thermal_log",
+        "gnss_loss_reacquisition_log",
+        "power_cycle_log"
+      ],
+      "properties": {
+        "wiring_or_schematic": { "$ref": "#/$defs/artifact" },
+        "boot_self_test_log": { "$ref": "#/$defs/artifact" },
+        "pps_lock_log": { "$ref": "#/$defs/artifact" },
+        "display_capture": { "$ref": "#/$defs/artifact" },
+        "thermal_log": { "$ref": "#/$defs/artifact" },
+        "gnss_loss_reacquisition_log": { "$ref": "#/$defs/artifact" },
+        "power_cycle_log": { "$ref": "#/$defs/artifact" }
+      }
+    },
+    "datasets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pps_latency_jitter",
+        "holdover_1h",
+        "holdover_6h",
+        "holdover_24h",
+        "holdover_72h"
+      ],
+      "properties": {
+        "pps_latency_jitter": { "$ref": "#/$defs/dataset" },
+        "holdover_1h": { "$ref": "#/$defs/dataset" },
+        "holdover_6h": { "$ref": "#/$defs/dataset" },
+        "holdover_24h": { "$ref": "#/$defs/dataset" },
+        "holdover_72h": { "$ref": "#/$defs/dataset" }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewer", "reviewed_at", "result", "notes"],
+      "properties": {
+        "reviewer": { "type": "string" },
+        "reviewed_at": { "type": "string" },
+        "result": {
+          "enum": ["NOT_REVIEWED", "ACCEPTED", "REJECTED"]
+        },
+        "notes": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "serial_or_build_id"],
+      "properties": {
+        "model": { "type": "string" },
+        "serial_or_build_id": { "type": "string" }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "type": "string" },
+        "sha256": { "type": "string" }
+      }
+    },
+    "dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "minimum_elapsed_seconds"],
+      "properties": {
+        "path": { "type": "string" },
+        "sha256": { "type": "string" },
+        "minimum_elapsed_seconds": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

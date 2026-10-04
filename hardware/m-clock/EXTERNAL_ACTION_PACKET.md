@@ -2,26 +2,96 @@
 
 Repository state: **software-ready, physical evidence absent**.
 
-## Bench operator must provide
+This packet is the handoff boundary between repository work and a real bench experiment. It is intentionally strict so that synthetic fixtures, screenshots without provenance, or short test runs cannot silently become "hardware validation."
 
-1. Complete `physical-evidence` manifest with real component identities.
-2. Firmware binary hash and Git SHA.
-3. PPS lock capture and timestamp path description.
-4. Network-disconnected holdover demonstration.
-5. Metrology CSV:
+## 1. Build the physical chain
 
-```text
-elapsed_seconds,offset_nanoseconds,temperature_c,reference_id,device_id,firmware_sha
-```
+Minimum chain:
 
-6. Separate datasets for 1h, 6h, 24h and 72h holdover.
-7. GNSS loss/reacquisition and power-cycle logs.
-8. Reference-device calibration/provenance.
+`GNSS/PPS or traceable lab reference → timestamp capture → characterized oscillator/holdover → Rust-capable controller → Software Antikythera / M-Time → MCLOCK-1 → display/log output`
+
+Record exact component identities and serial/build IDs.
+
+## 2. Freeze firmware identity
+
+Record:
+
+- firmware Git SHA;
+- SHA-256 of the exact flashed binary;
+- reproducible build instructions.
+
+The Git SHA and binary hash are both required because source identity alone does not prove which binary was flashed.
+
+## 3. Capture physical evidence
+
+Provide immutable files for:
+
+- wiring/schematic;
+- boot/self-test;
+- PPS lock;
+- visible physical display output;
+- thermal behavior;
+- GNSS loss/reacquisition;
+- power-cycle recovery.
+
+Every artifact path is pinned by SHA-256 in `physical-evidence/manifest.json`.
+
+## 4. Collect metrology CSVs
+
+Header must be exactly:
+
+`elapsed_seconds,offset_nanoseconds,temperature_c,reference_id,device_id,firmware_sha`
+
+Submit separate datasets for:
+
+- PPS latency/jitter;
+- >= 1 h holdover;
+- >= 6 h holdover;
+- >= 24 h holdover;
+- >= 72 h holdover.
+
+Each dataset must identify the same physical device, firmware and reference source used by the manifest.
+
+## 5. Document reference provenance
+
+The reference source must have:
+
+- stable ID;
+- description;
+- traceability statement;
+- calibration/provenance record.
+
+"GPS time" or "lab clock" without identity/provenance is insufficient for a physical accuracy claim.
+
+## 6. Create the real manifest
+
+Copy `manifest-template.json` to `manifest.json`, fill every required field and set:
+
+`status: MEASURED_UNREVIEWED`
+
+Do not mark it accepted yourself merely because collection completed.
+
+## 7. Run admission gate
+
+Run:
+
+`python scripts/hardware_readiness.py`
+
+The gate verifies:
+
+- evidence schema/version;
+- non-empty hardware identity;
+- firmware SHA formats;
+- artifact existence;
+- SHA-256 integrity;
+- exact metrology CSV contract;
+- minimum 1h/6h/24h/72h durations;
+- review-state consistency.
 
 ## Completion rule
 
-M11 can close only after a physical device exists and evidence is committed/reviewed.
+M11 can close only after a physical device exists, its evidence package is admitted, and the build evidence is reviewed.
 
-M12 can close only after the physical datasets are analyzed by `mtime-metrology` and a measured error budget is published.
+M12 can close only after the physical datasets are analyzed by `mtime-metrology`, a measured error budget is published, and the metrology review is accepted.
 
-Synthetic fixtures are useful for software tests but do **not** count as physical evidence.
+A passing admission script does **not** automatically make v1 ready. M20 still requires unaffiliated reproduction plus external security, scientific, historical-reconstruction and revelation/textual-boundary review.
