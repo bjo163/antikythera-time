@@ -1,0 +1,67 @@
+{
+  "schema": "mtime-external-review-packet-index-1",
+  "candidate": {
+    "release": "m20-review-candidate-1",
+    "git_sha": "39c2705fa18d7d487803f8a37b8fe79df639daaa"
+  },
+  "packets": [
+    {
+      "category": "independent_reproduction",
+      "issue": 39,
+      "file": "reviews/external/packets/INDEPENDENT_REPRODUCTION.md",
+      "required_topics": [
+        "mts2_wire_conformance",
+        "digital_antikythera_state",
+        "public_conformance_vectors",
+        "malformed_packet_behavior"
+      ]
+    },
+    {
+      "category": "security",
+      "issue": 40,
+      "file": "reviews/external/packets/SECURITY_REVIEW.md",
+      "required_topics": [
+        "protocol_decoders",
+        "ffi_boundary",
+        "signed_bundle_and_key_lifecycle",
+        "replay_and_identity_controls",
+        "device_update_threats"
+      ]
+    },
+    {
+      "category": "scientific",
+      "issue": 41,
+      "file": "reviews/external/packets/SCIENTIFIC_REVIEW.md",
+      "required_topics": [
+        "calibration_methodology",
+        "reference_frames",
+        "residual_metrics",
+        "validated_interval",
+        "uncertainty_budget",
+        "falsification_design"
+      ]
+    },
+    {
+      "category": "historical_reconstruction",
+      "issue": 42,
+      "file": "reviews/external/packets/HISTORICAL_RECONSTRUCTION_REVIEW.md",
+      "required_topics": [
+        "surviving_evidence_vs_reconstruction",
+        "gear_and_cycle_provenance",
+        "competing_reconstruction_scope",
+        "archaeological_uncertainty"
+      ]
+    },
+    {
+      "category": "revelation_textual_boundary",
+      "issue": 43,
+      "file": "reviews/external/packets/REVELATION_TEXTUAL_BOUNDARY_REVIEW.md",
+      "required_topics": [
+        "source_text_identity",
+        "semantic_vs_numerical_boundary",
+        "no_physics_injection",
+        "interpretation_uncertainty"
+      ]
+    }
+  ]
+}
