@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.5.0 - 2026-10-04
+
+- docs(m-time): finalize v0.5.0 global multiyear oracle release (`1f2eb75`)
+- feat(m-time): add 2024-2026 multiyear topocentric oracle [skip version] (`6439ceb`)
+
 ## v0.4.0 - 2026-10-04
 
 - docs(m-time): finalize v0.4.0 global oracle release (`35f77e8`)
