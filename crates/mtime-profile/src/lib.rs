@@ -239,37 +239,6 @@ mod global_tests {
 
     const DIYANET: &str = include_str!("../../../profiles/diyanet-1978-global.toml");
 
-    struct FixtureGeography;
-
-    impl AmericasMainlandProvider for FixtureGeography {
-        fn is_americas_mainland(&self, site_id: &str) -> Option<bool> {
-            match site_id {
-                "AMERICAS-CANDIDATE" => Some(true),
-                "FIJI-CANDIDATE" => Some(false),
-                "UNKNOWN-CANDIDATE" => None,
-                _ => Some(false),
-            }
-        }
-    }
-
-    struct FixtureWellington {
-        fajr: Option<SolarEvent>,
-    }
-
-    impl WellingtonFajrProvider for FixtureWellington {
-        fn fajr_event(&self) -> Option<SolarEvent> {
-            self.fajr
-        }
-    }
-
-    fn fajr(jd_ut1: f64) -> SolarEvent {
-        SolarEvent {
-            jd_ut1,
-            altitude_deg: -18.0,
-            kind: mtime_worship::SolarEventKind::FajrThreshold,
-        }
-    }
-
     fn state(id: &str, altitude: f64, elongation: f64) -> HijriAstronomicalState {
         HijriAstronomicalState {
             conjunction_jd_tt: None,
@@ -542,6 +511,37 @@ mod executable_policy_tests {
     use super::*;
     use mtime_core::QualityClass;
     use mtime_hijri::{GeometrySemantics, HijriAstronomicalState};
+
+    struct FixtureGeography;
+
+    impl AmericasMainlandProvider for FixtureGeography {
+        fn is_americas_mainland(&self, site_id: &str) -> Option<bool> {
+            match site_id {
+                "AMERICAS-CANDIDATE" => Some(true),
+                "FIJI-CANDIDATE" => Some(false),
+                "UNKNOWN-CANDIDATE" => None,
+                _ => Some(false),
+            }
+        }
+    }
+
+    struct FixtureWellington {
+        fajr: Option<SolarEvent>,
+    }
+
+    impl WellingtonFajrProvider for FixtureWellington {
+        fn fajr_event(&self) -> Option<SolarEvent> {
+            self.fajr
+        }
+    }
+
+    fn fajr(jd_ut1: f64) -> SolarEvent {
+        SolarEvent {
+            jd_ut1,
+            altitude_deg: -18.0,
+            kind: mtime_worship::SolarEventKind::FajrThreshold,
+        }
+    }
 
     fn state(id: &str, altitude: f64, elongation: f64) -> HijriAstronomicalState {
         HijriAstronomicalState {
