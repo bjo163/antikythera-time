@@ -31,13 +31,38 @@
   },
   "build_date": "",
   "evidence": {
-    "wiring_or_schematic": { "path": "", "sha256": "" },
-    "boot_self_test_log": { "path": "", "sha256": "" },
-    "pps_lock_log": { "path": "", "sha256": "" },
-    "display_capture": { "path": "", "sha256": "" },
-    "thermal_log": { "path": "", "sha256": "" },
-    "gnss_loss_reacquisition_log": { "path": "", "sha256": "" },
-    "power_cycle_log": { "path": "", "sha256": "" }
+    "wiring_or_schematic": {
+      "path": "",
+      "sha256": ""
+    },
+    "boot_self_test_log": {
+      "path": "",
+      "sha256": ""
+    },
+    "pps_lock_log": {
+      "path": "",
+      "sha256": ""
+    },
+    "display_capture": {
+      "path": "",
+      "sha256": ""
+    },
+    "thermal_log": {
+      "path": "",
+      "sha256": ""
+    },
+    "gnss_loss_reacquisition_log": {
+      "path": "",
+      "sha256": ""
+    },
+    "power_cycle_log": {
+      "path": "",
+      "sha256": ""
+    },
+    "metrology_report": {
+      "path": "",
+      "sha256": ""
+    }
   },
   "datasets": {
     "pps_latency_jitter": {
