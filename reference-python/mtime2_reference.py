@@ -104,7 +104,7 @@ for line in out.splitlines():
     assert binary_linear==linear
     assert reencode(profile,binary_linear,vals)==blob
     count+=1
-assert count==5
+assert count==135, count
 print(f"M15 independent Python conformance: PASS ({count} vectors)")
 
 
@@ -122,5 +122,22 @@ for line in out.splitlines():
     for a,b in zip(rust_cycles,py_cycles):
         assert abs(a-b)<2e-12,(jd,a,b)
     experimental_count+=1
-assert experimental_count==5
+assert experimental_count==135, experimental_count
 print(f"M15 independent Python V2 conformance: PASS ({experimental_count} vectors)")
+
+
+# Malformed MTS-2 corpus: decoder must reject/raise instead of guessing.
+bad_blobs=[
+    b"",
+    b"MTS1"+b"\x00\x00",
+    b"MTS2"+b"\x00",
+    b"MTS2"+b"\x00\x05abc",
+]
+for bad in bad_blobs:
+    try:
+        parse_mts2(bad)
+    except (AssertionError, IndexError, UnicodeDecodeError, struct.error):
+        pass
+    else:
+        raise AssertionError("malformed MTS-2 corpus unexpectedly accepted")
+print(f"M15 malformed packet corpus: PASS ({len(bad_blobs)} cases)")

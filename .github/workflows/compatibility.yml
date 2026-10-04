@@ -19,3 +19,15 @@ jobs:
         run: python reference-python/mtime_reference.py
       - name: Run independent MTS-2 / Antikythera conformance
         run: python reference-python/mtime2_reference.py
+      - name: Run public Python SDK tests
+        run: python sdk/python/test_mtime_sdk.py
+      - name: Build C ABI
+        run: cargo build -p mtime-ffi --release
+      - name: Parse public JSON schemas
+        run: |
+          set -euo pipefail
+          for schema in spec/schemas/*.json; do
+            python -m json.tool "$schema" >/dev/null
+          done
+      - name: Public conformance runner
+        run: bash scripts/run_conformance.sh

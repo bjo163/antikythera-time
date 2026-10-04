@@ -10,3 +10,24 @@ assert s.linear_si_nanoseconds_from_j2000_tt==0
 assert abs(s.sun_deg-280.0)<2.0
 assert len(s.cycle_phase)==8
 print("M-Time Python SDK smoke test: PASS")
+
+
+def test_bad_magic_rejected():
+    try:
+        decode_mts2(b"MTS1\x00\x00")
+    except ValueError:
+        return
+    raise AssertionError("bad magic accepted")
+
+def test_nonfinite_tt_rejected():
+    try:
+        digital_v1_from_tt(float("nan"))
+    except ValueError:
+        return
+    raise AssertionError("non-finite TT accepted")
+
+if __name__ == "__main__":
+    test_j2000()
+    test_bad_magic_rejected()
+    test_nonfinite_tt_rejected()
+    print("M-Time Python SDK tests: PASS")

@@ -6,14 +6,31 @@ fn hex(bytes: &[u8]) -> String {
     bytes.iter().map(|b| format!("{b:02x}")).collect()
 }
 
-fn main() {
-    let epochs = [
-        2_415_020.5, // 1900-01-01-ish
+fn conformance_epochs() -> Vec<f64> {
+    let mut epochs = vec![
+        2_396_758.5, // 1850-01-01 validated start
+        2_415_020.5, // 1900
         2_433_282.5, // 1950
         2_451_545.0, // J2000
         2_469_807.5, // 2050
         2_488_069.5, // 2100
+        2_506_330.5, // 2149-12-31-ish validated end
     ];
+    // Deterministic differential corpus spanning the validated interval.
+    // The LCG is only a repeatable vector generator, not a physical model.
+    let start = 2_396_758.5_f64;
+    let span = 2_506_331.5_f64 - start;
+    let mut x = 0x4d54494d45_u64;
+    for _ in 0..128 {
+        x = x.wrapping_mul(6_364_136_223_846_793_005).wrapping_add(1);
+        let u = (x >> 11) as f64 / ((1_u64 << 53) as f64);
+        epochs.push(start + u * span);
+    }
+    epochs
+}
+
+fn main() {
+    let epochs = conformance_epochs();
     for jd in epochs {
         let state = MTimeEngine::digital()
             .from_tt(CoordinateTime::<Tt>::new(jd, 0.0, 0.0).unwrap())
