@@ -254,6 +254,8 @@ jobs:
           set -euo pipefail
           workflows=(
             compatibility.yml
+            antikythera-calibration.yml
+            mclock.yml
             wasm.yml
             iers-eop.yml
             jpl-reference.yml

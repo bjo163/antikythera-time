@@ -1,17 +1,26 @@
 # M-Time Implementation Status
 
 Date: 2026-10-04  
-Version: **v0.11.0 Multi-Country Historical Falsification Research Prototype**  
-Internal status: **3-COUNTRY / 3-YEAR SOURCE-BACKED HISTORICAL FALSIFICATION + SOLAR/LUNAR/INTEGRITY HARDENING COMPLETE**
+Version: **v0.12.0 Antikythera Genesis / Phase 1–5 Research Prototype**  
+Internal status: **SOFTWARE ANTYKITHERA CORE + DE440 CALIBRATION + NATIVE M-TIME STATE + M-CLOCK REFERENCE PROTOTYPE COMPLETE**
 
 M-Time is a Rust-first temporal interoperability framework. This status does **not** claim international standard adoption, religious/fiqh authority, or replacement of BIPM/IAU/IERS/JPL infrastructure.
 
-## Final v0.11.0 internal gates
+## Final v0.12.0 internal gates
 
 | Gate | Result | Reference |
 |---|---|---|
 | Rust workspace CI | **PASS** | Actions run 37196296287 |
-| Rust tests | **103 passed / 0 failed** | v0.11 staging CI |
+| Rust tests | **115 passed / 0 failed** | Phase 5 staging CI |
+| Software Antikythera core | **PASS** | virtual gear/train/dial + dual profiles |
+| 12-epoch DE440 Antikythera calibration | **PASS** | Actions run 37199056620 |
+| Digital Sun relative max residual | **0.014132662°** | 2026 DE440 calibration |
+| Digital Moon relative max residual | **0.504873428°** | 2026 DE440 calibration |
+| Digital Moon-Sun phase max residual | **0.277593562°** | 2026 DE440 calibration |
+| Native M-Time linear + cyclic state | **PASS** | mtime-temporal |
+| M-Clock MCLOCK-1 packet | **PASS** | m-time-mclock |
+| WASM M-Clock / Antikythera API | **PASS** | wasm32 release build |
+| Hardware reference architecture | **DOCUMENTED** | hardware/m-clock |
 | Rust↔Python compatibility | **PASS** | v0.10 staging compatibility |
 | Offline JPL DE440/SPK provider | PASS | prior SPK reference gates |
 | Fixed Jakarta topocentric reference | PASS | prior topocentric reference gate |
@@ -57,6 +66,72 @@ M-Time is a Rust-first temporal interoperability framework. This status does **n
 | Indonesia–Türkiye Shawwal 1447 corpus | COMPLETE | source-linked corpus |
 | Revelation no-numerical-prior invariant | PASS | core CI |
 | Planck-like cosmology inference | PASS | core CI |
+
+## Antikythera-centered architecture — v0.12.0
+
+The project has been re-centered on its original goal:
+
+```text
+Software Antikythera
+        ↓
+native M-Time temporal state
+        ↓
+M-Clock
+```
+
+Modern references remain outside the Antikythera core:
+
+```text
+DE440 / JPL
+IERS
+UTC / TT / TDB
+        ↓
+calibration / interoperability / falsification
+```
+
+### Phase 2 — machine
+
+`mtime-antikythera` now implements synchronized solar/lunar/cycle state, virtual gear relations/trains, dials, evidence labels, and separate historical vs digital profiles.
+
+### Phase 3 — calibration
+
+A 12-epoch 2026 DE440 matrix characterizes both profiles.
+
+```text
+Historical:
+Sun relative max  = 1.996415486°
+Moon relative max = 3.701058086°
+phase max         = 3.437724488°
+
+Digital:
+Sun relative max  = 0.014132662°
+Moon relative max = 0.504873428°
+phase max         = 0.277593562°
+```
+
+These are current baseline residuals, not final accuracy claims.
+
+### Phase 4 — native M-Time
+
+`mtime-temporal` stores one instant as both:
+
+- continuous SI nanoseconds relative to J2000 TT;
+- synchronized Antikythera cycle vector.
+
+### Phase 5 — M-Clock
+
+`mtime-clock` defines `MCLOCK-1`, CLI/WASM rendering, Live Lab display, a conformance workflow and a hardware reference architecture.
+
+No physical clock is claimed to have been manufactured or certified yet.
+
+See:
+
+- `docs/ANTIKYTHERA_CORE.md`
+- `docs/ANTIKYTHERA_CALIBRATION.md`
+- `docs/MTIME_NATIVE_STATE.md`
+- `docs/MCLOCK.md`
+- `docs/PHASES_1_5.md`
+- `docs/TEMPORAL_CONSTITUTION.md`
 
 ## Broad astronomy oracle matrix
 

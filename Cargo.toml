@@ -7,6 +7,8 @@ members = [
   "crates/mtime-jpl",
   "crates/mtime-spk",
   "crates/mtime-antikythera",
+  "crates/mtime-temporal",
+  "crates/mtime-clock",
   "crates/mtime-astro",
   "crates/mtime-hijri",
   "crates/mtime-hilal",
@@ -24,7 +26,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.11.0"
+version = "0.12.0"
 edition = "2021"
 license = "MIT"
 rust-version = "1.75"

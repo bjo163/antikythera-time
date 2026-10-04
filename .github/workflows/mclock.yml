@@ -1,0 +1,31 @@
+name: m-time-mclock
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "crates/mtime-antikythera/**"
+      - "crates/mtime-temporal/**"
+      - "crates/mtime-clock/**"
+      - "hardware/m-clock/**"
+      - ".github/workflows/mclock.yml"
+
+jobs:
+  packet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: M-Clock tests
+        run: cargo test -p mtime-clock --all-targets
+      - name: Render deterministic reference packet
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/mclock
+          cargo run --quiet -p mtime-clock --example mclock -- 1767225600 | tee /tmp/mclock/reference-packet.txt
+          grep -q "MTIME_DIGITAL_ANTIKYTHERA_V1" /tmp/mclock/reference-packet.txt
+          grep -q "MCLOCK-1" /tmp/mclock/reference-packet.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mtime-mclock-reference
+          path: /tmp/mclock/reference-packet.txt

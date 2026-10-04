@@ -1,5 +1,5 @@
 [package]
-name = "mtime-spk"
+name = "mtime-clock"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -7,12 +7,11 @@ rust-version.workspace = true
 
 [dependencies]
 mtime-core = { path = "../mtime-core" }
-mtime-astro = { path = "../mtime-astro" }
-mtime-jpl = { path = "../mtime-jpl" }
 mtime-timescales = { path = "../mtime-timescales" }
-mtime-eop = { path = "../mtime-eop" }
 mtime-antikythera = { path = "../mtime-antikythera" }
-oxiephemeris-de = "0.1.1"
+mtime-temporal = { path = "../mtime-temporal" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 
 [lints]
 workspace = true

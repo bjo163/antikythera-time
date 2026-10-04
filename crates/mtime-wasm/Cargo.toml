@@ -15,5 +15,9 @@ mtime-timescales = { path = "../mtime-timescales" }
 mtime-hijri = { path = "../mtime-hijri" }
 mtime-profile = { path = "../mtime-profile" }
 
+mtime-antikythera = { path = "../mtime-antikythera" }
+mtime-temporal = { path = "../mtime-temporal" }
+mtime-clock = { path = "../mtime-clock" }
+
 [lints]
 workspace = true

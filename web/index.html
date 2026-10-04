@@ -63,9 +63,26 @@ code{color:#c3e0f4}.flow{font-family:ui-monospace,SFMono-Regular,Menlo,monospace
     <div class="metric bigmetric"><span>External Horizons comparisons</span><strong>46 / 46 PASS</strong><small>42 Moon + 4 seasonal Sun</small></div>
     <div class="metric bigmetric"><span>Boundary max sky residual</span><strong>0.000359059275°</strong><small>≈ 1.29 arcsec, gate 0.001°</small></div>
     <div class="metric bigmetric"><span>Multi-year max residual</span><strong>0.000336345642°</strong><small>≈ 1.21 arcsec</small></div>
-    <div class="metric bigmetric"><span>Seasonal Wellington Sun oracle</span><strong>4 / 4 PASS</strong><small>max direction residual 0.000173324462°</small></div><div class="metric bigmetric"><span>Historical replay</span><strong>REPRODUCED / FALSIFIED / INCOMPLETE</strong><small>fail-closed verdict model</small></div>
+    <div class="metric bigmetric"><span>Seasonal Wellington Sun oracle</span><strong>4 / 4 PASS</strong><small>max direction residual 0.000173324462°</small></div><div class="metric bigmetric"><span>Historical real-case corpus</span><strong id="historyRealCases">21 cases</strong><small id="historyScope">3 jurisdictions · 2024–2026</small></div>
+    <div class="metric bigmetric"><span>Historical verdicts</span><strong id="historyVerdicts">loading…</strong><small>missing criterion evidence stays INCOMPLETE</small></div>
   </div>
   <div id="workflowList" style="margin-top:10px"><span class="muted">Loading latest GitHub Actions state…</span></div>
+</section>
+
+<section class="card">
+  <h2>Software Antikythera / M-Clock</h2>
+  <p class="muted">The new native M-Time path: one continuous linear SI coordinate plus synchronized astronomical cycle dials. This browser executes the Rust/WASM digital Antikythera machine directly.</p>
+  <div class="grid">
+    <div class="metric"><span>Machine profile</span><strong id="machineProfile">loading…</strong><small>generalized digital Antikythera</small></div>
+    <div class="metric"><span>Sun dial</span><strong id="machineSun">loading…</strong></div>
+    <div class="metric"><span>Moon dial</span><strong id="machineMoon">loading…</strong></div>
+    <div class="metric"><span>Lunar phase dial</span><strong id="machinePhase">loading…</strong></div>
+    <div class="metric"><span>Metonic phase</span><strong id="machineMetonic">loading…</strong></div>
+    <div class="metric"><span>Saros phase</span><strong id="machineSaros">loading…</strong></div>
+    <div class="metric"><span>Linear M-Time coordinate</span><strong id="machineLinear">loading…</strong><small>SI ns from J2000 TT, serialized losslessly</small></div>
+    <div class="metric"><span>Digital vs historical Moon dial</span><strong id="machineResidual">loading…</strong><small>profile-model difference, not JPL residual</small></div>
+  </div>
+  <div class="row" style="margin-top:14px"><button id="refreshClock">Refresh current M-Clock</button></div>
 </section>
 
 <section class="split">
@@ -131,6 +148,10 @@ conjunction-before-fajr condition</div>
   <h2>Docs & raw evidence</h2>
   <div class="grid">
     <div class="metric"><span>Current status</span><strong><a href="./docs/STATUS.md">docs/STATUS.md</a></strong></div>
+    <div class="metric"><span>Software Antikythera</span><strong><a href="./docs/ANTIKYTHERA_CORE.md">core machine</a></strong></div>
+    <div class="metric"><span>Antikythera calibration</span><strong><a href="./docs/ANTIKYTHERA_CALIBRATION.md">DE440 residuals</a></strong></div>
+    <div class="metric"><span>Native M-Time state</span><strong><a href="./docs/MTIME_NATIVE_STATE.md">linear + cyclic coordinate</a></strong></div>
+    <div class="metric"><span>M-Clock Phase 5</span><strong><a href="./docs/MCLOCK.md">packet + hardware design</a></strong></div>
     <div class="metric"><span>Wellington provider</span><strong><a href="./docs/WELLINGTON_DIYANET_FAJR.md">method + result</a></strong></div>
     <div class="metric"><span>Seasonal Sun oracle</span><strong><a href="./docs/WELLINGTON_SEASONAL_ORACLE.md">4-season Horizons validation</a></strong></div>
     <div class="metric"><span>Geospatial provider</span><strong><a href="./docs/GEOSPATIAL_MAINLAND.md">dataset + classifications</a></strong></div>
