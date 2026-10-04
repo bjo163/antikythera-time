@@ -1,12 +1,12 @@
 # M-Time — Mīqāt Temporal Protocol
 
-**Status:** Rust-first **v0.3.0 Provider-Wired Policy Research Prototype**.
+**Status:** Rust-first **v0.4.0 Global Oracle Research Prototype**.
 
 M-Time is a temporal interoperability framework. It does **not** invent a new physical second, replace UTC, choose a fiqh position, or claim an absolute cosmic clock. Its flagship use-case is explainable Hijri/worship-calendar resolution.
 
 Core rule: physical time, astronomy, calendar criteria, observation/rukyat, jurisdiction, authority decisions, cosmic inference, historical reconstruction, and revelation-text concepts are separate semantic layers.
 
-## v0.3.0 highlights
+## v0.4.0 highlights
 
 - Pure-Rust offline JPL DE440/SPK provider.
 - Integrated `mtime-hilal` engine: `UTC + observer + IERS + DE440 → HijriAstronomicalState`.
@@ -14,7 +14,7 @@ Core rule: physical time, astronomy, calendar criteria, observation/rukyat, juri
 - WGS84 lunar topocentric parallax.
 - IAU 2006/2000A celestial→terrestrial transform with IERS polar motion.
 - Fixed Jakarta topocentric oracle agrees with Horizons at sub-arcsecond level and is gated at 0.001°.
-- 9-case Horizons oracle matrix: Ramadan/Syawal/Zulhijjah × Jakarta/Ankara/Makkah, all PASS; maximum physical sky-direction residual ≈ 0.000257° (~0.93 arcsec).
+- 21-case Horizons oracle matrix: Ramadan/Syawal/Zulhijjah × Jakarta/Ankara/Makkah/Wellington/New York/Santiago/Cape Town, **21/21 PASS**; maximum physical sky-direction residual = 0.000359059275° (~1.29 arcsec), worst case Ramadan × Wellington.
 - Explicit optional atmospheric-refraction model; airless geometry remains separately available.
 - Surveyed local-horizon profile, horizon obstruction interpolation, and observer-height geometric dip utilities remain separate from calendar criteria.
 - SHA-256 + Ed25519 source-artifact integrity primitives plus validity/revocation-aware trusted-key registry.
@@ -22,7 +22,7 @@ Core rule: physical time, astronomy, calendar criteria, observation/rukyat, juri
 - Türkiye Diyanet 1978/2016/2026 global profile: 5°/8° visibility plus executable Americas-mainland and conjunction-before-Wellington-Fajr conditions.
 - Typed provider wiring derives Diyanet policy context from threshold-passing sites plus geospatial/Wellington-fajr providers; missing evidence stays UNKNOWN.
 - Rust/WASM profile comparison surface.
-- 80 Rust tests / 0 failures on the v0.3.0 provider-wiring gate.
+- 80 Rust tests / 0 failures on the v0.4.0 global-oracle regression gate.
 - Indonesia 1447 H Ramadan/Syawal/Zulhijjah replay corpus.
 - ExplainDifference preserves astronomy vs criterion vs rukyat vs authority.
 

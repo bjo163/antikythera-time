@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.4.0 - 2026-10-04
+
+- docs(m-time): finalize v0.4.0 global oracle release (`35f77e8`)
+- feat(m-time): expand global topocentric oracle to 21 cases [skip version] (`468fad3`)
+
 ## v0.3.0 - 2026-10-04
 
 - docs(m-time): finalize v0.3.0 provider-wired policy release (`c8eb074`)
