@@ -53,3 +53,59 @@ mod integrity_binding_tests {
         assert_eq!(bound.source_artifact.sha256_hex.len(), 64);
     }
 }
+
+
+use mtime_integrity::TrustedSourceArtifact;
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct SourceBackedAuthorityDecision {
+    pub decision: AuthorityDecision,
+    pub source: TrustedSourceArtifact,
+}
+
+impl SourceBackedAuthorityDecision {
+    #[must_use]
+    pub fn source_signature_verified(&self) -> bool {
+        self.source.signature_verified()
+    }
+
+    #[must_use]
+    pub fn source_hash(&self) -> &str {
+        &self.source.sha256_hex
+    }
+}
+
+#[must_use]
+pub fn bind_trusted_authority_source(
+    decision: AuthorityDecision,
+    source: TrustedSourceArtifact,
+) -> SourceBackedAuthorityDecision {
+    SourceBackedAuthorityDecision { decision, source }
+}
+
+#[cfg(test)]
+mod trusted_source_binding_tests {
+    use super::*;
+    use mtime_integrity::{SourceTrust, TrustedSourceArtifact};
+
+    #[test]
+    fn authority_decision_preserves_source_identity_and_hash() {
+        let decision = AuthorityDecision::indonesia_sidang_isbat(
+            "2026-03-19T12:00:00Z",
+            DecisionKind::CompleteCurrentMonthTo30Days,
+            "official source fixture",
+        );
+        let source = TrustedSourceArtifact {
+            source_id: "official-authority-source".into(),
+            institution_id: "TEST-INSTITUTION".into(),
+            canonical_url: "https://example.invalid/authority".into(),
+            media_type: "text/html".into(),
+            sha256_hex: "cd".repeat(32),
+            retrieved_at_unix_seconds: 1_800_000_000,
+            trust: SourceTrust::HashRecordedUnsigned,
+        };
+        let bound = bind_trusted_authority_source(decision, source);
+        assert_eq!(bound.source_hash(), "cd".repeat(32));
+        assert!(!bound.source_signature_verified());
+    }
+}

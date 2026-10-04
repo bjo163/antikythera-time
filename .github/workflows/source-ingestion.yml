@@ -1,0 +1,41 @@
+name: m-time-source-ingestion
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "crates/mtime-integrity/**"
+      - "crates/mtime-observation/**"
+      - "crates/mtime-authority/**"
+      - ".github/workflows/source-ingestion.yml"
+
+jobs:
+  real-source-ingestion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Prepare source-ingestion artifacts
+        run: mkdir -p /tmp/mtime-source-ingestion
+
+      - name: Download official IERS EOP source
+        run: |
+          curl --fail --retry 5 --retry-delay 3             "https://datacenter.iers.org/data/latestVersion/finals.all.iau2000.txt"             -o /tmp/mtime-source-ingestion/finals.all.iau2000.txt
+          RETRIEVED_AT="$(date +%s)"
+          cargo run --quiet -p mtime-integrity --example ingest_source --             /tmp/mtime-source-ingestion/finals.all.iau2000.txt             IERS_FINALS_ALL_IAU2000             IERS             https://datacenter.iers.org/data/latestVersion/finals.all.iau2000.txt             text/plain             "$RETRIEVED_AT"             | tee /tmp/mtime-source-ingestion/iers-ingestion-record.txt
+
+      - name: Download official NAIF DE440 source
+        run: |
+          curl --fail --retry 5 --retry-delay 3             "https://naif.jpl.nasa.gov/pub/naif/JUNO/kernels/spk/de440s.bsp"             -o /tmp/mtime-source-ingestion/de440s.bsp
+          RETRIEVED_AT="$(date +%s)"
+          cargo run --quiet -p mtime-integrity --example ingest_source --             /tmp/mtime-source-ingestion/de440s.bsp             NAIF_DE440_SHORT             NASA-JPL-NAIF             https://naif.jpl.nasa.gov/pub/naif/JUNO/kernels/spk/de440s.bsp             application/octet-stream             "$RETRIEVED_AT"             | tee /tmp/mtime-source-ingestion/de440-ingestion-record.txt
+
+      - name: Verify fail-closed signed-source path
+        run: cargo test -p mtime-integrity source_ingestion_tests
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mtime-real-source-ingestion
+          path: /tmp/mtime-source-ingestion/
