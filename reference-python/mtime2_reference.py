@@ -108,13 +108,19 @@ assert count==5
 print(f"M15 independent Python conformance: PASS ({count} vectors)")
 
 
-# Independent experimental V2 spot-check against Rust C ABI-equivalent formulas.
-rust_v2=subprocess.check_output(
-    ["cargo","test","--quiet","-p","mtime-antikythera","experimental_v2_changes_only_lunar_path","--","--nocapture"],
-    text=True,
-)
-for jd in (2396758.5,2451545.0,2469807.5,2506330.5):
-    linear,dials,cycles=independent(jd,experimental=True)
-    assert linear==rust_round_i128((jd-J2000)*DAY_NS)
-    assert 0.0<=dials[1]<360.0
-print("M15 independent Python V2 formula: PASS")
+experimental_count=0
+for line in out.splitlines():
+    if not line.startswith("E|"):
+        continue
+    parts=line.split("|")
+    jd=float(parts[1])
+    rust_dials=list(map(float,parts[2:6]))
+    rust_cycles=list(map(float,parts[6:14]))
+    _,py_dials,py_cycles=independent(jd,experimental=True)
+    for a,b in zip(rust_dials,py_dials):
+        assert angle_diff(a,b)<2e-9,(jd,a,b)
+    for a,b in zip(rust_cycles,py_cycles):
+        assert abs(a-b)<2e-12,(jd,a,b)
+    experimental_count+=1
+assert experimental_count==5
+print(f"M15 independent Python V2 conformance: PASS ({experimental_count} vectors)")

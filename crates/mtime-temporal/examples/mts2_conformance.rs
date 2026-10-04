@@ -1,3 +1,4 @@
+use mtime_antikythera::AntikytheraMachine;
 use mtime_core::{CoordinateTime, Tt};
 use mtime_temporal::{MTimeEngine, MTimeWireV2};
 
@@ -35,6 +36,26 @@ fn main() {
             wire.cycle_phase[6],
             wire.cycle_phase[7],
             hex(&wire.encode_binary())
+        );
+
+        let experimental = AntikytheraMachine::digital_v2_experimental()
+            .state_at_tt(jd)
+            .unwrap();
+        println!(
+            "E|{:.9}|{:.12}|{:.12}|{:.12}|{:.12}|{:.12}|{:.12}|{:.12}|{:.12}|{:.12}|{:.12}|{:.12}|{:.12}",
+            jd,
+            experimental.solar_longitude.angle_deg,
+            experimental.lunar_longitude.angle_deg,
+            experimental.lunar_phase.angle_deg,
+            experimental.lunar_node.angle_deg,
+            experimental.solar_year_phase,
+            experimental.synodic_phase,
+            experimental.sidereal_phase,
+            experimental.anomalistic_phase,
+            experimental.draconic_phase,
+            experimental.metonic_phase,
+            experimental.saros_phase,
+            experimental.exeligmos_phase,
         );
     }
 }
