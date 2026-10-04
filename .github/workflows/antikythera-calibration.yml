@@ -28,6 +28,16 @@ jobs:
           set -euo pipefail
           cargo run --quiet -p mtime-spk --example validate_antikythera_matrix --             /tmp/mtime-antikythera/de440s.bsp             | tee /tmp/mtime-antikythera/calibration-report.txt
 
+      - name: Analyze 1900-2100 residual structure
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/mtime-antikythera/m6
+          cargo run --release --quiet -p mtime-spk --example analyze_antikythera_accuracy --             /tmp/mtime-antikythera/de440s.bsp             /tmp/mtime-antikythera/m6             | tee /tmp/mtime-antikythera/m6/report.txt
+          test "$(($(wc -l < /tmp/mtime-antikythera/m6/monthly-1900-2100.csv)-1))" -eq 2412
+          test -s /tmp/mtime-antikythera/m6/targeted-phases.csv
+          test -s /tmp/mtime-antikythera/m6/phase-bins.csv
+          test -s /tmp/mtime-antikythera/m6/summary.csv
+
       - uses: actions/upload-artifact@v4
         with:
           name: mtime-antikythera-de440-calibration

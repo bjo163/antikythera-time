@@ -459,3 +459,59 @@ mod local_horizon_tests {
         assert!((c.clearance_deg - 1.5).abs() < 1e-12);
     }
 }
+
+
+/// Rotate an ICRF/GCRS Cartesian vector into the IAU 2006 mean ecliptic of date.
+/// This is a reference-frame transform only; it does not add aberration,
+/// light-time, nutation, or any Antikythera correction.
+pub fn icrf_vector_to_mean_ecliptic_of_date(
+    v: [f64; 3],
+    tt: (f64, f64),
+) -> Result<EclipticState, TemporalError> {
+    const AU_KM: f64 = 149_597_870.7;
+    if !v.iter().all(|x| x.is_finite()) || !tt.0.is_finite() || !tt.1.is_finite() {
+        return Err(TemporalError::NonFinite);
+    }
+    let pmat = sofars::pnp::pmat06(tt.0, tt.1);
+    let mean_eq = mat_vec(pmat, v);
+    let eps = sofars::pnp::obl06(tt.0, tt.1);
+    let ecl = [
+        mean_eq[0],
+        mean_eq[1] * eps.cos() + mean_eq[2] * eps.sin(),
+        -mean_eq[1] * eps.sin() + mean_eq[2] * eps.cos(),
+    ];
+    let r = (ecl[0] * ecl[0] + ecl[1] * ecl[1] + ecl[2] * ecl[2]).sqrt();
+    if !r.is_finite() || r == 0.0 {
+        return Err(TemporalError::NonFinite);
+    }
+    Ok(EclipticState {
+        longitude_deg: wrap_degrees(ecl[1].atan2(ecl[0]).to_degrees()),
+        latitude_deg: (ecl[2] / r).clamp(-1.0, 1.0).asin().to_degrees(),
+        distance_au: r / AU_KM,
+    })
+}
+
+#[cfg(test)]
+mod mean_ecliptic_of_date_tests {
+    use super::*;
+
+    #[test]
+    fn transform_is_finite_at_j2000_and_future_epoch() {
+        for tt in [(2_451_545.0, 0.0), (2_488_069.5, 0.0)] {
+            let e = icrf_vector_to_mean_ecliptic_of_date([1.0e8, 2.0e7, 3.0e6], tt).unwrap();
+            assert!(e.longitude_deg.is_finite());
+            assert!(e.latitude_deg.is_finite());
+            assert!(e.distance_au > 0.0);
+        }
+    }
+
+    #[test]
+    fn mean_of_date_frame_rotates_over_a_century() {
+        let v = [1.0e8, 2.0e7, 3.0e6];
+        let a = icrf_vector_to_mean_ecliptic_of_date(v, (2_451_545.0, 0.0)).unwrap();
+        let b = icrf_vector_to_mean_ecliptic_of_date(v, (2_488_069.5, 0.0)).unwrap();
+        let delta = (b.longitude_deg - a.longitude_deg + 180.0).rem_euclid(360.0) - 180.0;
+        assert!(delta.abs() > 1.0);
+        assert!(delta.abs() < 2.0);
+    }
+}

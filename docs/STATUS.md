@@ -1,18 +1,27 @@
 # M-Time Implementation Status
 
 Date: 2026-10-04  
-Version: **v0.12.0 Antikythera Genesis / Phase 1–5 Research Prototype**  
-Internal status: **SOFTWARE ANTYKITHERA CORE + DE440 CALIBRATION + NATIVE M-TIME STATE + M-CLOCK REFERENCE PROTOTYPE COMPLETE**
+Version: **v0.13.0 Antikythera Accuracy Program I Research Prototype**  
+Internal status: **M6 MULTI-CENTURY ANTYKITHERA ERROR CHARACTERIZATION COMPLETE; LUNAR DYNAMICS IDENTIFIED AS PRIMARY DIGITAL-MODEL BOTTLENECK**
 
 M-Time is a Rust-first temporal interoperability framework. This status does **not** claim international standard adoption, religious/fiqh authority, or replacement of BIPM/IAU/IERS/JPL infrastructure.
 
-## Final v0.12.0 internal gates
+## Final v0.13.0 internal gates
 
 | Gate | Result | Reference |
 |---|---|---|
 | Rust workspace CI | **PASS** | Actions run 37196296287 |
 | Rust tests | **115 passed / 0 failed** | Phase 5 staging CI |
 | Software Antikythera core | **PASS** | virtual gear/train/dial + dual profiles |
+| M6 1900–2100 monthly calibration | **2412/2412 epochs** | Actions run 37202646134 |
+| M6 targeted phase/anomaly sampling | **15,676 epochs** | same run |
+| M6 digital Sun absolute max | **0.009572456°** | IAU 2006 mean-ecliptic-of-date reference |
+| M6 digital Sun dynamic max | **0.010229337°** | J2000 TT dynamic baseline |
+| M6 digital Moon absolute P95 / max | **0.305809037° / 0.427321722°** | same run |
+| M6 digital Moon dynamic P95 / max | **0.360167526° / 0.528604874°** | same run |
+| M6 Moon-Sun phase P95 / max | **0.304293570° / 0.424730056°** | same run |
+| M6 worst lunar phase-bin mean | **0.232686478°** | draconic phase 0.5833–0.6250 |
+| M6 machine-readable artifacts | **PASS** | monthly/targeted/phase-bin/summary CSV |
 | 12-epoch DE440 Antikythera calibration | **PASS** | Actions run 37199056620 |
 | Digital Sun relative max residual | **0.014132662°** | 2026 DE440 calibration |
 | Digital Moon relative max residual | **0.504873428°** | 2026 DE440 calibration |
@@ -66,6 +75,81 @@ M-Time is a Rust-first temporal interoperability framework. This status does **n
 | Indonesia–Türkiye Shawwal 1447 corpus | COMPLETE | source-linked corpus |
 | Revelation no-numerical-prior invariant | PASS | core CI |
 | Planck-like cosmology inference | PASS | core CI |
+
+## M6 — Antikythera Accuracy Program I
+
+v0.13.0 expands calibration from a one-year baseline into a 1900–2100 characterization program.
+
+```text
+monthly epochs  = 2,412
+targeted epochs = 15,676
+```
+
+The first long-range run exposed an apparent ~precession-scale common Sun/Moon drift because the digital model's longitude semantics were being compared against a fixed J2000 ecliptic reference. M6 corrected the **calibration frame**, not the Antikythera machine:
+
+```text
+DE440 ICRF/GCRS
+→ IAU 2006 precession-bias
+→ mean equator/equinox of date
+→ mean obliquity of date
+→ mean ecliptic of date
+```
+
+Frame-aligned digital results:
+
+```text
+Sun absolute:
+P50 = 0.002362880°
+P95 = 0.006319944°
+P99 = 0.007860385°
+MAX = 0.009572456°
+
+Sun dynamic MAX = 0.010229337°
+
+Moon absolute:
+P50 = 0.105735848°
+P95 = 0.305809037°
+P99 = 0.373034617°
+MAX = 0.427321722°
+
+Moon dynamic MAX = 0.528604874°
+
+Moon-Sun phase:
+P50 = 0.105996365°
+P95 = 0.304293570°
+P99 = 0.373298749°
+MAX = 0.424730056°
+```
+
+The digital Sun path is therefore not the primary 1900–2100 bottleneck. Lunar dynamics dominate.
+
+24-bin lunar dynamic-error diagnostics show the highest worst-bin mean in:
+
+```text
+draconic phase 0.5833–0.6250
+mean = 0.232686478°
+P95  = 0.437391361°
+```
+
+For comparison:
+
+```text
+anomalistic worst-bin mean = 0.159840566°
+synodic worst-bin mean     = 0.148989455°
+```
+
+This is diagnostic correlation, not proof of a missing draconic correction. M8 must test candidate terms through explicit versioning and ablation rather than inserting a correction merely because one phase bin is large.
+
+Machine-readable artifacts are emitted by the calibration workflow:
+
+- `monthly-1900-2100.csv`;
+- `targeted-phases.csv`;
+- `phase-bins.csv`;
+- `summary.csv`;
+- `report.txt`;
+- DE440 source hash.
+
+See `docs/M6_ACCURACY_PROGRAM.md` and `docs/M6_REFERENCE_FRAMES.md`.
 
 ## Antikythera-centered architecture — v0.12.0
 

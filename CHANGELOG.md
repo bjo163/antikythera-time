@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.13.0 - 2026-10-04
+
+- docs(m-time): finalize v0.13.0 Antikythera accuracy release (`10c5734`)
+- chore(m-time): expose M6 worst lunar phase bins [skip version] (`2232810`)
+- fix(m-time): align M6 calibration to mean ecliptic of date [skip version] (`68e5df0`)
+- feat(m-time): add M6 multi-century Antikythera accuracy analysis [skip version] (`2d09fb8`)
+- docs(m-time): define Antikythera-centered M6-M20 roadmap [skip version] (`fdbfa2d`)
+
 ## v0.12.0 - 2026-10-04
 
 - docs(m-time): finalize v0.12.0 Antikythera Phase 1-5 release (`e6f2a42`)

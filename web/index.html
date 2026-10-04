@@ -70,6 +70,19 @@ code{color:#c3e0f4}.flow{font-family:ui-monospace,SFMono-Regular,Menlo,monospace
 </section>
 
 <section class="card">
+  <h2>M6 · 1900–2100 Antikythera accuracy</h2>
+  <p class="muted">Frame-aligned DE440 calibration using IAU 2006 mean-ecliptic-of-date semantics. No new Antikythera correction term was introduced in M6.</p>
+  <div class="grid">
+    <div class="metric bigmetric"><span>Monthly epochs</span><strong>2,412</strong><small>1900–2100</small></div>
+    <div class="metric bigmetric"><span>Targeted phase epochs</span><strong>15,676</strong><small>lunar quarters, anomaly, solar anomaly</small></div>
+    <div class="metric bigmetric"><span>Digital Sun max</span><strong>0.009572456°</strong><small>absolute; dynamic max 0.010229337°</small></div>
+    <div class="metric bigmetric"><span>Digital Moon P95</span><strong>0.305809037°</strong><small>absolute; max 0.427321722°</small></div>
+    <div class="metric bigmetric"><span>Moon-Sun phase max</span><strong>0.424730056°</strong></div>
+    <div class="metric bigmetric"><span>Largest phase-bin mean</span><strong>0.232686478°</strong><small>draconic phase 0.5833–0.6250</small></div>
+  </div>
+</section>
+
+<section class="card">
   <h2>Software Antikythera / M-Clock</h2>
   <p class="muted">The new native M-Time path: one continuous linear SI coordinate plus synchronized astronomical cycle dials. This browser executes the Rust/WASM digital Antikythera machine directly.</p>
   <div class="grid">
@@ -150,6 +163,7 @@ conjunction-before-fajr condition</div>
     <div class="metric"><span>Current status</span><strong><a href="./docs/STATUS.md">docs/STATUS.md</a></strong></div>
     <div class="metric"><span>Software Antikythera</span><strong><a href="./docs/ANTIKYTHERA_CORE.md">core machine</a></strong></div>
     <div class="metric"><span>Antikythera calibration</span><strong><a href="./docs/ANTIKYTHERA_CALIBRATION.md">DE440 residuals</a></strong></div>
+    <div class="metric"><span>M6 accuracy program</span><strong><a href="./docs/M6_ACCURACY_PROGRAM.md">1900–2100 diagnostics</a></strong></div>
     <div class="metric"><span>Native M-Time state</span><strong><a href="./docs/MTIME_NATIVE_STATE.md">linear + cyclic coordinate</a></strong></div>
     <div class="metric"><span>M-Clock Phase 5</span><strong><a href="./docs/MCLOCK.md">packet + hardware design</a></strong></div>
     <div class="metric"><span>Wellington provider</span><strong><a href="./docs/WELLINGTON_DIYANET_FAJR.md">method + result</a></strong></div>
