@@ -1,0 +1,41 @@
+{
+  "schema": "mtime-antikythera-historical-evidence-v1",
+  "sources": [
+    {
+      "id": "FREETH_2006_NATURE",
+      "citation": "Freeth et al., Nature 444, 587-591 (2006)",
+      "doi": "10.1038/nature05357",
+      "scope": "tomography-backed gearing and lunar anomaly"
+    },
+    {
+      "id": "FREETH_2008_NATURE",
+      "citation": "Freeth et al., Nature 454, 614-617 (2008)",
+      "doi": "10.1038/nature07130",
+      "scope": "Metonic calendar and Saros eclipse dial"
+    },
+    {
+      "id": "FREETH_2021_SCI_REP",
+      "citation": "Freeth et al., Scientific Reports 11, 5821 (2021)",
+      "doi": "10.1038/s41598-021-84310-w",
+      "scope": "front-cosmos reconstruction"
+    }
+  ],
+  "profiles": [
+    {
+      "id": "ANTIKYTHERA_CONSERVATIVE_REAR_DIALS_V1",
+      "components": ["metonic", "saros", "lunar-anomaly"]
+    },
+    {
+      "id": "ANTIKYTHERA_FREETH_2021_FRONT_COSMOS_V1",
+      "components": [
+        "metonic",
+        "saros",
+        "lunar-anomaly",
+        "planet-inscriptions",
+        "front-cosmos-gearing-2021",
+        "node-compact-5-93"
+      ]
+    }
+  ],
+  "boundary": "Reconstructed front-cosmos gearing is not serialized as surviving evidence."
+}
