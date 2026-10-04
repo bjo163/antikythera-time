@@ -14,34 +14,71 @@
     "interpretation"
   ],
   "properties": {
-    "schema": { "const": "mtime-mclock-metrology-suite-1" },
+    "schema": {
+      "const": "mtime-mclock-metrology-suite-1"
+    },
     "analysis_tool": {
       "type": "object",
-      "required": ["crate", "version"],
+      "required": [
+        "crate",
+        "version",
+        "git_sha"
+      ],
       "additionalProperties": false,
       "properties": {
-        "crate": { "const": "mtime-metrology" },
-        "version": { "type": "string" }
+        "crate": {
+          "const": "mtime-metrology"
+        },
+        "version": {
+          "type": "string"
+        },
+        "git_sha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        }
       }
     },
     "identity": {
       "type": "object",
-      "required": ["reference_id", "device_id", "firmware_sha"],
+      "required": [
+        "reference_id",
+        "device_id",
+        "firmware_sha"
+      ],
       "additionalProperties": false,
       "properties": {
-        "reference_id": { "type": "string", "minLength": 1 },
-        "device_id": { "type": "string", "minLength": 1 },
-        "firmware_sha": { "type": "string", "minLength": 1 }
+        "reference_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "device_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "firmware_sha": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "method": {
       "type": "object",
-      "required": ["drift_fit", "jitter", "offset_spread"],
+      "required": [
+        "drift_fit",
+        "jitter",
+        "offset_spread"
+      ],
       "additionalProperties": false,
       "properties": {
-        "drift_fit": { "type": "string" },
-        "jitter": { "type": "string" },
-        "offset_spread": { "type": "string" }
+        "drift_fit": {
+          "type": "string"
+        },
+        "jitter": {
+          "type": "string"
+        },
+        "offset_spread": {
+          "type": "string"
+        }
       }
     },
     "datasets": {
