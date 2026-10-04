@@ -1,12 +1,12 @@
 # M-Time Implementation Status
 
 Date: 2026-10-04  
-Version: **v0.3.0 Provider-Wired Policy Research Prototype**  
-Internal status: **HIGH-PRECISION FLAGSHIP PATH + PROVIDER-WIRED POLICY/INTEGRITY HARDENING COMPLETE**
+Version: **v0.4.0 Global Oracle Research Prototype**  
+Internal status: **GLOBAL 21-CASE HORIZONS ORACLE + PROVIDER-WIRED POLICY/INTEGRITY HARDENING COMPLETE**
 
 M-Time is a Rust-first temporal interoperability framework. This status does **not** claim international standard adoption, religious/fiqh authority, or replacement of BIPM/IAU/IERS/JPL infrastructure.
 
-## Final v0.3.0 internal gates
+## Final v0.4.0 internal gates
 
 | Gate | Result | Reference |
 |---|---|---|
@@ -15,9 +15,10 @@ M-Time is a Rust-first temporal interoperability framework. This status does **n
 | Rust↔Python compatibility | **PASS** | Actions run 37054820611 |
 | Offline JPL DE440/SPK provider | PASS | prior SPK reference gates |
 | Fixed Jakarta topocentric reference | PASS | prior topocentric reference gate |
-| 9-case Horizons topocentric oracle matrix | **9/9 PASS** | Actions run 37054820402 |
+| 21-case Horizons topocentric oracle matrix | **21/21 PASS** | Actions run 37192295790 |
 | Matrix physical pointing threshold | **0.001°** | same run |
-| Matrix maximum direction residual | **~0.000257° (~0.93 arcsec)** | same run |
+| Matrix maximum direction residual | **0.000359059275° (~1.29 arcsec)** | same run |
+| Matrix worst case | **Ramadan × Wellington** | same run |
 | Executable Diyanet additional calendar conditions | PASS | core CI |
 | Provider-derived Americas/Wellington policy context | **PASS** | provider-wiring CI |
 | SHA-256 / Ed25519 verification | PASS | core CI |
@@ -35,17 +36,21 @@ The matrix uses official DE440 short SPK + current IERS finals.all and compares 
 
 Cases:
 
-- Ramadan 1447 boundary epoch × Jakarta / Ankara / Makkah;
-- Shawwal 1447 boundary epoch × Jakarta / Ankara / Makkah;
-- Dhulhijjah 1447 boundary epoch × Jakarta / Ankara / Makkah.
+- Ramadan 1447 boundary epoch × Jakarta / Ankara / Makkah / Wellington / New York / Santiago / Cape Town;
+- Shawwal 1447 boundary epoch × the same seven sites;
+- Dhulhijjah 1447 boundary epoch × the same seven sites.
+
+This covers Southeast Asia, Türkiye, Hijaz, Oceania, North America, South America, and Africa.
 
 Maximum measured physical horizon-direction residual:
 
 ```text
-~0.000257° ≈ 0.93 arcsec
+0.000359059275° ≈ 1.29 arcsec
 ```
 
-All 9 cases pass the fixed 0.001° gate.
+Worst case: Ramadan × Wellington.
+
+All 21 cases pass the fixed 0.001° gate. The matrix workflow now emits an explicit case count, maximum residual, and fixed threshold summary in its artifact.
 
 Raw azimuth is still reported, but the broad matrix uses spherical sky-direction error as the physical pointing metric because azimuth becomes ill-conditioned near zenith. This was discovered empirically in the Dhulhijjah/Makkah case and fixed without weakening the physical threshold.
 
@@ -121,7 +126,7 @@ UTC + observer + IERS EOP + DE440
 For research-prototype purposes, M-Time can now:
 
 - compute a high-precision offline Sun/Moon reference path;
-- validate topocentric geometry against Horizons over a small multi-site/multi-epoch matrix;
+- validate topocentric geometry against Horizons over a seven-site / three-epoch global matrix;
 - execute MABIMS and represented Diyanet policy conditions without collapsing them into one rule;
 - preserve observation, authority and source-integrity layers separately;
 - explain why two temporal/calendar outcomes differ.
@@ -130,7 +135,7 @@ For research-prototype purposes, M-Time can now:
 
 These remain deliberately **OPEN**:
 
-1. Much broader multi-year and global astronomy oracle matrix.
+1. Multi-year expansion of the now-global astronomy oracle matrix; geographic breadth is 7 sites / 21 cases as of v0.4.0.
 2. Field validation of atmospheric refraction and surveyed local-horizon profiles.
 3. Production-grade geospatial determination of “American mainland” backed by an authoritative/versioned polygon or visibility-map dataset.
 4. Production Wellington imsak/fajr provider backed by an explicitly versioned authoritative worship-time method; v0.3.0 wires the provider interface but does not hard-code a universal fajr angle.
