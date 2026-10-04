@@ -2,8 +2,8 @@
 
 Category: `revelation_textual_boundary`  
 Issue: #43  
-Candidate: `m20-review-candidate-2`  
-Candidate Git SHA: `799e70d87bd3b4a918986a3f8877b9ca44a13696`
+Candidate: `m20-review-candidate-3`  
+Candidate Git SHA: `f5a14d8d00367117a6ae9f98ce6cac25f2f262e9`
 
 ## Required topics
 
@@ -30,7 +30,7 @@ Check that concepts such as day/night, Sun, Moon, phases, months, years, reckoni
 
 ### no_physics_injection
 
-Check the hard rule that revelation records cannot inject hidden constants, correction coefficients, epochs, gear ratios, astronomical thresholds, or time-scale offsets into physical M-Time state.
+Check the hard rule that revelation records cannot inject hidden constants, correction coefficients, epochs, gear ratios, astronomical thresholds, or time-scale offsets into numerical M-Time state.
 
 ### interpretation_uncertainty
 
