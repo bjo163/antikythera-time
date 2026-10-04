@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.12.0 - 2026-10-04
+
+- docs(m-time): finalize v0.12.0 Antikythera Phase 1-5 release (`e6f2a42`)
+- feat(web): expose Software Antikythera and M-Clock in Live Lab [skip version] (`ea6a036`)
+- fix(build): place clock dependencies in Cargo dependency tables [skip version] (`b2af06d`)
+- feat(m-time): expose M-Clock through CLI and WASM [skip version] (`19a4db4`)
+- feat(m-time): add M-Clock packet and conformance gate [skip version] (`f5c0d91`)
+- feat(m-time): add native linear-plus-cyclic temporal state [skip version] (`66039a8`)
+- feat(m-time): calibrate digital Antikythera against DE440 [skip version] (`951bdcc`)
+- feat(m-time): build digital Antikythera core machine [skip version] (`1e657ed`)
+
 ## v0.11.0 - 2026-10-04
 
 - docs(m-time): finalize v0.11.0 multi-country historical release (`e91c1a4`)
