@@ -1,53 +1,144 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>M-Time v0.2 — Mīqāt Temporal Protocol</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#071018">
+<title>M-Time Live Lab</title>
 <style>
-:root{font-family:Inter,system-ui,sans-serif;color:#e8edf4;background:#071018}body{margin:0}.wrap{max-width:1050px;margin:auto;padding:32px 18px 70px}h1{font-size:clamp(2.2rem,7vw,5.2rem);margin:.2em 0}.gold{color:#d9bd74}.card{background:#0d1822;border:1px solid #263b4c;border-radius:18px;padding:22px;margin:16px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.metric{background:#08121b;border:1px solid #203342;border-radius:12px;padding:14px}.metric span{display:block;color:#8fa3b6;font-size:.75rem}.metric strong{display:block;margin-top:6px;font-size:1.13rem}.row{display:flex;gap:10px;flex-wrap:wrap}input{background:#071018;color:#fff;border:1px solid #385266;border-radius:8px;padding:10px;width:140px}button{background:#d9bd74;border:0;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer}.ok{color:#91dfad}.no{color:#ffac9f}.note{color:#e4c983}code{color:#bcd6ec}p{line-height:1.6;color:#b9c6d2}small{color:#8396a8}
-</style></head>
+:root{
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:#eef4f8;background:#061018;line-height:1.5;
+  --panel:#0b1721;--panel2:#08131c;--line:#203746;--muted:#91a5b5;
+  --gold:#e0c77b;--ok:#86e2ac;--warn:#f0cc72;--bad:#ff9d92;--blue:#9bd6ff;
+}
+*{box-sizing:border-box}body{margin:0;background:
+radial-gradient(circle at 10% 0%,#102a3a 0,transparent 33rem),
+radial-gradient(circle at 90% 15%,#2c2612 0,transparent 30rem),#061018}
+a{color:#a8dcff;text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1180px;margin:auto;padding:26px 18px 80px}
+.hero{padding:22px 0 12px}.eyebrow{color:var(--gold);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
+h1{font-size:clamp(2.5rem,7vw,6.5rem);line-height:.92;margin:.12em 0 .18em;letter-spacing:-.05em}
+h2{font-size:1.35rem;margin:0 0 12px}h3{font-size:1rem;margin:0 0 8px}
+.lede{max-width:850px;color:#bdcbd5;font-size:1.08rem}
+.pillrow,.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{border:1px solid var(--line);background:#07131c;border-radius:999px;padding:7px 10px;font-size:.78rem;color:#c7d5df}
+.card{background:linear-gradient(180deg,rgba(14,29,40,.97),rgba(8,19,28,.97));border:1px solid var(--line);border-radius:18px;padding:20px;margin:14px 0;box-shadow:0 14px 40px rgba(0,0,0,.16)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:10px}
+.metric{background:var(--panel2);border:1px solid #1b3342;border-radius:13px;padding:14px;min-height:96px}
+.metric span{display:block;color:var(--muted);font-size:.72rem;letter-spacing:.05em;text-transform:uppercase}
+.metric strong{display:block;margin-top:6px;font-size:1.08rem;word-break:break-word}
+.metric small{display:block;color:#7f95a6;margin-top:5px}
+.bigmetric strong{font-size:1.5rem}
+.ok{color:var(--ok)!important}.warn{color:var(--warn)!important}.bad{color:var(--bad)!important}.blue{color:var(--blue)!important}
+.muted{color:var(--muted)}.gold{color:var(--gold)}
+label{color:#aebfcc;font-size:.82rem}
+input{margin-top:5px;background:#061018;color:#fff;border:1px solid #385367;border-radius:9px;padding:10px;width:150px}
+button{background:var(--gold);color:#172018;border:0;border-radius:9px;padding:11px 16px;font-weight:800;cursor:pointer}
+button:hover{filter:brightness(1.06)}
+code{color:#c3e0f4}.flow{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#061018;border:1px solid #1f3543;border-radius:12px;padding:14px;white-space:pre-wrap;color:#bed3df;overflow:auto}
+.workflow{display:flex;justify-content:space-between;gap:12px;align-items:center;border-top:1px solid #182b37;padding:10px 0}
+.workflow:first-child{border-top:0}.dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:8px;background:#71818d}.dot.success{background:var(--ok)}.dot.failure{background:var(--bad)}.dot.running{background:var(--warn)}
+.split{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr);gap:14px}
+@media(max-width:800px){.split{grid-template-columns:1fr}h1{font-size:3.7rem}}
+.footer{margin-top:30px;color:#758b9b;font-size:.82rem}
+</style>
+</head>
 <body><main class="wrap">
-<p class="gold">بِسْمِ اللَّهِ الرَّحْمٰنِ الرَّحِيمِ</p>
-<h1>M-Time <span class="gold">v0.2</span></h1>
-<p>Mīqāt Temporal Protocol — Rust-first temporal interoperability. SI/UTC remain foundational references; M-Time keeps astronomy, calendar criteria, rukyat, jurisdiction and authority as distinct evidence layers.</p>
+<header class="hero">
+  <div class="eyebrow">بِسْمِ اللَّهِ الرَّحْمٰنِ الرَّحِيمِ · Mīqāt Temporal Protocol</div>
+  <h1>M-Time <span class="gold">Live Lab</span></h1>
+  <p class="lede">A Rust/WASM research implementation for auditable time, astronomy, Hijri criteria, observation, jurisdiction, authority and explainable disagreement. This page is deployed from <code>main</code> by GitHub Pages.</p>
+  <div class="pillrow">
+    <span class="pill">release <b id="releaseTag">loading…</b></span>
+    <span class="pill">deployed SHA <b id="commitSha">loading…</b></span>
+    <span class="pill">WASM <b id="wasmVersion">loading…</b></span>
+    <span class="pill">branch flow <b>dev → main</b></span>
+  </div>
+</header>
 
 <section class="card">
-<h2>Same sky, different calendar profiles</h2>
-<p>Enter one candidate-site geometry. Both results are calculated by the same Rust/WASM core. A different result means the <strong>criterion</strong> differs — not that the physical Moon changed.</p>
-<div class="row">
-<label>Topocentric Moon altitude °<br><input id="alt" type="number" step=".01" value="4.00"></label>
-<label>Geocentric center-to-center elongation °<br><input id="elong" type="number" step=".01" value="7.00"></label>
-<button id="eval">Evaluate profiles</button>
-</div>
-<div class="grid">
-<div class="metric"><span>MABIMS INDONESIA / PMA 1-2026</span><strong id="mabimsResult">loading…</strong><small>alt ≥3° AND elong ≥6.4°</small></div>
-<div class="metric"><span>DIYANET 5°/8° VISIBILITY — THIS SITE</span><strong id="diyanetResult">loading…</strong><small>alt ≥5° AND elong ≥8°</small></div>
-<div class="metric"><span>EXPLAIN DIFFERENCE</span><strong id="diffResult">loading…</strong><small>This panel evaluates only the Diyanet 5°/8° visibility component at the supplied site. The current published month-start method also carries additional regional/timing conditions.</small></div>
-</div>
+  <h2>Live release health</h2>
+  <div class="grid">
+    <div class="metric bigmetric"><span>External Horizons comparisons</span><strong>42 / 42 PASS</strong><small>21 boundary + 21 multi-year</small></div>
+    <div class="metric bigmetric"><span>Boundary max sky residual</span><strong>0.000359059275°</strong><small>≈ 1.29 arcsec, gate 0.001°</small></div>
+    <div class="metric bigmetric"><span>Multi-year max residual</span><strong>0.000336345642°</strong><small>≈ 1.21 arcsec</small></div>
+    <div class="metric bigmetric"><span>Historical replay</span><strong>REPRODUCED / FALSIFIED / INCOMPLETE</strong><small>fail-closed verdict model</small></div>
+  </div>
+  <div id="workflowList" style="margin-top:10px"><span class="muted">Loading latest GitHub Actions state…</span></div>
 </section>
 
-<section class="card"><h2>v0.2 hardening</h2>
-<div class="grid">
-<div class="metric"><span>OFFLINE EPHEMERIS</span><strong>JPL DE440 / SPK</strong></div>
-<div class="metric"><span>EARTH ORIENTATION</span><strong>IERS EOP</strong></div>
-<div class="metric"><span>FRAME TRANSFORM</span><strong>IAU 2006 / 2000A</strong></div>
-<div class="metric"><span>TOPocentric ORACLE</span><strong>&lt; 0.001° gate</strong></div>
-<div class="metric"><span>SOURCE INTEGRITY</span><strong>SHA-256 + Ed25519</strong></div>
-<div class="metric"><span>RUST TESTS</span><strong>58+ / 0 fail</strong></div>
-</div>
-<p>At the fixed Jakarta oracle epoch, M-Time's airless topocentric Moon solution agrees with JPL Horizons to sub-arcsecond scale. Atmospheric refraction remains an explicit optional model rather than a hidden correction.</p>
+<section class="split">
+  <div class="card">
+    <h2>Same sky, different calendar profiles</h2>
+    <p class="muted">Run the current Rust/WASM core in your browser. A differing result means the represented criterion differs — not that the physical Moon changed.</p>
+    <div class="row">
+      <label>Moon altitude, topocentric °<br><input id="alt" type="number" step=".01" value="4.00"></label>
+      <label>Elongation, geocentric °<br><input id="elong" type="number" step=".01" value="7.00"></label>
+      <button id="eval">Evaluate</button>
+    </div>
+    <div class="grid" style="margin-top:14px">
+      <div class="metric"><span>MABIMS Indonesia</span><strong id="mabimsResult">loading…</strong><small>alt ≥3° AND elong ≥6.4°</small></div>
+      <div class="metric"><span>Diyanet site component</span><strong id="diyanetResult">loading…</strong><small>alt ≥5° AND elong ≥8°</small></div>
+      <div class="metric"><span>Explain difference</span><strong id="diffResult">loading…</strong><small>Diyanet complete policy has additional mainland + Wellington timing conditions.</small></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Diyanet represented policy path</h2>
+    <div class="flow">5° / 8° visibility component
+        ↓
+passing candidate sites
+        ↓
+Natural Earth v5.1.2 mainland provider
+        ↓
+Americas-mainland condition
+
+DE440 + IERS + Wellington observer
+        ↓
+rising Sun crossing @ −18°
+        ↓
+Wellington fajr SolarEvent
+        ↓
+conjunction-before-fajr condition</div>
+    <p><span class="ok">Shawwal 1447 replay:</span> conjunction-before-Wellington-fajr = <b>true</b>; separation = <b>15.434722 h</b>.</p>
+  </div>
 </section>
 
-<section class="card"><h2>Why disagreement matters</h2>
-<p>The same celestial state can map to different dates because observer, profile, rukyat evidence, jurisdiction or authority differs. <code>ExplainDifference</code> records the causal branch instead of hiding it behind a date string.</p>
+<section class="card">
+  <h2>Evidence & trust</h2>
+  <div class="grid">
+    <div class="metric"><span>Ephemeris</span><strong>JPL DE440 / SPK</strong><small>offline provider + Horizons oracle</small></div>
+    <div class="metric"><span>Earth orientation</span><strong>IERS finals.all</strong><small>UT1 + polar motion</small></div>
+    <div class="metric"><span>Geospatial source</span><strong>Natural Earth v5.1.2</strong><small>SHA-256 pinned</small></div>
+    <div class="metric"><span>Source integrity</span><strong>SHA-256 + Ed25519</strong><small>unknown/revoked/expired keys fail closed</small></div>
+    <div class="metric"><span>Live upstream signatures</span><strong class="warn">explicitly unsigned</strong><small>HTTPS/source reputation is not mislabeled as Ed25519 authentication</small></div>
+    <div class="metric"><span>Falsification controls</span><strong class="ok">active</strong><small>unexplained date/authority flips are rejected</small></div>
+  </div>
 </section>
 
-<section class="card"><h2>Research boundaries</h2><div class="grid">
-<div class="metric"><span>ANTIKYTHERA</span><strong>computational grammar</strong></div>
-<div class="metric"><span>COSMIC AGE</span><strong>model-dependent inference</strong></div>
-<div class="metric"><span>REVELATION</span><strong>textual/conceptual layer</strong></div>
-<div class="metric"><span>STANDARD TIME</span><strong>builds on SI / UTC / IAU / IERS</strong></div>
-</div></section>
-<p><small>Research implementation. It does not select a fiqh position, replace UTC, or claim an absolute cosmic clock or formal standards adoption.</small></p>
+<section class="card">
+  <h2>Validation map of what M-Time currently proves</h2>
+  <div class="grid">
+    <div class="metric"><span>Astronomy</span><strong class="ok">global + multi-year oracle</strong><small>7 sites, 2024–2026 plus Hijri boundary epochs</small></div>
+    <div class="metric"><span>Policy providers</span><strong class="ok">geospatial + Wellington computed</strong><small>typed, versioned inputs</small></div>
+    <div class="metric"><span>Historical corpus</span><strong class="warn">early-stage</strong><small>Indonesia 1447 + ID/TR Shawwal; more decades/countries still needed</small></div>
+    <div class="metric"><span>External adoption</span><strong class="warn">not claimed</strong><small>research prototype, not a formal standard</small></div>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Docs & raw evidence</h2>
+  <div class="grid">
+    <div class="metric"><span>Current status</span><strong><a href="./docs/STATUS.md">docs/STATUS.md</a></strong></div>
+    <div class="metric"><span>Wellington provider</span><strong><a href="./docs/WELLINGTON_DIYANET_FAJR.md">method + result</a></strong></div>
+    <div class="metric"><span>Geospatial provider</span><strong><a href="./docs/GEOSPATIAL_MAINLAND.md">dataset + classifications</a></strong></div>
+    <div class="metric"><span>Historical falsification</span><strong><a href="./docs/HISTORICAL_FALSIFICATION.md">verdict model</a></strong></div>
+    <div class="metric"><span>Source ingestion</span><strong><a href="./docs/SOURCE_INGESTION.md">trust boundary</a></strong></div>
+    <div class="metric"><span>Machine corpus</span><strong><a href="./data/hijri/historical-falsification-v0.7.json">JSON corpus</a></strong></div>
+  </div>
+</section>
+
+<p class="footer">Research implementation. M-Time does not select a fiqh position, replace UTC/BIPM/IAU/IERS/JPL, claim absolute cosmic time, or claim formal standards adoption. Live GitHub status is best-effort and falls back to the deployed snapshot if GitHub API rate limits are reached.</p>
 <script type="module" src="./app.js"></script>
 </main></body></html>

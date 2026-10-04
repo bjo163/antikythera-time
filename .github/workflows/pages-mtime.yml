@@ -14,6 +14,7 @@ on:
       - ".github/workflows/pages-mtime.yml"
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 concurrency:
@@ -35,10 +36,22 @@ jobs:
       - uses: actions/configure-pages@v5
       - name: Assemble site
         run: |
+          set -euo pipefail
           mkdir _site
           cp -R web/* _site/
           cp -R spec _site/spec
           cp -R docs _site/docs
+          cp -R data _site/data
+          VERSION="$(python3 - <<'PY'
+          import re
+          text=open("Cargo.toml").read()
+          m=re.search(r'\[workspace\.package\][\s\S]*?\nversion = "([^"]+)"',text)
+          print(m.group(1))
+          PY
+          )"
+          COMMIT="$(git rev-parse HEAD)"
+          DEPLOYED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          printf '{"version":"%s","commit":"%s","deployed_at":"%s","branch":"main"}\n'             "$VERSION" "$COMMIT" "$DEPLOYED_AT" > _site/build-info.json
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
