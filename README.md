@@ -1,13 +1,21 @@
 # M-Time — Mīqāt Temporal Protocol
 
-**Status:** Rust-first **v0.11.0 Multi-Country Historical Falsification Research Prototype**.
+**Status:** Rust-first **v0.12.0 Antikythera Genesis / Phase 1–5 Research Prototype**.
 
 M-Time is a temporal interoperability framework. It does **not** invent a new physical second, replace UTC, choose a fiqh position, or claim an absolute cosmic clock. Its flagship use-case is explainable Hijri/worship-calendar resolution.
 
 Core rule: physical time, astronomy, calendar criteria, observation/rukyat, jurisdiction, authority decisions, cosmic inference, historical reconstruction, and revelation-text concepts are separate semantic layers.
 
-## v0.11.0 highlights
+## v0.12.0 highlights
 
+- **Software Antikythera is now a first-class core:** virtual cycles, gear relations/trains, dials and synchronized machine state.
+- Separate `ANTIKYTHERA_HISTORICAL_RECONSTRUCTION_V1` and `MTIME_DIGITAL_ANTIKYTHERA_V1` profiles.
+- 12-epoch 2026 DE440 calibration: digital max residuals **0.014132662° Sun**, **0.504873428° Moon**, **0.277593562° Moon-Sun phase**.
+- New `mtime-temporal` native state combines a continuous SI coordinate with solar/synodic/sidereal/anomalistic/draconic/Metonic/Saros/Exeligmos phases.
+- New `mtime-clock` crate and **MCLOCK-1** packet expose M-Time as a device-facing clock state.
+- CLI + WASM + GitHub Pages Live Lab now expose the current Software Antikythera/M-Clock state.
+- Hardware reference architecture, protocol and safety invariants are documented under `hardware/m-clock/`.
+- **115 Rust tests / 0 failures** on the Phase-5 staging gate.
 - Pure-Rust offline JPL DE440/SPK provider.
 - Integrated `mtime-hilal` engine: `UTC + observer + IERS + DE440 → HijriAstronomicalState`.
 - External DE440 ↔ JPL Horizons vector oracle.
@@ -44,7 +52,7 @@ Core rule: physical time, astronomy, calendar criteria, observation/rukyat, juri
 - Typed provider wiring derives Diyanet policy context from threshold-passing sites plus geospatial/Wellington-fajr providers; missing evidence stays UNKNOWN.
 - GitHub Pages **M-Time Live Lab** replaces the stale v0.2 demo and shows live release/Actions health, oracle metrics, trust/falsification status, and the Rust/WASM profile evaluator.
 - Rust/WASM profile comparison surface.
-- 103 Rust tests / 0 failures on the v0.11.0 multi-country historical regression gate.
+- Historical v0.11 regression remains active alongside the new Antikythera/M-Clock gates.
 - Indonesia 1447 H Ramadan/Syawal/Zulhijjah replay corpus.
 - ExplainDifference preserves astronomy vs criterion vs rukyat vs authority.
 
