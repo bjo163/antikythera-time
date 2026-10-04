@@ -25,7 +25,14 @@ jobs:
         run: cargo test -p mtime-metrology --all-targets
       - name: Exercise synthetic metrology suite
         run: |
-          cargo run --quiet -p mtime-metrology -- suite             hardware/m-clock/fixtures/pps.csv             hardware/m-clock/fixtures/holdover-1h.csv             hardware/m-clock/fixtures/holdover-6h.csv             hardware/m-clock/fixtures/holdover-24h.csv             hardware/m-clock/fixtures/holdover-72h.csv             > /tmp/mtime-metrology-suite.json
+          cargo run --quiet -p mtime-metrology -- suite \
+            "$(git rev-parse HEAD)" \
+            hardware/m-clock/fixtures/pps.csv \
+            hardware/m-clock/fixtures/holdover-1h.csv \
+            hardware/m-clock/fixtures/holdover-6h.csv \
+            hardware/m-clock/fixtures/holdover-24h.csv \
+            hardware/m-clock/fixtures/holdover-72h.csv \
+            > /tmp/mtime-metrology-suite.json
           python - <<'PY'
           import json
           d=json.load(open("/tmp/mtime-metrology-suite.json"))
