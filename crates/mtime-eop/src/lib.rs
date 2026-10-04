@@ -28,9 +28,11 @@ pub fn parse_finals2000a(text:&str)->Vec<EopRecord>{
     let mut rows=Vec::new();
     for raw in text.lines(){
         let p=raw.split_whitespace().collect::<Vec<_>>();
-        if p.len()<10{continue;}
-        let Ok(mjd)=p[3].parse::<f64>()else{continue;};
-        let mut i=4usize;
+        if p.len()<9{continue;}
+        let Some((mjd_index,mjd))=p.iter().take(5).enumerate().find_map(|(index,token)|{
+            token.parse::<f64>().ok().filter(|value|*value>30_000.0&&*value<100_000.0).map(|value|(index,value))
+        })else{continue;};
+        let mut i=mjd_index+1;
 
         let Some((pole_flag,xp))=parse_flagged_value(&p,&mut i)else{continue;};
         if p.get(i).and_then(|x|x.parse::<f64>().ok()).is_none(){continue;}
