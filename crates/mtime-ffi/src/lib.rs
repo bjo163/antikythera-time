@@ -49,6 +49,7 @@ impl MTimeCStateV1 {
 /// C ABI v1: compute Software Antikythera state from TT Julian Date.
 /// experimental_v2 == 0 selects Digital V1; non-zero selects V2 Experimental.
 /// The function returns by value and uses no caller-provided raw pointers.
+#[allow(unsafe_code)]
 #[no_mangle]
 pub extern "C" fn mtime_state_v1_from_tt(jd_tt: f64, experimental_v2: u8) -> MTimeCStateV1 {
     if !jd_tt.is_finite() {

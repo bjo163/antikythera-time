@@ -6,7 +6,7 @@ use std::{
 };
 
 use mtime_antikythera::{
-    digital_lunar_longitude_with_selection, shortest_angle_deg, wrap_deg,
+    digital_lunar_longitude_with_selection, wrap_deg,
     AntikytheraMachine, CorrectionSelection, DIGITAL_LUNAR_CORRECTIONS_V1, J2000_JD_TT,
 };
 use mtime_astro::{icrf_vector_to_mean_ecliptic_of_date, Body};

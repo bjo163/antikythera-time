@@ -11,5 +11,5 @@ crate-type = ["rlib", "staticlib", "cdylib"]
 [dependencies]
 mtime-antikythera = { path = "../mtime-antikythera" }
 
-[lints]
-workspace = true
+[lints.rust]
+unsafe_code = "deny"
