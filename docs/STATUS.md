@@ -1,17 +1,17 @@
 # M-Time Implementation Status
 
 Date: 2026-10-04  
-Version: **v0.7.0 Historical Falsification Research Prototype**  
-Internal status: **CROSS-JURISDICTION HISTORICAL FALSIFICATION + AUDITABLE SOURCE/ORACLE HARDENING COMPLETE**
+Version: **v0.8.0 Versioned Geospatial Policy Research Prototype**  
+Internal status: **VERSIONED AMERICAS-MAINLAND GEOSPATIAL POLICY + HISTORICAL/SOURCE/ORACLE HARDENING COMPLETE**
 
 M-Time is a Rust-first temporal interoperability framework. This status does **not** claim international standard adoption, religious/fiqh authority, or replacement of BIPM/IAU/IERS/JPL infrastructure.
 
-## Final v0.7.0 internal gates
+## Final v0.8.0 internal gates
 
 | Gate | Result | Reference |
 |---|---|---|
 | Rust workspace CI | **PASS** | Actions run 37054820440 |
-| Rust tests | **95 passed / 0 failed** | historical-falsification CI |
+| Rust tests | **98 passed / 0 failed** | geospatial-provider CI |
 | Rust↔Python compatibility | **PASS** | Actions run 37054820611 |
 | Offline JPL DE440/SPK provider | PASS | prior SPK reference gates |
 | Fixed Jakarta topocentric reference | PASS | prior topocentric reference gate |
@@ -25,6 +25,9 @@ M-Time is a Rust-first temporal interoperability framework. This status does **n
 | Combined external Horizons coverage | **42 cases** | 21 boundary + 21 multi-year |
 | Executable Diyanet additional calendar conditions | PASS | core CI |
 | Provider-derived Americas/Wellington policy context | **PASS** | provider-wiring CI |
+| Natural Earth Americas-mainland provider | **PASS** | Actions run 37194423011 |
+| Natural Earth source SHA-256 pin | **PASS** | `9e0729ee...35d9` |
+| Diyanet geospatial provider integration | **PASS** | mainland/island/unknown live-data gate |
 | SHA-256 / Ed25519 verification | PASS | core CI |
 | Validity/revocation-aware trusted key registry | PASS | core CI |
 | Real IERS source ingestion | **PASS** | Actions run 37193413659 |
@@ -154,6 +157,51 @@ Those live upstream artifacts are explicitly recorded as `signature_verified=fal
 
 The signed-source path itself is fail-closed: missing required signatures, hash mismatch, signer/institution mismatch, unknown keys, expired keys and revoked keys are rejected.
 
+## Versioned Americas-mainland geospatial provider
+
+v0.8.0 replaces the placeholder site classifier in the production path with a versioned GeoJSON-backed provider.
+
+Dataset:
+
+```text
+Natural Earth ne_110m_land
+version: 5.1.2
+Git blob SHA-1: 04811d72fff2701ec67587e30ad8942675b511e3
+SHA-256: 9e0729ee253ca7d7a5c4ae9395fb1902264c5377c52e224d13dd85010e2835d9
+```
+
+The provider identifies the connected American mainland landmass by an anchor inside continental North America and performs point-in-polygon classification with hole handling.
+
+Live validation:
+
+```text
+NEW_YORK    true
+SANTIAGO    true
+PANAMA      true
+MEXICO_CITY true
+ANCHORAGE   true
+
+HAVANA      false
+HONOLULU    false
+GREENLAND   false
+WELLINGTON  false
+JAKARTA     false
+USHUAIA     false
+```
+
+The Diyanet policy integration therefore produces:
+
+```text
+New York threshold pass + Wellington timing pass  -> complete rule TRUE
+Havana threshold pass + Wellington timing pass    -> complete rule FALSE
+Wellington threshold pass                         -> complete rule FALSE
+unknown site                                      -> UNKNOWN
+```
+
+The GeoJSON is also passed through M-Time's auditable source-ingestion layer.
+
+This is a versioned policy-classification provider, not a meter-level coastline survey. Natural Earth 110m is intentionally coarse and should not be used to make sub-kilometer coastal-boundary claims.
+
 ## Historical falsification
 
 v0.7.0 adds executable replay verdicts:
@@ -226,7 +274,7 @@ These remain deliberately **OPEN**:
 
 1. Further temporal expansion beyond the current 2024-2026 / 42-case active Horizons suite, including more years and more intra-year epochs.
 2. Field validation of atmospheric refraction and surveyed local-horizon profiles.
-3. Production-grade geospatial determination of “American mainland” backed by an authoritative/versioned polygon or visibility-map dataset.
+3. Higher-resolution geospatial refinement beyond the current pinned Natural Earth 110m mainland provider for near-coast/border edge cases.
 4. Production Wellington imsak/fajr provider backed by an explicitly versioned authoritative worship-time method; v0.3.0 wires the provider interface but does not hard-code a universal fajr angle.
 5. Live institutional detached-signature feeds and public-key registries for upstream authority/observation sources; v0.6.0 implements the fail-closed ingestion machinery and live hash-recorded source acquisition.
 6. Larger multi-country, multi-decade historical replay corpus; v0.7.0 establishes the falsification engine and first cross-jurisdiction executable corpus.
@@ -243,6 +291,6 @@ Priority order:
 1. expand historical falsification to more countries and decades;
 2. institutional signed authority/observation source feeds;
 3. broaden the now-global/multi-year validation matrix further;
-4. production geospatial and worship-time providers;
+4. higher-resolution geospatial edge-case validation and production worship-time provider;
 5. independent implementation and peer review;
 6. external standardization discussion.

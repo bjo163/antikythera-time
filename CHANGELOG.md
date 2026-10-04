@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.8.0 - 2026-10-04
+
+- docs(m-time): finalize v0.8.0 geospatial policy release (`5ac0595`)
+- feat(m-time): add Natural Earth Americas mainland provider [skip version] (`d687530`)
+
 ## v0.7.0 - 2026-10-04
 
 - docs(m-time): finalize v0.7.0 historical falsification release (`526f29d`)
