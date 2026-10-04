@@ -17,3 +17,7 @@ mtime-profile = { path = "../mtime-profile" }
 
 [lints]
 workspace = true
+
+mtime-antikythera = { path = "../mtime-antikythera" }
+mtime-temporal = { path = "../mtime-temporal" }
+mtime-clock = { path = "../mtime-clock" }

@@ -4,6 +4,14 @@ use mtime_explain::{explain_difference, TemporalResolution};
 use mtime_hijri::{computed_action, CalendarProfile, HijriAstronomicalState, GeometrySemantics};
 
 fn main() {
+    let mclock = mtime_clock::digital_packet_from_utc(mtime_timescales::UtcInstant {
+        unix_seconds: 1_767_225_600,
+        nanoseconds: 0,
+    })
+    .expect("M-Clock demo state");
+    println!("M-Time v{}", env!("CARGO_PKG_VERSION"));
+    println!("{}", mclock.render_text());
+
     let astronomy = HijriAstronomicalState {
         conjunction_jd_tt: None,
         sunset_jd_ut1: None,
@@ -54,7 +62,6 @@ fn main() {
     )
     .expect("cosmology demo");
 
-    println!("M-Time v0.2 demo");
     println!("MABIMS computed action: {:?}", a.computed_action);
     println!("ExplainDifference: {}", diff.explanation);
     println!(

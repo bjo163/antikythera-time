@@ -15,3 +15,5 @@ mtime-cosmology = { path = "../mtime-cosmology" }
 
 [lints]
 workspace = true
+
+mtime-clock = { path = "../mtime-clock" }
