@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.11.0 - 2026-10-04
+
+- docs(m-time): finalize v0.11.0 multi-country historical release (`e91c1a4`)
+- feat(m-time): add 3-country historical falsification corpus [skip version] (`065f712`)
+
 ## v0.10.0 - 2026-10-04
 
 - docs(m-time): finalize v0.10.0 seasonal oracle and Live Lab (`0086cd4`)
