@@ -10,10 +10,11 @@ The repository may contain templates and synthetic fixtures for software testing
 - `manifest-template.json` — empty template; its status must remain `TEMPLATE_NOT_MEASUREMENT`.
 - `manifest.json` — optional real bench submission. Do not create it until physical evidence exists.
 - referenced logs, captures, schematics and CSV datasets — immutable evidence artifacts.
+- `metrology-report.json` — Rust-generated suite characterization for the exact raw datasets, required when real evidence is submitted.
 
 ## Admission states
 
-- `MEASURED_UNREVIEWED` — physical artifacts are present, hashes and minimum dataset durations pass, but no reviewer has accepted them.
+- `MEASURED_UNREVIEWED` — physical artifacts are present, hashes/durations/report linkage pass, but no reviewer has accepted them.
 - `REVIEWED_ACCEPTED` — an identified reviewer has accepted the evidence package.
 - `REVIEWED_REJECTED` — evidence exists but failed review.
 - `TEMPLATE_NOT_MEASUREMENT` — template only; never satisfies M11/M12.
@@ -43,7 +44,8 @@ Every referenced artifact has a SHA-256 pin:
 - physical display capture;
 - thermal log;
 - GNSS loss/reacquisition log;
-- power-cycle log.
+- power-cycle log;
+- Rust-generated metrology suite report.
 
 ## Required metrology datasets
 
@@ -59,7 +61,9 @@ Required datasets:
 - holdover >= 24 h;
 - holdover >= 72 h.
 
-The validator checks file existence, SHA-256, CSV structure and minimum elapsed duration. It does not claim that passing data is scientifically good enough; that requires metrology review and a published error budget.
+Generate the linked report with the `mtime-metrology suite` command documented in `../METROLOGY.md`.
+
+The validator checks file existence, SHA-256, exact CSV structure, cross-file identity, actual duration, report schema, report/source linkage and report identity. It does not claim that structurally passing data is scientifically good enough; that still requires metrology review and a published error budget decision.
 
 ## Local validation
 
@@ -69,8 +73,8 @@ Run:
 
 Expected state before a real bench submission:
 
-`M11/M12 repository readiness: PASS`
-`physical_evidence: MISSING_BY_DESIGN`
+`M11/M12 repository readiness: PASS`  
+`physical_evidence: MISSING_BY_DESIGN`  
 `milestone_status: SOFTWARE_READY_EXTERNAL_BENCH_REQUIRED`
 
-M11 remains open until a real physical device is built and reviewed. M12 remains open until measured datasets are analyzed and a measured error budget is accepted.
+M11 remains open until a real physical device is built and reviewed. M12 remains open until measured datasets are analyzed and the measured error budget is accepted.
