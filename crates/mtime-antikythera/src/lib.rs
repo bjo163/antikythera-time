@@ -354,6 +354,7 @@ pub fn historical_evidence_for(component_id: &str) -> Option<&'static Historical
 pub enum MachineProfile {
     HistoricalReconstructionV1,
     MTimeDigitalV1,
+    MTimeDigitalV2Experimental,
 }
 
 impl MachineProfile {
@@ -362,6 +363,7 @@ impl MachineProfile {
         match self {
             Self::HistoricalReconstructionV1 => "ANTIKYTHERA_HISTORICAL_RECONSTRUCTION_V1",
             Self::MTimeDigitalV1 => "MTIME_DIGITAL_ANTIKYTHERA_V1",
+            Self::MTimeDigitalV2Experimental => "MTIME_DIGITAL_ANTIKYTHERA_V2_EXPERIMENTAL",
         }
     }
 
@@ -369,7 +371,7 @@ impl MachineProfile {
     pub const fn evidence(self) -> EvidenceLabel {
         match self {
             Self::HistoricalReconstructionV1 => EvidenceLabel::ReconstructedModel,
-            Self::MTimeDigitalV1 => EvidenceLabel::ModernDigitalCorrection,
+            Self::MTimeDigitalV1 | Self::MTimeDigitalV2Experimental => EvidenceLabel::ModernDigitalCorrection,
         }
     }
 }
@@ -440,6 +442,11 @@ impl AntikytheraMachine {
         Self::new(J2000_JD_TT, MachineProfile::MTimeDigitalV1)
     }
 
+    #[must_use]
+    pub const fn digital_v2_experimental() -> Self {
+        Self::new(J2000_JD_TT, MachineProfile::MTimeDigitalV2Experimental)
+    }
+
     pub fn state_at_tt(&self, jd_tt: f64) -> Result<AntikytheraState, MachineError> {
         if !jd_tt.is_finite() || !self.epoch_jd_tt.is_finite() {
             return Err(MachineError::NonFiniteInstant);
@@ -448,11 +455,16 @@ impl AntikytheraMachine {
         let elapsed = jd_tt - self.epoch_jd_tt;
         let solar_longitude_deg = match self.profile {
             MachineProfile::HistoricalReconstructionV1 => historical_solar_longitude_deg(elapsed),
-            MachineProfile::MTimeDigitalV1 => digital_solar_longitude_deg(elapsed),
+            MachineProfile::MTimeDigitalV1 | MachineProfile::MTimeDigitalV2Experimental => {
+                digital_solar_longitude_deg(elapsed)
+            },
         };
         let lunar_longitude_deg = match self.profile {
             MachineProfile::HistoricalReconstructionV1 => historical_lunar_longitude_deg(elapsed),
             MachineProfile::MTimeDigitalV1 => digital_lunar_longitude_deg(elapsed),
+            MachineProfile::MTimeDigitalV2Experimental => {
+                digital_lunar_longitude_v2_experimental_deg(elapsed)
+            },
         };
         let phase_angle = wrap_deg(lunar_longitude_deg - solar_longitude_deg);
         let node_longitude = NODE_REGRESSION.phase_angle_deg(elapsed, 125.044_52);
@@ -537,6 +549,17 @@ pub struct CorrectionTerm {
     pub provenance: &'static str,
 }
 
+pub const M8_SIN_2_DRACONIC_COEFFICIENT_DEG: f64 = -0.113_859_414_732;
+
+pub const M8_EXPERIMENTAL_CORRECTION: CorrectionTerm = CorrectionTerm {
+    id: "M8_SIN_2_DRACONIC",
+    coefficient_deg: M8_SIN_2_DRACONIC_COEFFICIENT_DEG,
+    argument: LunarArgument::TwoLatitudeMinusTwoElongation,
+    evidence: EvidenceLabel::ModernDigitalCorrection,
+    enabled_by_default: false,
+    provenance: "fit 1900-1999 monthly DE440; validated 2000-2100; M8 run 37204075486",
+};
+
 pub const DIGITAL_LUNAR_CORRECTIONS_V1: &[CorrectionTerm] = &[
     CorrectionTerm { id: "L1_MOON_ANOMALY", coefficient_deg: 6.289, argument: LunarArgument::MoonAnomaly, evidence: EvidenceLabel::ModernDigitalCorrection, enabled_by_default: true, provenance: "compact modern lunar-series baseline" },
     CorrectionTerm { id: "L2_2D_MINUS_M", coefficient_deg: 1.274, argument: LunarArgument::TwoElongationMinusMoonAnomaly, evidence: EvidenceLabel::ModernDigitalCorrection, enabled_by_default: true, provenance: "compact modern lunar-series baseline" },
@@ -618,6 +641,17 @@ pub fn digital_lunar_longitude_with_selection(
     wrap_deg(l + correction)
 }
 
+
+#[must_use]
+pub fn digital_lunar_longitude_v2_experimental_deg(elapsed_days_from_j2000: f64) -> f64 {
+    let base = digital_lunar_longitude_deg(elapsed_days_from_j2000);
+    let draconic_phase = wrap_deg(
+        93.272_095 + elapsed_days_from_j2000 * 360.0 / DRACONIC_MONTH.period_days,
+    ) / 360.0;
+    let correction = M8_SIN_2_DRACONIC_COEFFICIENT_DEG
+        * (4.0 * PI * draconic_phase).sin();
+    wrap_deg(base + correction)
+}
 
 #[must_use]
 pub fn shortest_angle_deg(a_deg: f64, b_deg: f64) -> f64 {
@@ -814,6 +848,30 @@ mod tests {
                 + 0.011 * sin_deg(2.0 * elongation - 4.0 * m_moon),
         );
         assert!(shortest_angle_deg(legacy, digital_lunar_longitude_deg(d)) < 1e-12);
+    }
+
+
+    #[test]
+    fn experimental_v2_is_explicit_and_default_stays_v1() {
+        assert_eq!(AntikytheraMachine::digital().profile, MachineProfile::MTimeDigitalV1);
+        assert_eq!(
+            AntikytheraMachine::digital_v2_experimental().profile,
+            MachineProfile::MTimeDigitalV2Experimental
+        );
+        assert!(!M8_EXPERIMENTAL_CORRECTION.enabled_by_default);
+        assert_eq!(
+            M8_EXPERIMENTAL_CORRECTION.evidence,
+            EvidenceLabel::ModernDigitalCorrection
+        );
+    }
+
+    #[test]
+    fn experimental_v2_changes_only_lunar_path() {
+        let jd = J2000_JD_TT + 12_345.0;
+        let v1 = AntikytheraMachine::digital().state_at_tt(jd).unwrap();
+        let v2 = AntikytheraMachine::digital_v2_experimental().state_at_tt(jd).unwrap();
+        assert_eq!(v1.solar_longitude, v2.solar_longitude);
+        assert!(shortest_angle_deg(v1.lunar_longitude.angle_deg, v2.lunar_longitude.angle_deg) > 0.001);
     }
 
 }
