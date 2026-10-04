@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.7.0 - 2026-10-04
+
+- docs(m-time): finalize v0.7.0 historical falsification release (`526f29d`)
+- feat(m-time): add cross-jurisdiction historical falsification engine [skip version] (`df31bd5`)
+
 ## v0.6.0 - 2026-10-04
 
 - docs(m-time): finalize v0.6.0 auditable source ingestion release (`c17d096`)
