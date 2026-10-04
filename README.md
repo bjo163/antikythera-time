@@ -1,12 +1,12 @@
 # M-Time — Mīqāt Temporal Protocol
 
-**Status:** Rust-first **v0.6.0 Auditable Source Ingestion Research Prototype**.
+**Status:** Rust-first **v0.7.0 Historical Falsification Research Prototype**.
 
 M-Time is a temporal interoperability framework. It does **not** invent a new physical second, replace UTC, choose a fiqh position, or claim an absolute cosmic clock. Its flagship use-case is explainable Hijri/worship-calendar resolution.
 
 Core rule: physical time, astronomy, calendar criteria, observation/rukyat, jurisdiction, authority decisions, cosmic inference, historical reconstruction, and revelation-text concepts are separate semantic layers.
 
-## v0.6.0 highlights
+## v0.7.0 highlights
 
 - Pure-Rust offline JPL DE440/SPK provider.
 - Integrated `mtime-hilal` engine: `UTC + observer + IERS + DE440 → HijriAstronomicalState`.
@@ -23,11 +23,15 @@ Core rule: physical time, astronomy, calendar criteria, observation/rukyat, juri
 - Fail-closed real-source ingestion contract with source/institution identity, canonical URL, retrieval time, optional hash pin, detached signature policy, signer-institution matching, and explicit unsigned/trusted states.
 - CI ingests live official IERS finals.all and NAIF DE440 artifacts and preserves their exact SHA-256 records; both remain explicitly unsigned unless an institutional detached signature and trusted key are provided.
 - Observation and authority records can now bind directly to auditable source-ingestion records.
+- Historical replay engine emits explicit `REPRODUCED`, `FALSIFIED`, or `INCOMPLETE` verdicts instead of treating every historical fit as success.
+- Indonesia Ramadan/Shawwal/Dhulhijjah 1447 H replays reproduce the represented profile/authority outcomes.
+- Indonesia–Türkiye/Diyanet Shawwal 1447 H divergence is reproduced with explicit criterion/observation/jurisdiction/authority differences.
+- Negative controls prove counterfactual authority flips and unexplained date flips are falsified.
 - Indonesia MABIMS/PMA No. 1/2026 source-linked profile.
 - Türkiye Diyanet 1978/2016/2026 global profile: 5°/8° visibility plus executable Americas-mainland and conjunction-before-Wellington-Fajr conditions.
 - Typed provider wiring derives Diyanet policy context from threshold-passing sites plus geospatial/Wellington-fajr providers; missing evidence stays UNKNOWN.
 - Rust/WASM profile comparison surface.
-- 88 Rust tests / 0 failures on the v0.6.0 source-ingestion regression gate.
+- 95 Rust tests / 0 failures on the v0.7.0 historical-falsification regression gate.
 - Indonesia 1447 H Ramadan/Syawal/Zulhijjah replay corpus.
 - ExplainDifference preserves astronomy vs criterion vs rukyat vs authority.
 

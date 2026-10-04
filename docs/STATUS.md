@@ -1,17 +1,17 @@
 # M-Time Implementation Status
 
 Date: 2026-10-04  
-Version: **v0.6.0 Auditable Source Ingestion Research Prototype**  
-Internal status: **AUDITABLE REAL-SOURCE INGESTION + GLOBAL/MULTI-YEAR ORACLE HARDENING COMPLETE**
+Version: **v0.7.0 Historical Falsification Research Prototype**  
+Internal status: **CROSS-JURISDICTION HISTORICAL FALSIFICATION + AUDITABLE SOURCE/ORACLE HARDENING COMPLETE**
 
 M-Time is a Rust-first temporal interoperability framework. This status does **not** claim international standard adoption, religious/fiqh authority, or replacement of BIPM/IAU/IERS/JPL infrastructure.
 
-## Final v0.6.0 internal gates
+## Final v0.7.0 internal gates
 
 | Gate | Result | Reference |
 |---|---|---|
 | Rust workspace CI | **PASS** | Actions run 37054820440 |
-| Rust tests | **88 passed / 0 failed** | source-ingestion CI |
+| Rust tests | **95 passed / 0 failed** | historical-falsification CI |
 | Rust↔Python compatibility | **PASS** | Actions run 37054820611 |
 | Offline JPL DE440/SPK provider | PASS | prior SPK reference gates |
 | Fixed Jakarta topocentric reference | PASS | prior topocentric reference gate |
@@ -35,6 +35,9 @@ M-Time is a Rust-first temporal interoperability framework. This status does **n
 | Surveyed local-horizon interpolation | PASS | core CI |
 | Observer-height geometric horizon dip | PASS | core CI |
 | Indonesia 1447 H replay | PASS | core CI |
+| Historical falsification engine | **7/7 PASS** | Actions run 37193741501 |
+| Existing Indonesia replay regression | **4/4 PASS** | Actions run 37193741501 |
+| Indonesia–Türkiye Shawwal 1447 divergence replay | **REPRODUCED** | explicit layer differences |
 | Indonesia–Türkiye Shawwal 1447 corpus | COMPLETE | source-linked corpus |
 | Revelation no-numerical-prior invariant | PASS | core CI |
 | Planck-like cosmology inference | PASS | core CI |
@@ -151,6 +154,36 @@ Those live upstream artifacts are explicitly recorded as `signature_verified=fal
 
 The signed-source path itself is fail-closed: missing required signatures, hash mismatch, signer/institution mismatch, unknown keys, expired keys and revoked keys are rejected.
 
+## Historical falsification
+
+v0.7.0 adds executable replay verdicts:
+
+```text
+REPRODUCED
+FALSIFIED
+INCOMPLETE
+```
+
+A represented historical resolution is `FALSIFIED` when its computed month action conflicts with the recorded authority decision under the represented profile.
+
+It is `INCOMPLETE` when computation is unknown or the represented rule explicitly requires additional context that is not available.
+
+Cross-jurisdiction replay is `REPRODUCED` when a differing calendar outcome is accompanied by explicit represented differences such as criterion/profile, observation evidence, jurisdiction, or authority.
+
+Negative controls prove the engine does not accept unexplained date flips or counterfactual authority reversals.
+
+The v0.7 corpus includes:
+
+- Indonesia Ramadan 1447 H — reproduced;
+- Indonesia Shawwal 1447 H — reproduced;
+- Indonesia Dhulhijjah 1447 H — reproduced;
+- Indonesia vs Türkiye/Diyanet Shawwal 1447 H — differing outcome reproduced with explicit layer differences;
+- counterfactual authority flip — falsified;
+- unexplained calendar date flip — falsified;
+- unknown computation — incomplete.
+
+Machine-readable corpus: `data/hijri/historical-falsification-v0.7.json`.
+
 ## Local-horizon hardening
 
 `mtime-astro` now provides:
@@ -196,7 +229,7 @@ These remain deliberately **OPEN**:
 3. Production-grade geospatial determination of “American mainland” backed by an authoritative/versioned polygon or visibility-map dataset.
 4. Production Wellington imsak/fajr provider backed by an explicitly versioned authoritative worship-time method; v0.3.0 wires the provider interface but does not hard-code a universal fajr angle.
 5. Live institutional detached-signature feeds and public-key registries for upstream authority/observation sources; v0.6.0 implements the fail-closed ingestion machinery and live hash-recorded source acquisition.
-6. Larger multi-country, multi-decade historical replay corpus.
+6. Larger multi-country, multi-decade historical replay corpus; v0.7.0 establishes the falsification engine and first cross-jurisdiction executable corpus.
 7. Unaffiliated implementation and expert review.
 8. Formal standardization/adoption.
 9. Migration from `bjo163/antikythera-time` to a dedicated M-Time repository.
@@ -207,7 +240,7 @@ Do not redesign the ontology.
 
 Priority order:
 
-1. historical falsification across jurisdictions;
+1. expand historical falsification to more countries and decades;
 2. institutional signed authority/observation source feeds;
 3. broaden the now-global/multi-year validation matrix further;
 4. production geospatial and worship-time providers;

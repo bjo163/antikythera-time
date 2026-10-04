@@ -183,3 +183,113 @@ mod tests {
         assert!(d.categories.contains(&DiffCategory::Criterion));
     }
 }
+
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ReplayVerdict {
+    Reproduced,
+    Falsified,
+    Incomplete,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct HistoricalReplayAudit {
+    pub verdict: ReplayVerdict,
+    pub reasons: Vec<String>,
+}
+
+#[must_use]
+pub fn audit_historical_resolution(resolution: &TemporalResolution) -> HistoricalReplayAudit {
+    let Some(authority) = &resolution.authority else {
+        return HistoricalReplayAudit {
+            verdict: ReplayVerdict::Incomplete,
+            reasons: vec!["authority decision is missing".into()],
+        };
+    };
+
+    match resolution.computed_action {
+        ComputedMonthAction::Unknown => HistoricalReplayAudit {
+            verdict: ReplayVerdict::Incomplete,
+            reasons: vec!["computed month action is unknown".into()],
+        },
+        ComputedMonthAction::AwaitAdditionalRuleOrObservation => HistoricalReplayAudit {
+            verdict: ReplayVerdict::Incomplete,
+            reasons: vec![
+                "represented criterion requires additional rule or observation context".into(),
+            ],
+        },
+        _ if official_vs_computed_conflict(resolution) => HistoricalReplayAudit {
+            verdict: ReplayVerdict::Falsified,
+            reasons: vec![format!(
+                "computed action {:?} conflicts with authority decision {:?}",
+                resolution.computed_action, authority.decision
+            )],
+        },
+        _ => HistoricalReplayAudit {
+            verdict: ReplayVerdict::Reproduced,
+            reasons: vec![
+                "represented computed action is consistent with the recorded authority decision"
+                    .into(),
+            ],
+        },
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct CrossJurisdictionReplayAudit {
+    pub verdict: ReplayVerdict,
+    pub diff: ResolutionDiff,
+    pub reasons: Vec<String>,
+}
+
+#[must_use]
+pub fn audit_cross_jurisdiction_replay(
+    a: &TemporalResolution,
+    b: &TemporalResolution,
+) -> CrossJurisdictionReplayAudit {
+    let diff = explain_difference(a, b);
+
+    if !diff.outcome_differs {
+        return CrossJurisdictionReplayAudit {
+            verdict: ReplayVerdict::Reproduced,
+            diff,
+            reasons: vec!["represented jurisdictions produce the same recorded outcome".into()],
+        };
+    }
+
+    if diff.categories.is_empty() || diff.categories == vec![DiffCategory::Unknown] {
+        return CrossJurisdictionReplayAudit {
+            verdict: ReplayVerdict::Falsified,
+            diff,
+            reasons: vec![
+                "calendar outcome differs but the represented layers contain no explanatory difference"
+                    .into(),
+            ],
+        };
+    }
+
+    if diff.categories.contains(&DiffCategory::Unknown) {
+        return CrossJurisdictionReplayAudit {
+            verdict: ReplayVerdict::Incomplete,
+            diff,
+            reasons: vec![
+                "calendar outcome differs and at least one causal layer remains unknown".into(),
+            ],
+        };
+    }
+
+    let layer_list = diff
+        .categories
+        .iter()
+        .map(|category| format!("{category:?}"))
+        .collect::<Vec<_>>()
+        .join(", ");
+
+    CrossJurisdictionReplayAudit {
+        verdict: ReplayVerdict::Reproduced,
+        diff,
+        reasons: vec![format!(
+            "differing outcomes are explained by represented layer differences: {layer_list}"
+        )],
+    }
+}
