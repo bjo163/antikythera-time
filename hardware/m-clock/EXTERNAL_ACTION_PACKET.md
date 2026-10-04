@@ -50,9 +50,23 @@ Submit separate datasets for:
 - >= 24 h holdover;
 - >= 72 h holdover.
 
-Each dataset must identify the same physical device, firmware and reference source used by the manifest.
+Each dataset must identify the same physical device, firmware and reference source used by the manifest. Duration is measured as last elapsed timestamp minus first elapsed timestamp.
 
-## 5. Document reference provenance
+## 5. Generate the measured suite report
+
+Run:
+
+```bash
+cargo run --release -p mtime-metrology -- suite \
+  <pps.csv> <1h.csv> <6h.csv> <24h.csv> <72h.csv> \
+  > hardware/m-clock/physical-evidence/metrology-report.json
+```
+
+The tool reports offset statistics, residual jitter, linear drift ppm, maximum absolute offset and thermal envelope. It deliberately does **not** assign an accuracy class.
+
+Add `metrology-report.json` to the manifest evidence with its SHA-256.
+
+## 6. Document reference provenance
 
 The reference source must have:
 
@@ -63,7 +77,7 @@ The reference source must have:
 
 "GPS time" or "lab clock" without identity/provenance is insufficient for a physical accuracy claim.
 
-## 6. Create the real manifest
+## 7. Create the real manifest
 
 Copy `manifest-template.json` to `manifest.json`, fill every required field and set:
 
@@ -71,7 +85,7 @@ Copy `manifest-template.json` to `manifest.json`, fill every required field and 
 
 Do not mark it accepted yourself merely because collection completed.
 
-## 7. Run admission gate
+## 8. Run admission gate
 
 Run:
 
@@ -85,7 +99,8 @@ The gate verifies:
 - artifact existence;
 - SHA-256 integrity;
 - exact metrology CSV contract;
-- minimum 1h/6h/24h/72h durations;
+- real measured duration for 1h/6h/24h/72h;
+- report schema/source/identity linkage;
 - review-state consistency.
 
 ## Completion rule
