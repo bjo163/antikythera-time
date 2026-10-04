@@ -9,9 +9,9 @@ use mtime_antikythera::{
     shortest_angle_deg, wrap_deg, AntikytheraMachine, AntikytheraState,
     ANOMALISTIC_MONTH, DRACONIC_MONTH, J2000_JD_TT, MEAN_SYNODIC_MONTH,
 };
-use mtime_astro::Body;
+use mtime_astro::{icrf_vector_to_mean_ecliptic_of_date, Body};
 use mtime_core::{CoordinateTime, Tt};
-use mtime_spk::{vector_to_j2000_ecliptic, SpkEphemeris};
+use mtime_spk::SpkEphemeris;
 use mtime_timescales::{tt_to_tdb, DtrProvider, NasaSimpleDtr};
 
 const START_YEAR: i32 = 1900;
@@ -436,12 +436,15 @@ fn reference_state(eph: &SpkEphemeris<'_>, jd_tt: f64) -> ReferenceState {
     let dtr = NasaSimpleDtr.dtr(&tt).unwrap();
     let tdb = tt_to_tdb(&tt, dtr).unwrap();
     let p = tdb.jd_parts();
-    let sun = vector_to_j2000_ecliptic(
+    let tt_parts = tt.jd_parts();
+    let sun = icrf_vector_to_mean_ecliptic_of_date(
         eph.geocentric_vector_km(Body::Sun, (p.d1, p.d2)).unwrap(),
+        (tt_parts.d1, tt_parts.d2),
     )
     .unwrap();
-    let moon = vector_to_j2000_ecliptic(
+    let moon = icrf_vector_to_mean_ecliptic_of_date(
         eph.geocentric_vector_km(Body::Moon, (p.d1, p.d2)).unwrap(),
+        (tt_parts.d1, tt_parts.d2),
     )
     .unwrap();
     ReferenceState {
