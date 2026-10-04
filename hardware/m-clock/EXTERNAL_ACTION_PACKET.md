@@ -58,11 +58,12 @@ Run:
 
 ```bash
 cargo run --release -p mtime-metrology -- suite \
+  "$(git rev-parse HEAD)" \
   <pps.csv> <1h.csv> <6h.csv> <24h.csv> <72h.csv> \
   > hardware/m-clock/physical-evidence/metrology-report.json
 ```
 
-The tool reports offset statistics, residual jitter, linear drift ppm, maximum absolute offset and thermal envelope. It deliberately does **not** assign an accuracy class.
+The tool records its exact analysis Git SHA and reports offset statistics, residual jitter, linear drift ppm, maximum absolute offset and thermal envelope. It deliberately does **not** assign an accuracy class.
 
 Add `metrology-report.json` to the manifest evidence with its SHA-256.
 
