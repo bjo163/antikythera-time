@@ -39,6 +39,7 @@ REQUIRED_EVIDENCE = [
     "thermal_log",
     "gnss_loss_reacquisition_log",
     "power_cycle_log",
+    "metrology_report",
 ]
 REQUIRED_DATASETS = {
     "pps_latency_jitter": 0.0,
@@ -133,9 +134,9 @@ def validate_metrology_csv(
     assert elapsed == sorted(elapsed), f"{field} elapsed_seconds must be non-decreasing"
 
     if minimum_elapsed_seconds > 0.0:
-        observed = max(elapsed)
+        observed = max(elapsed) - min(elapsed)
         assert observed >= minimum_elapsed_seconds, (
-            f"{field} duration too short: max elapsed {observed}s, "
+            f"{field} duration too short: observed span {observed}s, "
             f"requires >= {minimum_elapsed_seconds}s"
         )
 
@@ -205,6 +206,46 @@ def validate_candidate(data: dict) -> str:
             expected_device_id=device_id,
             expected_reference_id=reference_id,
             expected_firmware_sha=git_sha,
+        )
+
+    report_path = validate_artifact(
+        evidence["metrology_report"], "evidence.metrology_report"
+    )
+    report = load_json(report_path)
+    assert report.get("schema") == "mtime-mclock-metrology-suite-1", (
+        "metrology report schema mismatch"
+    )
+    report_identity = report.get("identity")
+    assert isinstance(report_identity, dict), "metrology report identity missing"
+    assert report_identity.get("device_id") == device_id, "metrology report device mismatch"
+    assert report_identity.get("reference_id") == reference_id, "metrology report reference mismatch"
+    assert str(report_identity.get("firmware_sha", "")).lower() == git_sha, (
+        "metrology report firmware mismatch"
+    )
+    assert report.get("interpretation") == (
+        "measurement_characterization_only_no_accuracy_class_assigned"
+    ), "metrology report must not silently assign an accuracy class"
+
+    report_datasets = report.get("datasets")
+    assert isinstance(report_datasets, list), "metrology report datasets missing"
+    by_label = {
+        item.get("label"): item
+        for item in report_datasets
+        if isinstance(item, dict)
+    }
+    assert set(by_label) == set(REQUIRED_DATASETS), "metrology report dataset labels mismatch"
+    for name, required_duration in REQUIRED_DATASETS.items():
+        item = by_label[name]
+        manifest_entry = datasets[name]
+        assert item.get("source_csv") == manifest_entry.get("path"), (
+            f"metrology report source path mismatch for {name}"
+        )
+        assert float(item.get("minimum_duration_seconds")) == required_duration, (
+            f"metrology report minimum duration mismatch for {name}"
+        )
+        assert int(item.get("samples")) >= 2, f"metrology report has too few samples for {name}"
+        assert float(item.get("duration_seconds")) >= required_duration, (
+            f"metrology report duration too short for {name}"
         )
 
     review = data.get("review")
