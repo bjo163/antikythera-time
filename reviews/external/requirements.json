@@ -1,0 +1,79 @@
+{
+  "schema": "mtime-external-review-requirements-1",
+  "candidate": {
+    "release": "UNSET",
+    "git_sha": ""
+  },
+  "requirements": [
+    {
+      "category": "independent_reproduction",
+      "v1_gate_id": "external-independent-reproduction",
+      "allowed_relationships": ["UNAFFILIATED"],
+      "required_topics": [
+        "mts2_wire_conformance",
+        "digital_antikythera_state",
+        "public_conformance_vectors",
+        "malformed_packet_behavior"
+      ]
+    },
+    {
+      "category": "security",
+      "v1_gate_id": "external-security-review",
+      "allowed_relationships": [
+        "UNAFFILIATED",
+        "EXTERNAL_DISCLOSED_RELATIONSHIP"
+      ],
+      "required_topics": [
+        "protocol_decoders",
+        "ffi_boundary",
+        "signed_bundle_and_key_lifecycle",
+        "replay_and_identity_controls",
+        "device_update_threats"
+      ]
+    },
+    {
+      "category": "scientific",
+      "v1_gate_id": "external-scientific-review",
+      "allowed_relationships": [
+        "UNAFFILIATED",
+        "EXTERNAL_DISCLOSED_RELATIONSHIP"
+      ],
+      "required_topics": [
+        "calibration_methodology",
+        "reference_frames",
+        "residual_metrics",
+        "validated_interval",
+        "uncertainty_budget",
+        "falsification_design"
+      ]
+    },
+    {
+      "category": "historical_reconstruction",
+      "v1_gate_id": "external-historical-reconstruction-review",
+      "allowed_relationships": [
+        "UNAFFILIATED",
+        "EXTERNAL_DISCLOSED_RELATIONSHIP"
+      ],
+      "required_topics": [
+        "surviving_evidence_vs_reconstruction",
+        "gear_and_cycle_provenance",
+        "competing_reconstruction_scope",
+        "archaeological_uncertainty"
+      ]
+    },
+    {
+      "category": "revelation_textual_boundary",
+      "v1_gate_id": "revelation-boundary-review",
+      "allowed_relationships": [
+        "UNAFFILIATED",
+        "EXTERNAL_DISCLOSED_RELATIONSHIP"
+      ],
+      "required_topics": [
+        "source_text_identity",
+        "semantic_vs_numerical_boundary",
+        "no_physics_injection",
+        "interpretation_uncertainty"
+      ]
+    }
+  ]
+}
