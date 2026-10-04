@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.10.0 - 2026-10-04
+
+- docs(m-time): finalize v0.10.0 seasonal oracle and Live Lab (`0086cd4`)
+- docs(web): surface v0.10 seasonal oracle metrics [skip version] (`ca00d1e`)
+- fix(m-time): parse fixed-width IERS date tokens robustly [skip version] (`728499a`)
+- fix(ci): rerun seasonal oracle on EOP changes [skip version] (`c5fcf5f`)
+- fix(m-time): parse fused negative IERS UT1 fields [skip version] (`1cca8ae`)
+- fix(m-time): harden apparent solar position with aberration [skip version] (`6ecfc7e`)
+- feat(m-time): add seasonal Wellington Sun oracle [skip version] (`d2ab014`)
+- feat(web): upgrade GitHub Pages to M-Time Live Lab [skip version] (`e746f4f`)
+
 ## v0.9.0 - 2026-10-04
 
 - docs(m-time): finalize v0.9.0 computed Wellington fajr release (`91daf50`)
