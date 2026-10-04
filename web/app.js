@@ -10,6 +10,7 @@ const wanted=[
   "m-time-historical-falsification",
   "m-time-geospatial-mainland",
   "m-time-wellington-fajr",
+  "m-time-wellington-seasonal-oracle",
   "m-time-pages"
 ];
 
