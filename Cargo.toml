@@ -10,6 +10,7 @@ members = [
   "crates/mtime-temporal",
   "crates/mtime-clock",
   "crates/mtime-uncertainty",
+  "crates/mtime-ffi",
   "crates/mtime-astro",
   "crates/mtime-hijri",
   "crates/mtime-hilal",
