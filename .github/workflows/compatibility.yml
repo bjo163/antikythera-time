@@ -5,6 +5,10 @@ on:
     paths:
       - "crates/**"
       - "reference-python/**"
+      - "include/**"
+      - "scripts/run_conformance.sh"
+      - "spec/schemas/**"
+      - "sdk/**"
       - ".github/workflows/compatibility.yml"
 jobs:
   rust-python:
