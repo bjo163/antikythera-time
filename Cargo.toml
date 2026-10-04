@@ -8,6 +8,7 @@ members = [
   "crates/mtime-spk",
   "crates/mtime-antikythera",
   "crates/mtime-temporal",
+  "crates/mtime-clock",
   "crates/mtime-astro",
   "crates/mtime-hijri",
   "crates/mtime-hilal",
