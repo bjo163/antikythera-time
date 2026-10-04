@@ -11,7 +11,6 @@ Candidate Git SHA: `799e70d87bd3b4a918986a3f8877b9ca44a13696`
 - `ffi_boundary`
 - `signed_bundle_and_key_lifecycle`
 - `replay_and_identity_controls`
-- `device_update_threats`
 
 ## Review scope
 
@@ -59,16 +58,6 @@ Review observation/authority paths for:
 - jurisdiction/authority identity confusion;
 - stale reference data.
 
-### device_update_threats
-
-Review M-Clock/device assumptions including:
-
-- update authenticity;
-- rollback;
-- compromised upstream time/reference source;
-- GNSS spoofing/jamming boundary;
-- lock/holdover state integrity;
-- boot/update recovery expectations.
 
 ## Baseline documents
 

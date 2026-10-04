@@ -33,6 +33,6 @@ jobs:
           python - <<'PY'
           import json
           d=json.load(open("data/v1-gates.json"))
-          assert d["ready"] is False, "v1 must not be marked ready while external/physical gates remain"
+          assert d["ready"] is False, "v1 must not be marked ready while external review/reproduction gates remain"
           print("v1 false-readiness guard: PASS")
           PY

@@ -24,8 +24,7 @@
         "protocol_decoders",
         "ffi_boundary",
         "signed_bundle_and_key_lifecycle",
-        "replay_and_identity_controls",
-        "device_update_threats"
+        "replay_and_identity_controls"
       ]
     },
     {

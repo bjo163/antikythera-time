@@ -16,7 +16,7 @@ Candidate Git SHA: `799e70d87bd3b4a918986a3f8877b9ca44a13696`
 
 ## Central question
 
-Does M-Time clearly separate its Software Antikythera computational model from the modern reference systems used to calibrate, characterize, falsify, interoperate with, or physically realize it?
+Does M-Time clearly separate its Software Antikythera computational model from the modern reference systems used to calibrate, characterize, falsify, or interoperate with it?
 
 A reviewer is explicitly invited to reject any claim that overstates what the current data can support.
 
@@ -57,7 +57,5 @@ Inspect negative controls, out-of-sample intervals, historical/future partitions
 - `spec/MTIME-2.0.md`
 
 ## Boundary
-
-This review is not asked to validate physical M-Clock performance; M11/M12 require real bench evidence separately.
 
 A scientific PASS must not be interpreted as proof that M-Time is a universal or superior world time standard. It means the reviewed candidate's stated scientific/model claims survived the declared review scope.

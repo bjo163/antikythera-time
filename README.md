@@ -1,6 +1,6 @@
 # M-Time — Mīqāt Temporal Protocol
 
-**Status:** Rust-first **v0.14.0 Antikythera Systems Integration Research Prototype**.
+**Status:** Rust-first **software-only Antikythera Systems Integration Research Prototype**.
 
 M-Time is a temporal interoperability framework. It does **not** invent a new physical second, replace UTC, choose a fiqh position, or claim an absolute cosmic clock. Its flagship use-case is explainable Hijri/worship-calendar resolution.
 
@@ -8,13 +8,13 @@ Core rule: physical time, astronomy, calendar criteria, observation/rukyat, juri
 
 ## v0.14.0 highlights
 
-- **M7–M10 and M13–M19 internal software milestones complete**; M11/M12 physical bench/metrology and M20 external v1 gates remain deliberately open.
+- **M7–M10 and M13–M19 internal software milestones complete**; hardware realization has been removed from scope, while M20 external software-review/reproduction gates remain deliberately open.
 - M8 V2 Experimental improves full-span 1850–2149 lunar P95 from **0.302376434° → 0.253539543°** and max from **0.427321722° → 0.314474632°**, while default remains V1.
 - MTS-2 independent Python conformance covers **135 V1 + 135 V2** differential vectors plus malformed packets.
 - Public Python SDK, C ABI/header, JSON schemas, signed-bundle spec, compatibility policy, threat review, RFC and governance are present.
 - Native M-Time calendar/worship demos preserve geometry/profile/observation/authority separation.
-- M-Clock device/metrology software and hardware evidence templates are ready, but **no physical build is claimed**.
-- v1 readiness remains **BLOCKED** on physical and external evidence.
+- MCLOCK-1 is retained strictly as a software clock-state serialization/view.
+- v1 readiness remains **BLOCKED** on unaffiliated reproduction and external review evidence.
 - **1900–2100 M6 calibration:** 2,412 monthly epochs plus 15,676 targeted lunar/solar phase-anomaly samples.
 - M6 calibration now uses an explicit **IAU 2006 mean ecliptic of date** reference, preventing fixed-J2000 frame rotation from being misclassified as Antikythera dynamical error.
 - Digital Sun 1900–2100 max residual: **0.009572456° absolute / 0.010229337° dynamic**.
@@ -26,9 +26,8 @@ Core rule: physical time, astronomy, calendar criteria, observation/rukyat, juri
 - Separate `ANTIKYTHERA_HISTORICAL_RECONSTRUCTION_V1` and `MTIME_DIGITAL_ANTIKYTHERA_V1` profiles.
 - 12-epoch 2026 DE440 calibration: digital max residuals **0.014132662° Sun**, **0.504873428° Moon**, **0.277593562° Moon-Sun phase**.
 - New `mtime-temporal` native state combines a continuous SI coordinate with solar/synodic/sidereal/anomalistic/draconic/Metonic/Saros/Exeligmos phases.
-- New `mtime-clock` crate and **MCLOCK-1** packet expose M-Time as a device-facing clock state.
+- New `mtime-clock` crate and **MCLOCK-1** packet expose M-Time as a software-facing clock-state surface.
 - CLI + WASM + GitHub Pages Live Lab now expose the current Software Antikythera/M-Clock state.
-- Hardware reference architecture, protocol and safety invariants are documented under `hardware/m-clock/`.
 - **115 Rust tests / 0 failures** on the Phase-5 staging gate.
 - Pure-Rust offline JPL DE440/SPK provider.
 - Integrated `mtime-hilal` engine: `UTC + observer + IERS + DE440 → HijriAstronomicalState`.
@@ -66,7 +65,7 @@ Core rule: physical time, astronomy, calendar criteria, observation/rukyat, juri
 - Typed provider wiring derives Diyanet policy context from threshold-passing sites plus geospatial/Wellington-fajr providers; missing evidence stays UNKNOWN.
 - GitHub Pages **M-Time Live Lab** replaces the stale v0.2 demo and shows live release/Actions health, oracle metrics, trust/falsification status, and the Rust/WASM profile evaluator.
 - Rust/WASM profile comparison surface.
-- Historical v0.11 regression remains active alongside the new Antikythera/M-Clock gates.
+- Historical v0.11 regression remains active alongside the Antikythera/M-Time software gates.
 - Indonesia 1447 H Ramadan/Syawal/Zulhijjah replay corpus.
 - ExplainDifference preserves astronomy vs criterion vs rukyat vs authority.
 
@@ -78,6 +77,22 @@ Core rule: physical time, astronomy, calendar criteria, observation/rukyat, juri
 
 ## Scientific boundaries
 
-Antikythera supplies a computational grammar—cycle/ratio/state/recurrence—not a metrological authority and not a direct cosmic-age clock. Cosmic age remains a model-dependent inference. Revelation texts remain TEXTUAL_REFERENCE / CONCEPTUAL and supply no hidden numerical physics priors.
+Antikythera supplies a computational grammar—cycle/ratio/state/recurrence—not an external standards authority and not a direct cosmic-age clock. Cosmic age remains a model-dependent inference. Revelation texts remain TEXTUAL_REFERENCE / CONCEPTUAL and supply no hidden numerical physics priors.
 
 See `CHARTER.md`, `spec/MTIME-0.2.md`, `docs/BLUEPRINT.md`, and `docs/STATUS.md`.
+
+
+## Software-only scope
+
+M-Time is intentionally software-only. Project completion and v1 readiness depend only on software quality, reproducibility, provenance and external review.
+
+The active chain is:
+
+```text
+Software Antikythera
+→ native M-Time
+→ software protocols / SDK / Live Lab
+→ calendar / worship / observation / authority applications
+```
+
+MCLOCK-1 remains a software serialization/view of M-Time state.

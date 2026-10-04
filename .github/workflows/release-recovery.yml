@@ -46,7 +46,6 @@ jobs:
           set -euo pipefail
           python scripts/v1_readiness.py
           python scripts/external_review_readiness.py
-          python scripts/hardware_readiness.py
           cargo test --workspace --all-targets
 
       - name: Create missing tag and GitHub Release
@@ -100,7 +99,6 @@ jobs:
             wellington-fajr.yml
             wellington-seasonal-oracle.yml
             prestandard.yml
-            hardware-readiness.yml
             pages-mtime.yml
           )
           for workflow in "${workflows[@]}"; do

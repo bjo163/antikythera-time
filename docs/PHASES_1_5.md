@@ -10,27 +10,15 @@ Timescales, IERS EOP, DE440/SPK, Horizons oracles, calendar/worship policy layer
 
 **Status: implemented prototype.**
 
-`mtime-antikythera` now contains virtual cycles, gear relations/trains, dials, synchronized state and separate historical vs digital profiles.
+`mtime-antikythera` contains virtual cycles, gear relations/trains, dials, synchronized state and separate historical vs digital profiles.
 
 ## Phase 3 — Calibrate the machine
 
 **Status: implemented baseline calibration.**
 
-Twelve 2026 DE440 epochs compare historical and digital Antikythera dynamics. JPL is outside the core dependency graph.
+Reference ephemerides characterize the Software Antikythera while remaining outside its core dependency graph.
 
-Current max residuals:
-
-```text
-historical Sun relative  1.996415486°
-historical Moon relative 3.701058086°
-historical phase         3.437724488°
-
-digital Sun relative     0.014132662°
-digital Moon relative    0.504873428°
-digital phase            0.277593562°
-```
-
-These are baseline model-characterization numbers, not final accuracy claims.
+These are model-characterization results, not claims that external references define M-Time.
 
 ## Phase 4 — Derive M-Time
 
@@ -38,14 +26,14 @@ These are baseline model-characterization numbers, not final accuracy claims.
 
 `mtime-temporal` combines a continuous TT/SI linear coordinate with the Software Antikythera cycle vector.
 
-## Phase 5 — M-Clock
+## Phase 5 — Software M-Clock surface
 
-**Status: executable reference prototype.**
+**Status: executable software reference surface.**
 
-`mtime-clock`, `MCLOCK-1`, CLI/WASM/Live Lab rendering, conformance CI and hardware reference architecture are implemented.
+`mtime-clock`, `MCLOCK-1`, CLI/WASM/Live Lab rendering and conformance CI expose M-Time state to software consumers.
 
-A physical manufactured/certified device remains an external engineering milestone.
+There is no physical-device phase in the active project scope.
 
 ## Meaning of "complete"
 
-Phases 1–5 are complete at **software/research-prototype level**. They are not equivalent to global standardization, independent reproduction, hardware certification or institutional adoption.
+Phases 1–5 are software/research milestones. Completion does not imply global standardization, institutional adoption, scientific consensus or religious authority.
