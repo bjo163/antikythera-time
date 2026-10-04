@@ -1,12 +1,12 @@
 # M-Time Implementation Status
 
 Date: 2026-10-04  
-Version: **v0.8.0 Versioned Geospatial Policy Research Prototype**  
-Internal status: **VERSIONED AMERICAS-MAINLAND GEOSPATIAL POLICY + HISTORICAL/SOURCE/ORACLE HARDENING COMPLETE**
+Version: **v0.9.0 Computed Wellington Worship-Time Research Prototype**  
+Internal status: **COMPUTED WELLINGTON DIYANET FAJR + VERSIONED GEOSPATIAL/HISTORICAL/SOURCE/ORACLE HARDENING COMPLETE**
 
 M-Time is a Rust-first temporal interoperability framework. This status does **not** claim international standard adoption, religious/fiqh authority, or replacement of BIPM/IAU/IERS/JPL infrastructure.
 
-## Final v0.8.0 internal gates
+## Final v0.9.0 internal gates
 
 | Gate | Result | Reference |
 |---|---|---|
@@ -28,6 +28,10 @@ M-Time is a Rust-first temporal interoperability framework. This status does **n
 | Natural Earth Americas-mainland provider | **PASS** | Actions run 37194423011 |
 | Natural Earth source SHA-256 pin | **PASS** | `9e0729ee...35d9` |
 | Diyanet geospatial provider integration | **PASS** | mainland/island/unknown live-data gate |
+| Diyanet Wellington -18° fajr provider | **PASS** | Actions run 37194975490 |
+| Shawwal 1447 conjunction-before-Wellington-fajr | **TRUE** | computed DE440 + IERS |
+| Wellington fajr solver residual | **-0.000067779102°** | same run |
+| Conjunction-to-fajr separation | **15.434722 h** | same run |
 | SHA-256 / Ed25519 verification | PASS | core CI |
 | Validity/revocation-aware trusted key registry | PASS | core CI |
 | Real IERS source ingestion | **PASS** | Actions run 37193413659 |
@@ -157,6 +161,48 @@ Those live upstream artifacts are explicitly recorded as `signature_verified=fal
 
 The signed-source path itself is fail-closed: missing required signatures, hash mismatch, signer/institution mismatch, unknown keys, expired keys and revoked keys are rejected.
 
+## Computed Wellington/Diyanet worship-time provider
+
+v0.9.0 removes the remaining fixed Wellington-fajr fixture from the production validation path.
+
+Diyanet's published current imsak methodology uses astronomical dawn at a Sun altitude of **-18°**. M-Time now represents that as the versioned worship profile:
+
+```text
+DIYANET_IMSAK_FAJR_MINUS_18
+```
+
+and computes the event with:
+
+```text
+DE440 Sun vector
++ IERS EOP
++ Wellington observer
++ IAU 2006/2000A topocentric transform
++ -18° rising solar crossing
+= Wellington fajr SolarEvent
+```
+
+For the Shawwal 1447 policy replay:
+
+```text
+published conjunction:
+2026-03-19 01:24 UTC
+
+computed Wellington fajr:
+JD(UT1) = 2461119.201438614167
+
+conjunction -> fajr:
+15.434722 hours
+
+conjunction_before_wellington_fajr = true
+```
+
+The root-solver residual is -0.000067779102°.
+
+This computed `SolarEvent` directly implements the `WellingtonFajrProvider` boundary used by the Diyanet calendar-policy evaluator.
+
+The current Diyanet imsak method and Wellington public prayer-time page are retained as explicit provenance; M-Time does not treat one universal fajr angle as binding on other institutions or profiles.
+
 ## Versioned Americas-mainland geospatial provider
 
 v0.8.0 replaces the placeholder site classifier in the production path with a versioned GeoJSON-backed provider.
@@ -275,7 +321,7 @@ These remain deliberately **OPEN**:
 1. Further temporal expansion beyond the current 2024-2026 / 42-case active Horizons suite, including more years and more intra-year epochs.
 2. Field validation of atmospheric refraction and surveyed local-horizon profiles.
 3. Higher-resolution geospatial refinement beyond the current pinned Natural Earth 110m mainland provider for near-coast/border edge cases.
-4. Production Wellington imsak/fajr provider backed by an explicitly versioned authoritative worship-time method; v0.3.0 wires the provider interface but does not hard-code a universal fajr angle.
+4. Broader official Wellington/Diyanet prayer-time replay across more dates and edge seasons; v0.9.0 computes the -18° method directly for the Shawwal 1447 policy case.
 5. Live institutional detached-signature feeds and public-key registries for upstream authority/observation sources; v0.6.0 implements the fail-closed ingestion machinery and live hash-recorded source acquisition.
 6. Larger multi-country, multi-decade historical replay corpus; v0.7.0 establishes the falsification engine and first cross-jurisdiction executable corpus.
 7. Unaffiliated implementation and expert review.
@@ -291,6 +337,6 @@ Priority order:
 1. expand historical falsification to more countries and decades;
 2. institutional signed authority/observation source feeds;
 3. broaden the now-global/multi-year validation matrix further;
-4. higher-resolution geospatial edge-case validation and production worship-time provider;
+4. higher-resolution geospatial edge-case validation and broader worship-time replay;
 5. independent implementation and peer review;
 6. external standardization discussion.
