@@ -15,4 +15,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python reference-python/mtime_reference.py
+      - name: Run legacy Rust/Python reference
+        run: python reference-python/mtime_reference.py
+      - name: Run independent MTS-2 / Antikythera conformance
+        run: python reference-python/mtime2_reference.py
