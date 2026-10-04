@@ -109,3 +109,73 @@ mod trusted_source_binding_tests {
         assert!(!bound.source_signature_verified());
     }
 }
+
+
+pub const AUTHORITY_AUDIT_VERSION: &str = "MAUTH-1";
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AuthorityAuditRecord {
+    pub version: &'static str,
+    pub decision_id: String,
+    pub authority: String,
+    pub jurisdiction_id: String,
+    pub cited_profile_id: Option<String>,
+    pub cited_observation_ids: Vec<String>,
+    pub source_sha256: Option<String>,
+    pub source_signature_verified: Option<bool>,
+}
+
+impl AuthorityAuditRecord {
+    #[must_use]
+    pub fn from_decision(decision: &AuthorityDecision) -> Self {
+        Self {
+            version: AUTHORITY_AUDIT_VERSION,
+            decision_id: decision.id.clone(),
+            authority: decision.authority.clone(),
+            jurisdiction_id: decision.jurisdiction.id.clone(),
+            cited_profile_id: decision.cited_profile_id.clone(),
+            cited_observation_ids: decision.cited_observation_ids.clone(),
+            source_sha256: None,
+            source_signature_verified: None,
+        }
+    }
+
+    #[must_use]
+    pub fn from_source_backed(source: &SourceBackedAuthorityDecision) -> Self {
+        let mut record = Self::from_decision(&source.decision);
+        record.source_sha256 = Some(source.source.sha256_hex.clone());
+        record.source_signature_verified = Some(source.source_signature_verified());
+        record
+    }
+}
+
+#[must_use]
+pub fn authority_observation_links_resolve(
+    decision: &AuthorityDecision,
+    observation_ids: &[String],
+) -> bool {
+    decision
+        .cited_observation_ids
+        .iter()
+        .all(|id| observation_ids.iter().any(|candidate| candidate == id))
+}
+
+#[cfg(test)]
+mod authority_audit_tests {
+    use super::*;
+
+    #[test]
+    fn audit_record_keeps_policy_and_observation_layers_visible() {
+        let mut d = AuthorityDecision::indonesia_sidang_isbat(
+            "2026-03-19T12:00:00Z",
+            DecisionKind::CompleteCurrentMonthTo30Days,
+            "official",
+        );
+        d.cited_observation_ids = vec!["OBS-1".into()];
+        let audit = AuthorityAuditRecord::from_decision(&d);
+        assert_eq!(audit.version, "MAUTH-1");
+        assert_eq!(audit.cited_profile_id.as_deref(), Some("MABIMS_ID_2026"));
+        assert!(authority_observation_links_resolve(&d, &["OBS-1".into()]));
+        assert!(!authority_observation_links_resolve(&d, &[]));
+    }
+}

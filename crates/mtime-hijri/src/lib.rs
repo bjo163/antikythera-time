@@ -145,3 +145,110 @@ mod indonesia_1447_pilot_tests {
         assert!(INDONESIA_1447_PILOTS[2].accepted_positive_sightings > 0);
     }
 }
+
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct NativeMTimeHijriInput {
+    pub mtime: mtime_temporal::MTimeWireV2,
+    pub astronomy: HijriAstronomicalState,
+}
+
+impl NativeMTimeHijriInput {
+    #[must_use]
+    pub fn new(state: mtime_temporal::MTimeState, astronomy: HijriAstronomicalState) -> Self {
+        Self {
+            mtime: mtime_temporal::MTimeWireV2::from_state(state),
+            astronomy,
+        }
+    }
+
+    #[must_use]
+    pub fn instant_key(&self) -> mtime_temporal::MTimeInstantKey {
+        self.mtime.instant_key()
+    }
+}
+
+impl CalendarProfile {
+    #[must_use]
+    pub fn evaluate_native(&self, input: &NativeMTimeHijriInput) -> CriterionResult {
+        self.evaluate(&input.astronomy)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct CriterionMargin {
+    pub clause_id: &'static str,
+    pub actual: Option<f64>,
+    pub threshold: f64,
+    pub signed_margin: Option<f64>,
+    pub unit: &'static str,
+}
+
+#[must_use]
+pub fn criterion_margins(
+    profile: &CalendarProfile,
+    state: &HijriAstronomicalState,
+) -> Vec<CriterionMargin> {
+    profile
+        .clauses
+        .iter()
+        .map(|clause| {
+            let actual = metric_value(clause.metric, state);
+            let signed_margin = actual.map(|value| match clause.comparator {
+                Comparator::GreaterOrEqual | Comparator::GreaterThan => value - clause.threshold,
+                Comparator::LessOrEqual | Comparator::LessThan => clause.threshold - value,
+            });
+            CriterionMargin {
+                clause_id: clause.id,
+                actual,
+                threshold: clause.threshold,
+                signed_margin,
+                unit: clause.unit,
+            }
+        })
+        .collect()
+}
+
+#[cfg(test)]
+mod native_mtime_tests {
+    use super::*;
+    use mtime_core::{CoordinateTime, Tt};
+    use mtime_temporal::MTimeEngine;
+
+    fn astronomy() -> HijriAstronomicalState {
+        HijriAstronomicalState {
+            conjunction_jd_tt: None,
+            sunset_jd_ut1: None,
+            moon_altitude_topocentric_deg: 3.1,
+            elongation_geocentric_deg: 6.5,
+            geometry_semantics: GeometrySemantics::mabims_required(),
+            moon_age_hours: None,
+            moon_lag_minutes: None,
+            site_id: "TEST".into(),
+            ephemeris_source: "fixture".into(),
+            quality: QualityClass::Reference,
+        }
+    }
+
+    #[test]
+    fn calendar_can_be_anchored_to_native_mtime_without_merging_policy() {
+        let mtime = MTimeEngine::digital()
+            .from_tt(CoordinateTime::<Tt>::new(2_451_545.0, 9_500.0, 0.0).unwrap())
+            .unwrap();
+        let input = NativeMTimeHijriInput::new(mtime, astronomy());
+        let result = CalendarProfile::mabims_indonesia_2026().evaluate_native(&input);
+        assert_eq!(result.met, Some(true));
+        assert_eq!(
+            input.mtime.profile_id,
+            "MTIME_DIGITAL_ANTIKYTHERA_V1"
+        );
+    }
+
+    #[test]
+    fn criterion_margin_is_explicit() {
+        let p = CalendarProfile::mabims_indonesia_2026();
+        let margins = criterion_margins(&p, &astronomy());
+        assert_eq!(margins.len(), 2);
+        assert!((margins[0].signed_margin.unwrap() - 0.1).abs() < 1e-12);
+    }
+}

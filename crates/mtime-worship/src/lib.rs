@@ -284,3 +284,69 @@ mod tests {
         assert!((w.duration_hours() - 7.2).abs() < 1e-8);
     }
 }
+
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct NativeMTimeSolarEvent {
+    pub mtime: mtime_temporal::MTimeWireV2,
+    pub event: SolarEvent,
+    pub worship_profile_id: String,
+}
+
+#[must_use]
+pub fn bind_solar_event_to_mtime(
+    state: mtime_temporal::MTimeState,
+    event: SolarEvent,
+    profile: &SolarThresholdProfile,
+) -> NativeMTimeSolarEvent {
+    NativeMTimeSolarEvent {
+        mtime: mtime_temporal::MTimeWireV2::from_state(state),
+        event,
+        worship_profile_id: profile.id.into(),
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct NativeFastingWindow {
+    pub start: NativeMTimeSolarEvent,
+    pub end: NativeMTimeSolarEvent,
+}
+
+impl NativeFastingWindow {
+    pub fn new(
+        start: NativeMTimeSolarEvent,
+        end: NativeMTimeSolarEvent,
+    ) -> Result<Self, SolarEventError> {
+        if start.event.kind != SolarEventKind::FajrThreshold
+            || end.event.kind != SolarEventKind::Sunset
+            || start.event.jd_ut1 >= end.event.jd_ut1
+            || start.mtime.instant_key() >= end.mtime.instant_key()
+        {
+            return Err(SolarEventError::WrongDirection);
+        }
+        Ok(Self { start, end })
+    }
+}
+
+#[cfg(test)]
+mod native_mtime_worship_tests {
+    use super::*;
+    use mtime_core::{CoordinateTime, Tt};
+    use mtime_temporal::MTimeEngine;
+
+    #[test]
+    fn worship_event_carries_native_mtime_identity_and_profile() {
+        let profile = SolarThresholdProfile::diyanet_imsak_fajr_18_2026();
+        let state = MTimeEngine::digital()
+            .from_tt(CoordinateTime::<Tt>::new(2_461_000.0, 0.0, 0.0).unwrap())
+            .unwrap();
+        let event = SolarEvent {
+            jd_ut1: 2_461_000.0,
+            altitude_deg: -18.0,
+            kind: SolarEventKind::FajrThreshold,
+        };
+        let native = bind_solar_event_to_mtime(state, event, &profile);
+        assert_eq!(native.worship_profile_id, "DIYANET_IMSAK_FAJR_MINUS_18");
+        assert_eq!(native.mtime.profile_id, "MTIME_DIGITAL_ANTIKYTHERA_V1");
+    }
+}
