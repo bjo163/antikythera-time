@@ -1,0 +1,16 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"M-Time Authority Audit MAUTH-1",
+  "type":"object",
+  "required":["version","decision_id","authority","jurisdiction_id","cited_observation_ids"],
+  "properties":{
+    "version":{"const":"MAUTH-1"},
+    "decision_id":{"type":"string"},
+    "authority":{"type":"string"},
+    "jurisdiction_id":{"type":"string"},
+    "cited_profile_id":{"type":["string","null"]},
+    "cited_observation_ids":{"type":"array","items":{"type":"string"}},
+    "source_sha256":{"type":["string","null"]},
+    "source_signature_verified":{"type":["boolean","null"]}
+  }
+}

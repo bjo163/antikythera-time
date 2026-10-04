@@ -1,0 +1,17 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"M-Time Temporal State MTS-2",
+  "type":"object",
+  "required":["schema","profile_id","linear_si_nanoseconds_from_j2000_tt","tt_jd","tdb_jd","reference_uncertainty_seconds","dial_deg","cycle_phase"],
+  "properties":{
+    "schema":{"const":"MTS-2"},
+    "profile_id":{"type":"string","minLength":1},
+    "linear_si_nanoseconds_from_j2000_tt":{"type":"string","pattern":"^-?[0-9]+$"},
+    "tt_jd":{"type":"number"},
+    "tdb_jd":{"type":"number"},
+    "reference_uncertainty_seconds":{"type":"number","minimum":0},
+    "dial_deg":{"type":"array","minItems":4,"maxItems":4,"items":{"type":"number"}},
+    "cycle_phase":{"type":"array","minItems":8,"maxItems":8,"items":{"type":"number","minimum":0,"exclusiveMaximum":1}}
+  },
+  "additionalProperties":false
+}
