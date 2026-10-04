@@ -23,5 +23,24 @@ jobs:
         run: cargo test -p mtime-device --all-targets
       - name: Metrology analysis tests
         run: cargo test -p mtime-metrology --all-targets
+      - name: Exercise synthetic metrology suite
+        run: |
+          cargo run --quiet -p mtime-metrology -- suite             hardware/m-clock/fixtures/pps.csv             hardware/m-clock/fixtures/holdover-1h.csv             hardware/m-clock/fixtures/holdover-6h.csv             hardware/m-clock/fixtures/holdover-24h.csv             hardware/m-clock/fixtures/holdover-72h.csv             > /tmp/mtime-metrology-suite.json
+          python - <<'PY'
+          import json
+          d=json.load(open("/tmp/mtime-metrology-suite.json"))
+          assert d["schema"]=="mtime-mclock-metrology-suite-1"
+          assert d["identity"]["device_id"]=="SYNTHETIC_DEVICE"
+          assert len(d["datasets"])==5
+          assert [x["label"] for x in d["datasets"]] == [
+              "pps_latency_jitter",
+              "holdover_1h",
+              "holdover_6h",
+              "holdover_24h",
+              "holdover_72h",
+          ]
+          assert d["interpretation"]=="measurement_characterization_only_no_accuracy_class_assigned"
+          print("synthetic metrology suite: PASS")
+          PY
       - name: Physical evidence admission gate
         run: python scripts/hardware_readiness.py
