@@ -1,21 +1,75 @@
 {
-  "schema": "mtime-mclock-physical-evidence-1",
+  "schema": "mtime-mclock-physical-evidence-2",
   "status": "TEMPLATE_NOT_MEASUREMENT",
   "device_id": "",
-  "controller": {"model":"","serial_or_build_id":""},
-  "gnss_pps": {"model":"","serial":"","antenna":""},
-  "oscillator": {"model":"","type":"","serial":""},
-  "rtc": {"model":"","serial":""},
-  "firmware_sha256": "",
-  "firmware_git_sha": "",
-  "reference_time_source": "",
+  "controller": {
+    "model": "",
+    "serial_or_build_id": ""
+  },
+  "gnss_pps": {
+    "model": "",
+    "serial_or_build_id": ""
+  },
+  "oscillator": {
+    "model": "",
+    "serial_or_build_id": ""
+  },
+  "rtc": {
+    "model": "",
+    "serial_or_build_id": ""
+  },
+  "firmware": {
+    "git_sha": "",
+    "binary_sha256": "",
+    "build_instructions": ""
+  },
+  "reference_time_source": {
+    "id": "",
+    "description": "",
+    "traceability": "",
+    "calibration_record": ""
+  },
   "build_date": "",
   "evidence": {
-    "wiring_or_schematic": "",
-    "boot_self_test_log": "",
-    "pps_lock_log": "",
-    "offline_holdover_log": "",
-    "display_capture": "",
-    "metrology_csv": ""
+    "wiring_or_schematic": { "path": "", "sha256": "" },
+    "boot_self_test_log": { "path": "", "sha256": "" },
+    "pps_lock_log": { "path": "", "sha256": "" },
+    "display_capture": { "path": "", "sha256": "" },
+    "thermal_log": { "path": "", "sha256": "" },
+    "gnss_loss_reacquisition_log": { "path": "", "sha256": "" },
+    "power_cycle_log": { "path": "", "sha256": "" }
+  },
+  "datasets": {
+    "pps_latency_jitter": {
+      "path": "",
+      "sha256": "",
+      "minimum_elapsed_seconds": 0
+    },
+    "holdover_1h": {
+      "path": "",
+      "sha256": "",
+      "minimum_elapsed_seconds": 3600
+    },
+    "holdover_6h": {
+      "path": "",
+      "sha256": "",
+      "minimum_elapsed_seconds": 21600
+    },
+    "holdover_24h": {
+      "path": "",
+      "sha256": "",
+      "minimum_elapsed_seconds": 86400
+    },
+    "holdover_72h": {
+      "path": "",
+      "sha256": "",
+      "minimum_elapsed_seconds": 259200
+    }
+  },
+  "review": {
+    "reviewer": "",
+    "reviewed_at": "",
+    "result": "NOT_REVIEWED",
+    "notes": ""
   }
 }
