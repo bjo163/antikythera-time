@@ -22,19 +22,28 @@ fn main() {
 
 fn run() -> Result<(), String> {
     let args = env::args().collect::<Vec<_>>();
-    if args.len() != 7 || args[1] != "suite" {
+    if args.len() != 8 || args[1] != "suite" {
         return Err(format!(
-            "usage: {} suite <pps.csv> <holdover-1h.csv> <holdover-6h.csv> <holdover-24h.csv> <holdover-72h.csv>",
+            "usage: {} suite <analysis-git-sha> <pps.csv> <holdover-1h.csv> <holdover-6h.csv> <holdover-24h.csv> <holdover-72h.csv>",
             args.first().map_or("mtime-metrology", String::as_str)
         ));
     }
 
+    let analysis_git_sha = args[2].trim().to_ascii_lowercase();
+    if analysis_git_sha.len() != 40
+        || !analysis_git_sha
+            .bytes()
+            .all(|byte| byte.is_ascii_hexdigit() && !byte.is_ascii_uppercase())
+    {
+        return Err("analysis-git-sha must be 40 lowercase hexadecimal characters".to_owned());
+    }
+
     let specifications = [
-        ("pps_latency_jitter", 0.0_f64, args[2].as_str()),
-        ("holdover_1h", 3600.0_f64, args[3].as_str()),
-        ("holdover_6h", 21600.0_f64, args[4].as_str()),
-        ("holdover_24h", 86400.0_f64, args[5].as_str()),
-        ("holdover_72h", 259200.0_f64, args[6].as_str()),
+        ("pps_latency_jitter", 0.0_f64, args[3].as_str()),
+        ("holdover_1h", 3600.0_f64, args[4].as_str()),
+        ("holdover_6h", 21600.0_f64, args[5].as_str()),
+        ("holdover_24h", 86400.0_f64, args[6].as_str()),
+        ("holdover_72h", 259200.0_f64, args[7].as_str()),
     ];
 
     let mut identity: Option<MeasurementIdentity> = None;
@@ -74,11 +83,15 @@ fn run() -> Result<(), String> {
     }
 
     let identity = identity.ok_or_else(|| "no measurement datasets supplied".to_owned())?;
-    print!("{}", render_report(&identity, &reports));
+    print!("{}", render_report(&analysis_git_sha, &identity, &reports));
     Ok(())
 }
 
-fn render_report(identity: &MeasurementIdentity, reports: &[DatasetReport]) -> String {
+fn render_report(
+    analysis_git_sha: &str,
+    identity: &MeasurementIdentity,
+    reports: &[DatasetReport],
+) -> String {
     let overall_max_abs_offset_ns = reports
         .iter()
         .map(|report| report.summary.max_abs_offset_ns)
@@ -106,8 +119,12 @@ fn render_report(identity: &MeasurementIdentity, reports: &[DatasetReport]) -> S
     output.push_str("  \"analysis_tool\": {\n");
     output.push_str("    \"crate\": \"mtime-metrology\",\n");
     output.push_str(&format!(
-        "    \"version\": {}\n",
+        "    \"version\": {},\n",
         json_string(env!("CARGO_PKG_VERSION"))
+    ));
+    output.push_str(&format!(
+        "    \"git_sha\": {}\n",
+        json_string(analysis_git_sha)
     ));
     output.push_str("  },\n");
     output.push_str("  \"identity\": {\n");
