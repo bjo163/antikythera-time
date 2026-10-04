@@ -49,22 +49,45 @@
     "firmware": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["git_sha", "binary_sha256", "build_instructions"],
+      "required": [
+        "git_sha",
+        "binary_sha256",
+        "build_instructions"
+      ],
       "properties": {
-        "git_sha": { "type": "string" },
-        "binary_sha256": { "type": "string" },
-        "build_instructions": { "type": "string" }
+        "git_sha": {
+          "type": "string"
+        },
+        "binary_sha256": {
+          "type": "string"
+        },
+        "build_instructions": {
+          "type": "string"
+        }
       }
     },
     "reference_time_source": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "description", "traceability", "calibration_record"],
+      "required": [
+        "id",
+        "description",
+        "traceability",
+        "calibration_record"
+      ],
       "properties": {
-        "id": { "type": "string" },
-        "description": { "type": "string" },
-        "traceability": { "type": "string" },
-        "calibration_record": { "type": "string" }
+        "id": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "traceability": {
+          "type": "string"
+        },
+        "calibration_record": {
+          "type": "string"
+        }
       }
     },
     "build_date": {
@@ -80,16 +103,34 @@
         "display_capture",
         "thermal_log",
         "gnss_loss_reacquisition_log",
-        "power_cycle_log"
+        "power_cycle_log",
+        "metrology_report"
       ],
       "properties": {
-        "wiring_or_schematic": { "$ref": "#/$defs/artifact" },
-        "boot_self_test_log": { "$ref": "#/$defs/artifact" },
-        "pps_lock_log": { "$ref": "#/$defs/artifact" },
-        "display_capture": { "$ref": "#/$defs/artifact" },
-        "thermal_log": { "$ref": "#/$defs/artifact" },
-        "gnss_loss_reacquisition_log": { "$ref": "#/$defs/artifact" },
-        "power_cycle_log": { "$ref": "#/$defs/artifact" }
+        "wiring_or_schematic": {
+          "$ref": "#/$defs/artifact"
+        },
+        "boot_self_test_log": {
+          "$ref": "#/$defs/artifact"
+        },
+        "pps_lock_log": {
+          "$ref": "#/$defs/artifact"
+        },
+        "display_capture": {
+          "$ref": "#/$defs/artifact"
+        },
+        "thermal_log": {
+          "$ref": "#/$defs/artifact"
+        },
+        "gnss_loss_reacquisition_log": {
+          "$ref": "#/$defs/artifact"
+        },
+        "power_cycle_log": {
+          "$ref": "#/$defs/artifact"
+        },
+        "metrology_report": {
+          "$ref": "#/$defs/artifact"
+        }
       }
     },
     "datasets": {
@@ -103,24 +144,49 @@
         "holdover_72h"
       ],
       "properties": {
-        "pps_latency_jitter": { "$ref": "#/$defs/dataset" },
-        "holdover_1h": { "$ref": "#/$defs/dataset" },
-        "holdover_6h": { "$ref": "#/$defs/dataset" },
-        "holdover_24h": { "$ref": "#/$defs/dataset" },
-        "holdover_72h": { "$ref": "#/$defs/dataset" }
+        "pps_latency_jitter": {
+          "$ref": "#/$defs/dataset"
+        },
+        "holdover_1h": {
+          "$ref": "#/$defs/dataset"
+        },
+        "holdover_6h": {
+          "$ref": "#/$defs/dataset"
+        },
+        "holdover_24h": {
+          "$ref": "#/$defs/dataset"
+        },
+        "holdover_72h": {
+          "$ref": "#/$defs/dataset"
+        }
       }
     },
     "review": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["reviewer", "reviewed_at", "result", "notes"],
+      "required": [
+        "reviewer",
+        "reviewed_at",
+        "result",
+        "notes"
+      ],
       "properties": {
-        "reviewer": { "type": "string" },
-        "reviewed_at": { "type": "string" },
-        "result": {
-          "enum": ["NOT_REVIEWED", "ACCEPTED", "REJECTED"]
+        "reviewer": {
+          "type": "string"
         },
-        "notes": { "type": "string" }
+        "reviewed_at": {
+          "type": "string"
+        },
+        "result": {
+          "enum": [
+            "NOT_REVIEWED",
+            "ACCEPTED",
+            "REJECTED"
+          ]
+        },
+        "notes": {
+          "type": "string"
+        }
       }
     }
   },
@@ -128,28 +194,50 @@
     "component": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["model", "serial_or_build_id"],
+      "required": [
+        "model",
+        "serial_or_build_id"
+      ],
       "properties": {
-        "model": { "type": "string" },
-        "serial_or_build_id": { "type": "string" }
+        "model": {
+          "type": "string"
+        },
+        "serial_or_build_id": {
+          "type": "string"
+        }
       }
     },
     "artifact": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["path", "sha256"],
+      "required": [
+        "path",
+        "sha256"
+      ],
       "properties": {
-        "path": { "type": "string" },
-        "sha256": { "type": "string" }
+        "path": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        }
       }
     },
     "dataset": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["path", "sha256", "minimum_elapsed_seconds"],
+      "required": [
+        "path",
+        "sha256",
+        "minimum_elapsed_seconds"
+      ],
       "properties": {
-        "path": { "type": "string" },
-        "sha256": { "type": "string" },
+        "path": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        },
         "minimum_elapsed_seconds": {
           "type": "number",
           "minimum": 0
