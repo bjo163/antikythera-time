@@ -1,0 +1,78 @@
+name: External review volunteer
+description: Volunteer for one M-Time M20 external review or independent reproduction lane.
+title: "[M20 external review volunteer] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for offering independent scrutiny. This issue coordinates a review; opening it does **not** count as a PASS verdict.
+        Current target is m20-review-candidate-3 / M-Time v0.16.0 / f5a14d8d00367117a6ae9f98ce6cac25f2f262e9.
+        Start with reviews/external/REVIEWER_QUICKSTART.md.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Review lane
+      options:
+        - Unaffiliated independent reproduction (#39)
+        - Software/security review (#40)
+        - Scientific review (#41)
+        - Historical Antikythera reconstruction review (#42)
+        - Revelation/textual-boundary review (#43)
+    validations:
+      required: true
+
+  - type: input
+    id: public_identity
+    attributes:
+      label: Public reviewer identity
+      description: A public profile, ORCID, GitHub identity, professional page, or other public identifier.
+      placeholder: https://...
+    validations:
+      required: true
+
+  - type: input
+    id: organization
+    attributes:
+      label: Organization / affiliation
+      description: Use "Independent" if you are not acting for an organization.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: relationship
+    attributes:
+      label: Relationship to M-Time
+      options:
+        - Unaffiliated
+        - External disclosed relationship
+    validations:
+      required: true
+
+  - type: textarea
+    id: coi
+    attributes:
+      label: Conflict-of-interest declaration
+      description: State relevant financial, professional, personal, or project relationships; "none known" is acceptable when accurate.
+    validations:
+      required: true
+
+  - type: textarea
+    id: plan
+    attributes:
+      label: Proposed review method
+      description: Briefly describe tools, environment, scope, or independent implementation language.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: Acknowledgements
+      options:
+        - label: I will target the exact frozen candidate and disclose if that changes.
+          required: true
+        - label: I understand negative, inconclusive, and PASS_WITH_FINDINGS results are valid evidence and should not be hidden.
+          required: true
+        - label: I understand repository evidence admission is separate from my reviewer verdict.
+          required: true

@@ -4,10 +4,8 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "reviews/external/packets/**"
-      - "reviews/external/requirements.json"
-      - "reviews/external/review-template.json"
-      - "reviews/external/review.schema.json"
+      - "reviews/external/**"
+      - "scripts/build_review_kit.sh"
       - "scripts/review_packet_readiness.py"
       - ".github/workflows/m20-review-kit.yml"
 
@@ -28,100 +26,14 @@ jobs:
       - name: Validate packet index
         run: python scripts/review_packet_readiness.py
 
-      - name: Build frozen reviewer kit
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          CANDIDATE_RELEASE="$(python - <<'PY'
-          import json
-          d=json.load(open("reviews/external/requirements.json"))
-          print(d["candidate"]["release"])
-          PY
-          )"
-          CANDIDATE_SHA="$(python - <<'PY'
-          import json
-          d=json.load(open("reviews/external/requirements.json"))
-          print(d["candidate"]["git_sha"])
-          PY
-          )"
-
-          git cat-file -e "$CANDIDATE_SHA^{commit}"
-          WORK=/tmp/mtime-m20-candidate
-          KIT=/tmp/mtime-m20-review-kit
-          rm -rf "$WORK" "$KIT"
-          git worktree add --detach "$WORK" "$CANDIDATE_SHA"
-
-          mkdir -p "$KIT/spec" "$KIT/docs" "$KIT/vectors" "$KIT/review-protocol/packets"
-
-          cat > "$KIT/CANDIDATE.txt" <<EOF
-          M-Time external review candidate
-          release=$CANDIDATE_RELEASE
-          git_sha=$CANDIDATE_SHA
-
-          Review this exact candidate. A later main/dev commit is not the same review target.
-          EOF
-
-          for file in             spec/ANTIKYTHERA-DIGITAL-V1.md             spec/MTIME-2.0.md             spec/RFC-0001-MTIME-1.0.md             spec/MTBUNDLE-1.md; do
-            cp "$WORK/$file" "$KIT/spec/"
-          done
-
-          for file in             docs/ANTIKYTHERA_CORE.md             docs/ANTIKYTHERA_CALIBRATION.md             docs/M6_ACCURACY_PROGRAM.md             docs/M10_UNCERTAINTY.md             docs/M16_LONGSPAN_FALSIFICATION.md             docs/M16_VALIDATED_INTERVAL.md             docs/M17_REVELATION_ONTOLOGY.md             docs/REVELATION_ONTOLOGY.md             docs/M19_THREAT_REVIEW.md             docs/HISTORICAL_FALSIFICATION.md             docs/FFI_SAFETY.md; do
-            cp "$WORK/$file" "$KIT/docs/"
-          done
-
-          # Generate a frozen black-box compatibility oracle. The Rust source
-          # used to produce this output is deliberately not copied into the kit.
-          (
-            cd "$WORK"
-            cargo run --quiet -p mtime-temporal --example mts2_conformance
-          ) > "$KIT/vectors/mts2-conformance.txt"
-
-          cat > "$KIT/vectors/malformed-mts2.txt" <<'EOF'
-          # hex payload | required behavior
-          <empty> | reject
-          4d5453310000 | reject
-          4d54533200 | reject
-          4d5453320005616263 | reject
-          EOF
-
-          cp reviews/external/review-template.json "$KIT/review-protocol/"
-          cp reviews/external/review.schema.json "$KIT/review-protocol/"
-          cp reviews/external/requirements.json "$KIT/review-protocol/"
-          cp reviews/external/packets/*.md "$KIT/review-protocol/packets/"
-          cp reviews/external/packets/index.json "$KIT/review-protocol/packets/"
-
-          cat > "$KIT/README.txt" <<'EOF'
-          This artifact is a review handoff kit, not evidence that review occurred.
-
-          It contains frozen public specifications and black-box conformance
-          output for the pinned M20 candidate plus current review protocol files.
-
-          For independent reproduction, do not copy project implementation code.
-          Implement from the public specifications in a separate repository and
-          compare the result with the frozen vectors.
-
-          Matching vectors alone is not a scientific validation. Use the
-          category packet to determine the required review scope.
-          EOF
-
-          (
-            cd "$KIT"
-            find . -type f ! -name SHA256SUMS -print0               | sort -z               | xargs -0 sha256sum > SHA256SUMS
-          )
-
-          grep -q '^V|' "$KIT/vectors/mts2-conformance.txt"
-          test "$(grep -c '^V|' "$KIT/vectors/mts2-conformance.txt")" -eq 135
-          test "$(grep -c '^E|' "$KIT/vectors/mts2-conformance.txt")" -eq 135
-
-          echo "review_kit_release=$CANDIDATE_RELEASE"
-          echo "review_kit_candidate_sha=$CANDIDATE_SHA"
-          echo "valid_v1_vectors=135"
-          echo "experimental_v2_vectors=135"
-          echo "implementation_source_in_kit=false"
+      - name: Build and self-verify frozen reviewer kit
+        run: bash scripts/build_review_kit.sh /tmp/mtime-m20-review-kit
 
       - uses: actions/upload-artifact@v4
         with:
           name: mtime-m20-review-kit
-          path: /tmp/mtime-m20-review-kit/
+          path: |
+            /tmp/mtime-m20-review-kit/
+            /tmp/mtime-m20-review-kit.tar.gz
+            /tmp/mtime-m20-review-kit.tar.gz.sha256
           if-no-files-found: error
