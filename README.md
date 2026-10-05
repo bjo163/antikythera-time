@@ -6,7 +6,7 @@ M-Time is a temporal interoperability framework. It does **not** invent a new ph
 
 Core rule: physical time, astronomy, calendar criteria, observation/rukyat, jurisdiction, authority decisions, cosmic inference, historical reconstruction, and revelation-text concepts are separate semantic layers.
 
-## v0.14.0 highlights
+## v0.16.0 software-only baseline
 
 - **M7–M10 and M13–M19 internal software milestones complete**; hardware realization has been removed from scope, while M20 external software-review/reproduction gates remain deliberately open.
 - M8 V2 Experimental improves full-span 1850–2149 lunar P95 from **0.302376434° → 0.253539543°** and max from **0.427321722° → 0.314474632°**, while default remains V1.
@@ -68,6 +68,35 @@ Core rule: physical time, astronomy, calendar criteria, observation/rukyat, juri
 - Historical v0.11 regression remains active alongside the Antikythera/M-Time software gates.
 - Indonesia 1447 H Ramadan/Syawal/Zulhijjah replay corpus.
 - ExplainDifference preserves astronomy vs criterion vs rukyat vs authority.
+
+## External reviewers wanted
+
+M-Time v1 remains blocked on external evidence by design.
+
+Current frozen target:
+
+- `m20-review-candidate-3`
+- M-Time `v0.16.0`
+- Git SHA `f5a14d8d00367117a6ae9f98ce6cac25f2f262e9`
+
+Start with [`reviews/external/REVIEWER_QUICKSTART.md`](reviews/external/REVIEWER_QUICKSTART.md).
+
+Open review lanes:
+
+- #39 — unaffiliated independent reproduction
+- #40 — software/security review
+- #41 — scientific review
+- #42 — historical Antikythera reconstruction review
+- #43 — revelation/textual-boundary review
+
+Build the exact review kit locally with:
+
+```bash
+bash scripts/build_review_kit.sh
+python3 /tmp/mtime-m20-review-kit/verify-kit.py
+```
+
+A volunteer issue or internal review does not satisfy a gate. Only admitted qualifying external evidence against the exact frozen candidate can do that.
 
 ## Flagship profiles
 
